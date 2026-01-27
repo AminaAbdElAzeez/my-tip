@@ -1,4 +1,4 @@
-@import '/node_modules/leaflet/dist/leaflet.css';
+@import "/node_modules/leaflet/dist/leaflet.css";
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -67,9 +67,9 @@ ul {
 html * {
   font-family: Tahoma, Helvetica, sans-serif;
 }
-html[dir='rtl'] *,
+html[dir="rtl"] *,
 .ar-font {
-  font-family: 'Almarai', sans-serif !important;
+  font-family: "Almarai", sans-serif !important;
 }
 
 .overlay {
@@ -84,7 +84,7 @@ html[dir='rtl'] *,
   margin: 0 10px;
 }
 .overlay:before {
-  content: '';
+  content: "";
   position: absolute;
   background: inherit;
   z-index: -1;
@@ -106,7 +106,7 @@ html[dir='rtl'] *,
 .ant-popover .ant-popover-content {
   margin: 0 0.5rem;
 }
-html[dir='rtl'] :is(.ant-pagination-prev, .ant-pagination-next) {
+html[dir="rtl"] :is(.ant-pagination-prev, .ant-pagination-next) {
   /* transform: rotate(180deg); */
 }
 .ant-popover .ant-popover-inner {
@@ -141,8 +141,8 @@ html[dir='rtl'] :is(.ant-pagination-prev, .ant-pagination-next) {
 }
 
 #landing {
-  font-family: 'Cairo', sans-serif;
-  font-family: 'Lato', sans-serif;
+  font-family: "Cairo", sans-serif;
+  font-family: "Lato", sans-serif;
   scroll-behavior: smooth;
 }
 
@@ -187,7 +187,9 @@ html[dir='rtl'] :is(.ant-pagination-prev, .ant-pagination-next) {
   background-color: rgb(222 184 135);
 }
 
-.dark .react-international-phone-input-container .react-international-phone-input {
+.dark
+  .react-international-phone-input-container
+  .react-international-phone-input {
   color: #fff;
   border: 1px solid #292e3d;
   background-color: transparent;
@@ -199,21 +201,24 @@ html[dir='rtl'] :is(.ant-pagination-prev, .ant-pagination-next) {
   border: 1px solid #292e3d;
   background-color: transparent;
 }
-html[dir='rtl'] .react-international-phone-input-container .react-international-phone-input {
+html[dir="rtl"]
+  .react-international-phone-input-container
+  .react-international-phone-input {
   border-radius: var(--react-international-phone-border-radius, 4px);
   border-bottom-right-radius: 0;
   border-top-right-radius: 0;
   unicode-bidi: embed;
   direction: rtl;
 }
-html[dir='rtl']
+html[dir="rtl"]
   .react-international-phone-input-container
   .react-international-phone-country-selector-button {
   border-radius: var(--react-international-phone-border-radius, 4px);
   border-bottom-left-radius: 0;
   border-top-left-radius: 0;
 }
-html[dir='rtl'] .react-international-phone-country-selector-button__dropdown-arrow {
+html[dir="rtl"]
+  .react-international-phone-country-selector-button__dropdown-arrow {
   margin-right: 0;
   margin-left: 4px;
 }
@@ -224,7 +229,7 @@ html[dir='rtl'] .react-international-phone-country-selector-button__dropdown-arr
 
 .sidebarItem .ant-menu-item.ant-menu-item-selected,
 .ant-menu-item.ant-menu-item-selected {
-  @apply bg-[#3fbb86] !important;
+  @apply bg-[#3bab7b] !important;
 }
 .update-user-modal-btns .ant-form-item-control-input-content {
   @apply flex !important;
@@ -252,7 +257,7 @@ html[dir='rtl'] .react-international-phone-country-selector-button__dropdown-arr
   @apply shadow-md hover:text-black bg-gray-100 !important;
 }
 .modals-btns .modals-confirm-btn {
-  @apply hover:text-white hover:bg-[#3fbb86] !important;
+  @apply hover:text-white hover:bg-[#3bab7b] !important;
 }
 .update-user-modal-btns {
   @apply bg-transparent;
@@ -261,10 +266,10 @@ html[dir='rtl'] .react-international-phone-country-selector-button__dropdown-arr
   @apply whitespace-normal !important;
 }
 .ant-spin-dot-holder {
-  @apply !text-[#3fbb86];
+  @apply !text-[#3bab7b];
 }
 .ant-table-title button {
-  @apply !bg-[#3fbb86];
+  @apply !bg-[#3bab7b];
 }
 p {
   @apply whitespace-normal !important;
@@ -274,7 +279,7 @@ input::-webkit-inner-spin-button {
   -webkit-appearance: none;
   margin: 0;
 }
-input[type='number'] {
+input[type="number"] {
   -moz-appearance: textfield;
 }
 .add-coupon-modal .ant-select {
@@ -290,8 +295,13 @@ input[type='number'] {
   .ant-picker-content
   th,
 :where(.css-dudko7).ant-picker-dropdown .ant-picker-content th,
-:where(.css-dev-only-do-not-override-dudko7).ant-picker-dropdown .ant-picker-content th,
-:where(.css-dudko7).ant-picker-dropdown .ant-picker-date-panel .ant-picker-content th {
+:where(.css-dev-only-do-not-override-dudko7).ant-picker-dropdown
+  .ant-picker-content
+  th,
+:where(.css-dudko7).ant-picker-dropdown
+  .ant-picker-date-panel
+  .ant-picker-content
+  th {
   font-size: 10px !important;
 }
 
@@ -318,7 +328,7 @@ input[type='number'] {
 .ProseMirror:focus {
   outline: none !important;
 }
-.ProseMirror [contenteditable='false'] {
+.ProseMirror [contenteditable="false"] {
   display: none !important; /* to remove divider */
 }
 /* dash before subTitile in any details page */
@@ -420,12 +430,16 @@ input[type='number'] {
 :where(.css-uasp9o).ant-ribbon.ant-ribbon-placement-end,
 :where(.css-dudko7).ant-ribbon.ant-ribbon-placement-end,
 :where(.css-uasp9o).ant-ribbon.ant-ribbon-placement-end,
-:where(.css-dev-only-do-not-override-uasp9o).ant-ribbon.ant-ribbon-placement-end,
-:where(.css-dev-only-do-not-override-dudko7).ant-ribbon.ant-ribbon-placement-end {
+:where(
+    .css-dev-only-do-not-override-uasp9o
+  ).ant-ribbon.ant-ribbon-placement-end,
+:where(
+    .css-dev-only-do-not-override-dudko7
+  ).ant-ribbon.ant-ribbon-placement-end {
   inset-inline-end: 24px !important;
   padding: 5px 10px !important;
 }
-html[dir='rtl'] .leaflet-control-geosearch button.reset {
+html[dir="rtl"] .leaflet-control-geosearch button.reset {
   right: auto !important;
   left: 0 !important;
 }
@@ -491,17 +505,17 @@ html[dir='rtl'] .leaflet-control-geosearch button.reset {
 /* handle btn in antd modal */
 .ant-btn-primary:not(:disabled):not(.ant-btn-disabled):hover,
 .ant-btn-primary {
-  background: #3fbb86 !important;
+  background: #3bab7b !important;
 }
 .ant-btn-default:not(:disabled):not(.ant-btn-disabled):hover {
-  color: #3fbb86 !important;
-  border-color: #3fbb86 !important;
+  color: #3bab7b !important;
+  border-color: #3bab7b !important;
 }
 /* handle btn in antd modal */
 
 /* handle antd input  */
 .ant-input-outlined:hover {
-  border-color: #3fbb86 !important;
+  border-color: #3bab7b !important;
 }
 /* handle antd input  */
 
@@ -519,7 +533,7 @@ html[dir='rtl'] .leaflet-control-geosearch button.reset {
 
 /* change color of radio input */
 .custom-radio {
-  accent-color: #3fbb86 !important;
+  accent-color: #3bab7b !important;
 }
 /* change color of radio input */
 
@@ -538,10 +552,10 @@ html[dir='rtl'] .leaflet-control-geosearch button.reset {
   -moz-border-radius: 50% !important;
   -ms-border-radius: 50% !important;
   -o-border-radius: 50% !important;
-  background: #3fbb86 !important;
+  background: #3bab7b !important;
 }
 .ant-carousel .slick-dots li.slick-active button {
-  background: #3fbb86 !important;
+  background: #3bab7b !important;
 }
 /* handle colors of dots in carousel in details pages */
 
@@ -611,7 +625,6 @@ html[dir='rtl'] .leaflet-control-geosearch button.reset {
   padding: 10px 15px !important;
 }
 /* handle login card */
-
 
 /* scroll in statistics */
 .chart-scroll {

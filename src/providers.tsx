@@ -21,11 +21,14 @@ import DashboardLayout from "./pages/dashboard/(admin)/layout";
 // import Properties from './pages/dashboard/(admin)/properties/page';
 import Cities from "./pages/dashboard/(admin)/cities/page";
 import CityDetails from "./pages/dashboard/(admin)/cities/cityDetails/page";
-import Users from "./pages/dashboard/(admin)/users/page";
 import UserDetails from "./pages/dashboard/(admin)/users/userDetails/page";
 import Profile from "./pages/dashboard/(admin)/profile/page";
 import Employers from "./pages/dashboard/(admin)/employers/page";
 import Statistics from "./pages/dashboard/(admin)/statistics/page";
+import Bank from "./pages/dashboard/(admin)/bank/page";
+import Users from "./pages/dashboard/(admin)/users/page";
+import Suggestions from "./pages/dashboard/(admin)/suggestions/page";
+import Contacts from "./pages/dashboard/(admin)/contacts/page";
 
 const router = createBrowserRouter([
   {
@@ -57,6 +60,22 @@ const router = createBrowserRouter([
             path: "statistics",
             element: <Statistics />,
           },
+          {
+            path: "banks",
+            element: <Bank />,
+          },
+          {
+            path: "users",
+            element: <Users />,
+          },
+          {
+            path: "suggestions",
+            element: <Suggestions />,
+          },
+          {
+            path: "contacts",
+            element: <Contacts />,
+          },
         ],
       },
     ],
@@ -71,10 +90,10 @@ function AppProvider() {
   const dispatch = useDispatch();
   const { locale } = useSelector(
     ({ LanguageSwitcher }: { LanguageSwitcher: ILanguageSwitcher }) =>
-      LanguageSwitcher.language
+      LanguageSwitcher.language,
   );
   const { themeName, isDark } = useSelector(
-    ({ ThemeSwitcher }: { ThemeSwitcher: ISelectedTheme }) => ThemeSwitcher
+    ({ ThemeSwitcher }: { ThemeSwitcher: ISelectedTheme }) => ThemeSwitcher,
   );
 
   const reChangeTheme = () => {
@@ -93,7 +112,7 @@ function AppProvider() {
   }, [locale, dir]);
   useEffect(() => {
     const darkModePreference = window.matchMedia(
-      "(prefers-color-scheme: dark)"
+      "(prefers-color-scheme: dark)",
     );
     if (themeName === "system") {
       darkModePreference.addEventListener("change", reChangeTheme);

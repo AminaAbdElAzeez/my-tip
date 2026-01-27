@@ -1,15 +1,6 @@
 import { useEffect, useState } from "react";
 import axios from "utlis/library/helpers/axios";
-import {
-  Table,
-  Button,
-  Modal,
-  Form,
-  Input,
-  message,
-  Tooltip,
-  Image,
-} from "antd";
+import { Table, Button, Modal, Form, message, Tooltip, Image } from "antd";
 import type { ColumnsType } from "antd/es/table";
 import { FaPlus } from "react-icons/fa6";
 import { FiEdit, FiTrash } from "react-icons/fi";
@@ -32,20 +23,12 @@ interface Employer {
   updated_at: string;
 }
 
-/* ================= Component ================= */
 function Employers() {
-  const [data, setData] = useState<Employer[]>([]);
+  const [allData, setAllData] = useState<Employer[]>([]);
   const [loading, setLoading] = useState(false);
 
   const [selectedId, setSelectedId] = useState<number | null>(null);
-  const [editItem, setEditItem] = useState<Employer | null>(null);
-
-  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
-  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
-
-  const [addLoading, setAddLoading] = useState(false);
-  const [editLoading, setEditLoading] = useState(false);
   const [delLoading, setDelLoading] = useState(false);
 
   const location = useLocation();
@@ -56,29 +39,29 @@ function Employers() {
   const [editForm] = Form.useForm();
 
   const [pagination, setPagination] = useState({
-    currentPage: 0,
-    pageSize: 15,
-    totalCount: 0,
+    current: 1,
+    pageSize: 10,
   });
 
-  /* ================= Fetch Employers ================= */
+  const EMPLOYER_STATUS_KEYS: Record<number, string> = {
+    1: "employer.status.pending",
+    2: "employer.status.active",
+    3: "employer.status.inactive",
+    5: "employer.status.rejected",
+  };
+
+  /* ================= Fetch Once ================= */
   const fetchEmployers = async () => {
     try {
       setLoading(true);
-      const lang = intl.locale.startsWith("ar") ? "ar-SA" : "en-US";
 
-      const res = await axios.get(
-        `/back/admin/employers?page=${pagination.currentPage + 1}`,
-        {
-          headers: { "Accept-Language": lang },
-        }
-      );
+      const lang = intl.locale.startsWith("ar") ? "ar-sa" : "en-us";
 
-      setData(res.data?.data || []);
-      setPagination((prev) => ({
-        ...prev,
-        totalCount: res.data?.pagination?.total || 0,
-      }));
+      const res = await axios.get(`/back/admin/employers`, {
+        headers: { "Accept-Language": lang },
+      });
+
+      setAllData(res.data?.data || []);
     } catch {
       message.error(intl.formatMessage({ id: "failedToFetchEmployers" }));
     } finally {
@@ -88,7 +71,14 @@ function Employers() {
 
   useEffect(() => {
     fetchEmployers();
-  }, [pagination.currentPage, pagination.pageSize]);
+  }, []);
+
+  /* ================= Client Pagination ================= */
+
+  const startIndex = (pagination.current - 1) * pagination.pageSize;
+  const endIndex = pagination.current * pagination.pageSize;
+
+  const paginatedData = allData.slice(startIndex, endIndex);
 
   /* ================= Delete ================= */
   const handleDelete = async (id: number) => {
@@ -96,7 +86,7 @@ function Employers() {
       setDelLoading(true);
       const res = await axios.delete(`/back/admin/employers/${id}`);
       message.success(
-        res.data?.message || intl.formatMessage({ id: "delSuccess" })
+        res.data?.message || intl.formatMessage({ id: "delSuccess" }),
       );
       fetchEmployers();
     } catch (err: any) {
@@ -106,7 +96,8 @@ function Employers() {
     }
   };
 
-  /* ================= Table Columns ================= */
+  /* ================= Columns ================= */
+
   const columns: ColumnsType<Employer> = [
     {
       title: intl.formatMessage({ id: "employerId" }),
@@ -165,7 +156,7 @@ function Employers() {
       dataIndex: "business_name",
       key: "business_name",
       align: "center",
-      width: "13%",
+      width: "10%",
       render: (text) =>
         text || (
           <p className="text-gray-300">
@@ -178,7 +169,7 @@ function Employers() {
       dataIndex: "business_type_name",
       key: "business_type_name",
       align: "center",
-      width: "9%",
+      width: "7%",
       render: (text) =>
         text || (
           <p className="text-gray-300">
@@ -192,13 +183,21 @@ function Employers() {
       key: "status",
       align: "center",
       width: "8%",
-      render: (text) =>
-        text || (
-          <p className="text-gray-300">
+      render: (status) => {
+        const messageId = EMPLOYER_STATUS_KEYS[status];
+
+        return messageId ? (
+          <span>
+            <FormattedMessage id={messageId} />
+          </span>
+        ) : (
+          <span className="text-gray-300">
             <FormattedMessage id="noData" />
-          </p>
-        ),
+          </span>
+        );
+      },
     },
+
     {
       title: intl.formatMessage({ id: "createdAt" }),
       dataIndex: "created_at",
@@ -263,7 +262,7 @@ function Employers() {
     {
       title: intl.formatMessage({ id: "actions" }),
       fixed: "right",
-      width: "8%",
+      width: "6%",
       align: "center",
       render: (_, record) => (
         <div className="flex justify-center gap-2">
@@ -277,11 +276,11 @@ function Employers() {
           <Tooltip title={intl.formatMessage({ id: "editEmployer" })}>
             <FiEdit
               className="text-[#3bab7b] text-xl cursor-pointer"
-              onClick={() => {
-                setEditItem(record);
-                editForm.setFieldsValue(record);
-                setIsEditModalOpen(true);
-              }}
+              // onClick={() => {
+              //   setEditItem(record);
+              //   editForm.setFieldsValue(record);
+              //   setIsEditModalOpen(true);
+              // }}
             />
           </Tooltip>
 
@@ -302,7 +301,7 @@ function Employers() {
   return (
     <>
       {location.pathname.endsWith("/employers") ? (
-        <div className="container mx-auto pt-6">
+        <div className=" pt-3">
           {loading ? (
             <RollerLoading />
           ) : (
@@ -313,27 +312,30 @@ function Employers() {
                     type="primary"
                     shape="circle"
                     icon={<FaPlus />}
-                    onClick={() => {
-                      addForm.resetFields();
-                      setIsAddModalOpen(true);
-                    }}
+                    // onClick={() => {
+                    //   addForm.resetFields();
+                    //   setIsAddModalOpen(true);
+                    // }}
                   />
                 </Tooltip>
               )}
-              columns={columns}
-              dataSource={data}
               rowKey="id"
+              columns={columns}
+              dataSource={paginatedData}
               scroll={{ x: 2000, y: 365 }}
               pagination={{
-                total: pagination.totalCount,
-                current: pagination.currentPage + 1,
+                current: pagination.current,
                 pageSize: pagination.pageSize,
-                onChange: (page, size) =>
+                total: allData.length,
+                showSizeChanger: true,
+                pageSizeOptions: ["10", "15", "20", "50", "100"],
+
+                onChange: (page, size) => {
                   setPagination({
-                    ...pagination,
-                    currentPage: page - 1,
-                    pageSize: size,
-                  }),
+                    current: page,
+                    pageSize: size!,
+                  });
+                },
               }}
             />
           )}
@@ -342,23 +344,17 @@ function Employers() {
         <Outlet />
       )}
 
-      {/* ================= Delete Modal ================= */}
+      {/* Delete Modal */}
       <Modal
         open={deleteModalOpen}
         confirmLoading={delLoading}
         onCancel={() => setDeleteModalOpen(false)}
-        okButtonProps={{ danger: true }}
         onOk={() => {
           if (selectedId) handleDelete(selectedId);
           setDeleteModalOpen(false);
         }}
       >
-        <h2 className="text-[#3bab7b] font-semibold text-[19px] mb-2">
-          <FormattedMessage id="deleteEmployer" />
-        </h2>
-        <h4 className="text-base text-[#333]">
-          <FormattedMessage id="deleteConfirmEmployer" />
-        </h4>
+        <FormattedMessage id="deleteConfirmEmployer" />
       </Modal>
     </>
   );
