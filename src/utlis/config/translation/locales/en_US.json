@@ -1355,5 +1355,6 @@
   "updateSuggestionStatus": "Update Suggestion Status",
   "reviewed": "Reviewed",
   "implemented": "Implemented",
-  "contacts": "Contacts"
+  "contacts": "Contacts",
+  "withdrawals": "Withdrawals"
 }

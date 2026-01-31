@@ -61,7 +61,6 @@ function Login() {
   const [resetVisible, setResetVisible] = useState(false);
   const [resetLoading, setResetLoading] = useState(false);
 
-
   const openOTPModal = (phone: string) => {
     setOtpPhone(phone);
     setOtpCode('');
@@ -207,10 +206,27 @@ function Login() {
         },
       }),
     onSuccess: (res: any) => {
-      const { accessToken, user } = res.data.data;
+      const token = res.data.token;
+      const type = res.data.data.type;
+
       message.success(res.data.message);
-      dispatch(login(res.data.token));
-      dispatch(fetchProfileDataSuccess(user));
+      console.log(token);
+      console.log(type);
+      dispatch(login(token, type));
+
+      // dispatch(login(res.data.token, user.type));
+      dispatch(fetchProfileDataSuccess(type));
+
+      // dispatch(login(res.data.token));
+
+      let redirectPath = '/';
+      if (type === 1) {
+        redirectPath = '/admin/employers';
+      } else {
+        redirectPath = '/admin/withdrawals';
+      }
+
+      // navigate(redirectPath);
     },
     onError: async (err: any) => {
       const responseData = err.response.data;
@@ -270,10 +286,9 @@ function Login() {
       setResetVisible(false);
     } catch (err: any) {
       message.error(err.response?.data?.message || intl.formatMessage({ id: 'reset.failed' }));
+    } finally {
+      setResetLoading(false);
     }
-    finally {
-    setResetLoading(false);
-  }
   };
 
   return (

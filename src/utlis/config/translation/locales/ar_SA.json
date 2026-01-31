@@ -1356,5 +1356,6 @@
   "updateSuggestionStatus": "تحديث حالة الاقتراح",
   "reviewed": "تمت المراجعة",
   "implemented": "تم التنفيذ",
-  "contacts": "جهات الاتصال"
+  "contacts": "جهات الاتصال",
+  "withdrawals":"عمليات السحب"
 }

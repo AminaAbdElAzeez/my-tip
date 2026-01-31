@@ -29,6 +29,7 @@ import Bank from "./pages/dashboard/(admin)/bank/page";
 import Users from "./pages/dashboard/(admin)/users/page";
 import Suggestions from "./pages/dashboard/(admin)/suggestions/page";
 import Contacts from "./pages/dashboard/(admin)/contacts/page";
+import Withdrawals from "./pages/dashboard/(admin)/withdrawals/page";
 
 const router = createBrowserRouter([
   {
@@ -75,6 +76,10 @@ const router = createBrowserRouter([
           {
             path: "contacts",
             element: <Contacts />,
+          },
+          {
+            path: "withdrawals",
+            element: <Withdrawals />,
           },
         ],
       },
