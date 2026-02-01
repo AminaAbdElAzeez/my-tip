@@ -1356,5 +1356,13 @@
   "reviewed": "Reviewed",
   "implemented": "Implemented",
   "contacts": "Contacts",
-  "withdrawals": "Withdrawals"
+  "withdrawals": "Withdrawals",
+  "addEmployer": "Add Employer",
+  "businessNameEn": "English Business Name",
+  "businessNameAr": "Arabic Business Name",
+  "commercialRegister": "Commercial Register",
+  "taxNumber": "Tax Number",
+  "pendingRequests": "Pending Requests",
+  "approveEmployer": "Approve Employer",
+  "rejectEmployer": "Reject Employer"
 }

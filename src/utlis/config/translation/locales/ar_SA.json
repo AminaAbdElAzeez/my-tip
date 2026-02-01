@@ -1357,5 +1357,13 @@
   "reviewed": "تمت المراجعة",
   "implemented": "تم التنفيذ",
   "contacts": "جهات الاتصال",
-  "withdrawals":"عمليات السحب"
+  "withdrawals": "عمليات السحب",
+  "addEmployer": "إضافة صاحب عمل",
+  "businessNameEn": "اسم النشاط التجاري بالانجليزية",
+  "businessNameAr": "اسم النشاط التجاري بالعربية",
+  "commercialRegister": "السجل التجاري",
+  "taxNumber": "رقم الضريبة",
+  "pendingRequests": "الطلبات المنتظرة",
+  "approveEmployer": "قبول صاحب العمل",
+  "rejectEmployer": "رفض صاحب العمل"
 }

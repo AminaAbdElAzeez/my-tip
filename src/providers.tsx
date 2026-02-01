@@ -30,6 +30,8 @@ import Users from "./pages/dashboard/(admin)/users/page";
 import Suggestions from "./pages/dashboard/(admin)/suggestions/page";
 import Contacts from "./pages/dashboard/(admin)/contacts/page";
 import Withdrawals from "./pages/dashboard/(admin)/withdrawals/page";
+import EmployersDetails from "./pages/dashboard/(admin)/employers/employersDetails/page";
+import PendingRequests from "./pages/dashboard/(admin)/employers/employersDetails/pendingRequests/page";
 
 const router = createBrowserRouter([
   {
@@ -51,7 +53,11 @@ const router = createBrowserRouter([
           {
             path: "employers",
             element: <Employers />,
-            // children: [{ path: ":id", element: <GovernorateDetails /> }],
+            children: [{ path: ":id", element: <EmployersDetails /> }],
+          },
+          {
+            path: "pendingRequests",
+            element: <PendingRequests />,
           },
           {
             path: "profile",
