@@ -1,90 +1,95 @@
-import ErrorBoundaryProvider from "utlis/library/helpers/error-handler/ErrorBoundaryProvider";
-import FallBackUI from "components/fallback-ui";
-import { ConfigProvider, theme as antdTheme } from "antd";
-import { Provider, useDispatch, useSelector } from "react-redux";
-import { store } from "store/store";
-import AppLocale from "utlis/config/translation";
-import { IntlProvider } from "react-intl";
-import { useEffect, useLayoutEffect } from "react";
-import ToastProvider from "components/ToastProvider/index";
-import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
+import ErrorBoundaryProvider from 'utlis/library/helpers/error-handler/ErrorBoundaryProvider';
+import FallBackUI from 'components/fallback-ui';
+import { ConfigProvider, theme as antdTheme } from 'antd';
+import { Provider, useDispatch, useSelector } from 'react-redux';
+import { store } from 'store/store';
+import AppLocale from 'utlis/config/translation';
+import { IntlProvider } from 'react-intl';
+import { useEffect, useLayoutEffect } from 'react';
+import ToastProvider from 'components/ToastProvider/index';
+import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 //import axios from "axios"
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import themeSwitcherActions from "store/themeSwitcher/actions";
-import instance from "utlis/library/helpers/axios";
-import { createBrowserRouter, RouterProvider } from "react-router-dom";
-import Layout from "./pages/layout";
-import Index from "./pages/page";
-import Login from "./pages/login/page";
-import DashboardLayout from "./pages/dashboard/(admin)/layout";
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import themeSwitcherActions from 'store/themeSwitcher/actions';
+import instance from 'utlis/library/helpers/axios';
+import { createBrowserRouter, RouterProvider } from 'react-router-dom';
+import Layout from './pages/layout';
+import Index from './pages/page';
+import Login from './pages/login/page';
+import DashboardLayout from './pages/dashboard/(admin)/layout';
 
 // import Properties from './pages/dashboard/(admin)/properties/page';
-import Cities from "./pages/dashboard/(admin)/cities/page";
-import CityDetails from "./pages/dashboard/(admin)/cities/cityDetails/page";
-import UserDetails from "./pages/dashboard/(admin)/users/userDetails/page";
-import Profile from "./pages/dashboard/(admin)/profile/page";
-import Employers from "./pages/dashboard/(admin)/employers/page";
-import Statistics from "./pages/dashboard/(admin)/statistics/page";
-import Bank from "./pages/dashboard/(admin)/bank/page";
-import Users from "./pages/dashboard/(admin)/users/page";
-import Suggestions from "./pages/dashboard/(admin)/suggestions/page";
-import Contacts from "./pages/dashboard/(admin)/contacts/page";
-import Withdrawals from "./pages/dashboard/(admin)/withdrawals/page";
-import EmployersDetails from "./pages/dashboard/(admin)/employers/employersDetails/page";
-import PendingRequests from "./pages/dashboard/(admin)/employers/employersDetails/pendingRequests/page";
+import Cities from './pages/dashboard/(admin)/cities/page';
+import CityDetails from './pages/dashboard/(admin)/cities/cityDetails/page';
+import UserDetails from './pages/dashboard/(admin)/users/userDetails/page';
+import Profile from './pages/dashboard/(admin)/profile/page';
+import Employers from './pages/dashboard/(admin)/employers/page';
+import Statistics from './pages/dashboard/(admin)/statistics/page';
+import Bank from './pages/dashboard/(admin)/bank/page';
+import Users from './pages/dashboard/(admin)/users/page';
+import Suggestions from './pages/dashboard/(admin)/suggestions/page';
+import Contacts from './pages/dashboard/(admin)/contacts/page';
+import Withdrawals from './pages/dashboard/(admin)/withdrawals/page';
+import EmployersDetails from './pages/dashboard/(admin)/employers/employersDetails/page';
+import PendingRequests from './pages/dashboard/(admin)/employers/employersDetails/pendingRequests/page';
+import SuggestionDetails from './pages/dashboard/(admin)/suggestions/suggestionDetails/page';
+import ContactDetails from './pages/dashboard/(admin)/contacts/contactDetails/page';
 
 const router = createBrowserRouter([
   {
-    path: "",
+    path: '',
     element: <Layout />,
     children: [
       {
-        path: "",
+        path: '',
         element: <Index />,
       },
       {
-        path: "login",
+        path: 'login',
         element: <Login />,
       },
       {
-        path: "admin",
+        path: 'admin',
         element: <DashboardLayout />,
         children: [
           {
-            path: "employers",
+            path: 'employers',
             element: <Employers />,
-            children: [{ path: ":id", element: <EmployersDetails /> }],
+            children: [{ path: ':id', element: <EmployersDetails /> }],
           },
           {
-            path: "pendingRequests",
+            path: 'pendingRequests',
             element: <PendingRequests />,
           },
           {
-            path: "profile",
+            path: 'profile',
             element: <Profile />,
           },
           {
-            path: "statistics",
+            path: 'statistics',
             element: <Statistics />,
           },
           {
-            path: "banks",
+            path: 'banks',
             element: <Bank />,
           },
           {
-            path: "users",
+            path: 'users',
             element: <Users />,
+            children: [{ path: ':id', element: <UserDetails /> }],
           },
           {
-            path: "suggestions",
+            path: 'suggestions',
             element: <Suggestions />,
+            children: [{ path: ':id', element: <SuggestionDetails /> }],
           },
           {
-            path: "contacts",
+            path: 'contacts',
             element: <Contacts />,
+            children: [{ path: ':id', element: <ContactDetails /> }],
           },
           {
-            path: "withdrawals",
+            path: 'withdrawals',
             element: <Withdrawals />,
           },
         ],
@@ -100,52 +105,46 @@ const queryClient = new QueryClient();
 function AppProvider() {
   const dispatch = useDispatch();
   const { locale } = useSelector(
-    ({ LanguageSwitcher }: { LanguageSwitcher: ILanguageSwitcher }) =>
-      LanguageSwitcher.language,
+    ({ LanguageSwitcher }: { LanguageSwitcher: ILanguageSwitcher }) => LanguageSwitcher.language,
   );
   const { themeName, isDark } = useSelector(
     ({ ThemeSwitcher }: { ThemeSwitcher: ISelectedTheme }) => ThemeSwitcher,
   );
 
   const reChangeTheme = () => {
-    dispatch(changeTheme("system"));
+    dispatch(changeTheme('system'));
   };
 
-  const dir = locale === "ar" ? "rtl" : "ltr";
+  const dir = locale === 'ar' ? 'rtl' : 'ltr';
   const currentAppLocale = AppLocale[locale as Locale];
   useLayoutEffect(() => {
     document.documentElement.dir = dir;
     document.documentElement.lang = locale;
-    instance.defaults.headers.common["Accept-Language"] =
-      locale === "ar" ? "ar-EG" : "en-US";
+    instance.defaults.headers.common['Accept-Language'] = locale === 'ar' ? 'ar-EG' : 'en-US';
     // instance.defaults.headers.common["X-Language"] =
     //   locale === "ar" ? "ar" : "en";
   }, [locale, dir]);
   useEffect(() => {
-    const darkModePreference = window.matchMedia(
-      "(prefers-color-scheme: dark)",
-    );
-    if (themeName === "system") {
-      darkModePreference.addEventListener("change", reChangeTheme);
+    const darkModePreference = window.matchMedia('(prefers-color-scheme: dark)');
+    if (themeName === 'system') {
+      darkModePreference.addEventListener('change', reChangeTheme);
     }
     return () => {
-      if (themeName === "system") {
-        darkModePreference.removeEventListener("change", reChangeTheme);
+      if (themeName === 'system') {
+        darkModePreference.removeEventListener('change', reChangeTheme);
       }
     };
   }, [themeName]);
 
   useLayoutEffect(() => {
     if (isDark) {
-      document.documentElement.classList.add("dark");
+      document.documentElement.classList.add('dark');
     } else {
-      document.documentElement.classList.remove("dark");
+      document.documentElement.classList.remove('dark');
     }
   }, [isDark]);
   useEffect(() => {
-    instance.defaults.headers["Accept-Language"] = `${
-      locale === "en" ? "en-US" : "ar-SA"
-    }`;
+    instance.defaults.headers['Accept-Language'] = `${locale === 'en' ? 'en-US' : 'ar-SA'}`;
     // instance.defaults.headers["X-Language"] = `${
     //   locale === "en" ? "en-US" : "ar-SA"
     // }`;
@@ -161,22 +160,19 @@ function AppProvider() {
 
   return (
     <ErrorBoundaryProvider fallBackUIComponent={<FallBackUI />}>
-      <IntlProvider
-        locale={currentAppLocale.locale}
-        messages={currentAppLocale.messages}
-      >
+      <IntlProvider locale={currentAppLocale.locale} messages={currentAppLocale.messages}>
         <ConfigProvider
           locale={currentAppLocale.antd}
           direction={dir}
           theme={{
-            algorithm: antdTheme[isDark ? "darkAlgorithm" : "defaultAlgorithm"],
+            algorithm: antdTheme[isDark ? 'darkAlgorithm' : 'defaultAlgorithm'],
             token: {
-              colorPrimary: "#3bab7b",
+              colorPrimary: '#3bab7b',
               // colorPrimaryBg: "#3730a3",
               // colorBorder: "#3730a3",
 
-              colorLink: "",
-              colorInfo: "#3bab7b",
+              colorLink: '',
+              colorInfo: '#3bab7b',
             },
           }}
         >

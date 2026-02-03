@@ -10,7 +10,7 @@ export function LoggedUserCanNotOpen(Comp: any, next: any) {
     const { idToken } = useSelector((state: { Auth: IAuth }) => state.Auth);
 
     if (idToken) {
-      return <Navigate to="/admin/employers" replace />;
+      return <Navigate to="/admin/statistics" replace />;
     }
 
     const Wrapped = next(Comp);

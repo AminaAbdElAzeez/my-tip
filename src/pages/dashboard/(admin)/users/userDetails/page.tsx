@@ -1,225 +1,325 @@
-import { useEffect, useState } from "react";
-import axios from "utlis/library/helpers/axios";
-import { useNavigate, useParams } from "react-router-dom";
-import {
-  message,
-  Descriptions,
-  Tooltip,
-  Form,
-  Modal,
-  Select,
-  Input,
-  Button,
-} from "antd";
-import { FormattedMessage, useIntl } from "react-intl";
-import RollerLoading from "components/loading/roller";
-import { FaPlus } from "react-icons/fa";
-import { FiEdit, FiTrash } from "react-icons/fi";
+import { useEffect, useState } from 'react';
+import axios from 'utlis/library/helpers/axios';
+import { useNavigate, useParams } from 'react-router-dom';
+import { message, Descriptions, Tooltip, Modal, Button, Tag, Avatar, Image } from 'antd';
+import { FormattedMessage, useIntl } from 'react-intl';
+import RollerLoading from 'components/loading/roller';
+import { FiEdit, FiTrash } from 'react-icons/fi';
+import { AiOutlineEye } from 'react-icons/ai';
 
-interface City {
-  id: string;
-  name_en: string;
-  name_ar: string;
-  governorate_id: string;
-  governorate_name: string;
-  created_at: string;
+interface SocialMedia {
+  social_media_id: number;
+  social_media_name: string;
+  social_media_image: string;
+  url: string;
 }
 
-interface Governorate {
-  id: string;
-  name_en: string;
-  name_ar: string;
+interface User {
+  id: number;
+  name: string;
+  email: string;
+  phone: string;
+  image: string;
+  type: number;
+  status: number;
+  is_active: boolean;
+  is_phone_verified: boolean;
+  active_notification: boolean;
+  created_at: string;
+  updated_at: string;
+  business_name: string | null;
+  employee_position: string | null;
+  socialMedia: SocialMedia[];
 }
 
 function UserDetails() {
-  const [city, setCity] = useState<City | null>(null);
+  const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(false);
-  const [governorates, setGovernorates] = useState<Governorate[]>([]);
-
-  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
-  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
-
-  const [selectedId, setSelectedId] = useState<string | null>(null);
-  const [editItem, setEditItem] = useState<City | null>(null);
-  const [addLoading, setAddLoading] = useState(false);
-  const [editLoading, setEditLoading] = useState(false);
-
-  const [data, setData] = useState<City[]>([]);
   const [delLoading, setDelLoading] = useState(false);
 
-  const [addForm] = Form.useForm();
-  const [editForm] = Form.useForm();
-
-  const intl = useIntl();
   const { id } = useParams();
   const navigate = useNavigate();
+  const intl = useIntl();
+
+  /* ================= Status Map ================= */
+
+  // ================= Maps for localization =================
+  const userStatusMap: Record<number, string> = {
+    1: intl.formatMessage({ id: 'statusPending' }),
+    2: intl.formatMessage({ id: 'statusActive' }),
+    3: intl.formatMessage({ id: 'statusInactive' }),
+    5: intl.formatMessage({ id: 'statusIncompleted' }),
+    6: intl.formatMessage({ id: 'statusReject' }),
+  };
+
+  const userTypeMap: Record<number, string> = {
+    1: intl.formatMessage({ id: 'typeAdmin' }),
+    2: intl.formatMessage({ id: 'typeEmployer' }),
+    3: intl.formatMessage({ id: 'typeEmployee' }),
+    4: intl.formatMessage({ id: 'typeCreator' }),
+    5: intl.formatMessage({ id: 'typeCustomer' }),
+  };
+  /* ================= Helpers ================= */
 
   const displayValue = (value: any) => {
     if (!value) {
       return (
-        <p className="text-gray-300">
+        <span className="text-gray-300">
           <FormattedMessage id="noData" />
-        </p>
+        </span>
       );
     }
-    return <span className="text-[#3bab7b]">{value}</span>;
+    return <span className="text-[#3bab7b] font-medium">{value}</span>;
   };
 
-  useEffect(() => {
-    fetchCity();
-    fetchGovernorates();
-  }, [id]);
+  /* ================= Fetch User ================= */
 
-  const fetchCity = async () => {
-    setLoading(true);
+  const fetchUser = async () => {
     try {
-      const lang = intl.locale.startsWith("ar") ? "ar-SA" : "en-US";
+      setLoading(true);
 
-      const res = await axios.get(`/admin/cities/${id}`, {
-        headers: { "Accept-Language": lang },
+      const lang = intl.locale.startsWith('ar') ? 'ar-SA' : 'en-US';
+
+      const res = await axios.get(`/back/admin/users/${id}`, {
+        headers: { 'Accept-Language': lang },
       });
 
-      setCity(res?.data?.data);
+      setUser(res.data?.data);
     } catch {
-      message.error(intl.formatMessage({ id: "failedToFetchUsers" }));
+      message.error(intl.formatMessage({ id: 'failedToFetchUsers' }));
     } finally {
       setLoading(false);
     }
   };
 
-  /* ================= Fetch Governorates ================= */
-  const fetchGovernorates = async () => {
-    try {
-      const res = await axios.get("/admin/governorates");
-      setGovernorates(res.data?.data || []);
-    } catch {}
-  };
+  useEffect(() => {
+    fetchUser();
+  }, [id]);
 
   /* ================= Delete ================= */
-  const handleDelete = async (id: string) => {
+
+  const handleDelete = async () => {
+    if (!id) return;
+
     try {
       setDelLoading(true);
-      const res = await axios.delete(`/admin/cities/${id}`);
-      message.success(
-        res.data?.message || intl.formatMessage({ id: "delSuccess" })
-      );
-      navigate("/admin/cities");
-      //   fetchCity();
+      const res = await axios.delete(`/admin/users/${id}`);
+
+      message.success(res.data?.message || intl.formatMessage({ id: 'delSuccess' }));
+
+      navigate('/admin/users');
     } catch (err: any) {
-      message.error(err.message || intl.formatMessage({ id: "delFailed" }));
+      message.error(err.message || intl.formatMessage({ id: 'delFailed' }));
     } finally {
       setDelLoading(false);
     }
   };
 
+  /* ================= Loading ================= */
+
   if (loading) return <RollerLoading />;
 
-  if (!city)
+  if (!user)
     return (
       <div className="text-center text-gray-500 mt-10">
         <FormattedMessage id="noData" />
       </div>
     );
 
+  /* ================= UI ================= */
+
   return (
-    <section>
-      <div className="flex justify-end items-center gap-2">
-        {/* Delete */}
-        <Tooltip
-          title={intl.formatMessage({ id: "deleteCity" })}
-          color="#d30606ff"
-        >
-          <FiTrash
-            className="text-[#d30606ff] text-2xl cursor-pointer"
-            onClick={() => {
-              setSelectedId(city.id);
-              setDeleteModalOpen(true);
-            }}
-          />
-        </Tooltip>
+    <section className="pt-3">
+      {/* ===== Header Actions ===== */}
 
-        {/* Edit */}
-        <Tooltip title={intl.formatMessage({ id: "editCity" })} color="#3bab7b">
-          <FiEdit
-            className="text-[#3bab7b] text-2xl cursor-pointer"
-            onClick={() => {
-              setEditItem(city);
-              editForm.setFieldsValue({
-                name_en: city.name_en,
-                name_ar: city.name_ar,
-                governorate_id: city.governorate_id,
-              });
-              setIsEditModalOpen(true);
-            }}
-          />
-        </Tooltip>
+      {/* ===== Details ===== */}
 
-        {/* Add New */}
-        <Tooltip title={intl.formatMessage({ id: "addCity" })} color="#3bab7b">
-          <Button
-            type="primary"
-            shape="circle"
-            icon={<FaPlus />}
-            onClick={() => {
-              addForm.resetFields();
-              setIsAddModalOpen(true);
-            }}
-          />
-        </Tooltip>
-      </div>
-
-      <Descriptions column={1} bordered className="mt-8">
+      <Descriptions bordered column={1}>
         <Descriptions.Item
           label={
             <b className="text-[#3bab7b]">
-              <FormattedMessage id="cityId" />
+              <FormattedMessage id="userId" />
             </b>
           }
         >
-          {displayValue(city.id)}
+          {displayValue(user.id)}
         </Descriptions.Item>
 
         <Descriptions.Item
           label={
             <b className="text-[#3bab7b]">
-              <FormattedMessage id="nameEn" />
+              <FormattedMessage id="name" />
             </b>
           }
         >
-          {displayValue(city.name_en)}
+          {displayValue(user.name)}
         </Descriptions.Item>
 
         <Descriptions.Item
           label={
             <b className="text-[#3bab7b]">
-              <FormattedMessage id="nameAr" />
+              <FormattedMessage id="email" />
             </b>
           }
         >
-          {displayValue(city.name_ar)}
+          {displayValue(user.email)}
         </Descriptions.Item>
 
         <Descriptions.Item
           label={
             <b className="text-[#3bab7b]">
-              <FormattedMessage id="governorate" />
+              <FormattedMessage id="phone" />
             </b>
           }
         >
-          {displayValue(city.governorate_name)}
+          {displayValue(user.phone)}
+        </Descriptions.Item>
+
+        <Descriptions.Item
+          label={<b className="text-[#3bab7b]"> {intl.formatMessage({ id: 'image' })}</b>}
+        >
+          {user.image ? (
+            <Image
+              src={user.image}
+              alt="User"
+              style={{
+                width: 130,
+                height: 130,
+                // objectFit: "cover",
+                borderRadius: 8,
+              }}
+              preview={{
+                mask: (
+                  <p className="flex items-center gap-1 text-white text-sm">
+                    <AiOutlineEye className="text-lg" />
+                    <span className="text-sm">
+                      <FormattedMessage id="preview" />
+                    </span>
+                  </p>
+                ),
+              }}
+            />
+          ) : (
+            displayValue(null)
+          )}
+        </Descriptions.Item>
+
+        <Descriptions.Item
+          label={<b className="text-[#3bab7b]">{intl.formatMessage({ id: 'type' })}</b>}
+        >
+          {displayValue(userTypeMap[user.type]) || displayValue(null)}
+        </Descriptions.Item>
+
+        <Descriptions.Item
+          label={<b className="text-[#3bab7b]">{intl.formatMessage({ id: 'status' })}</b>}
+        >
+          {displayValue(userStatusMap[user.status]) || displayValue(null)}
+        </Descriptions.Item>
+
+        <Descriptions.Item
+          label={<b className="text-[#3bab7b]">{intl.formatMessage({ id: 'isActive' })}</b>}
+        >
+          <Tag className="px-2 py-1" color="#3bab7b">
+            {user.is_active ? intl.formatMessage({ id: 'yes' }) : intl.formatMessage({ id: 'no' })}
+          </Tag>
+        </Descriptions.Item>
+
+        <Descriptions.Item
+          label={<b className="text-[#3bab7b]">{intl.formatMessage({ id: 'phoneVerified' })}</b>}
+        >
+          <Tag color="#3bab7b" className="px-2 py-1">
+            {user.is_phone_verified
+              ? intl.formatMessage({ id: 'yes' })
+              : intl.formatMessage({ id: 'no' })}
+          </Tag>
         </Descriptions.Item>
 
         <Descriptions.Item
           label={
-            <b className="text-[#3bab7b]">
-              <FormattedMessage id="createdAt" />
-            </b>
+            <b className="text-[#3bab7b]">{intl.formatMessage({ id: 'activeNotification' })}</b>
           }
         >
-          {displayValue(city.created_at)}
+          <Tag color="#3bab7b" className="px-2 py-1">
+            {user.active_notification
+              ? intl.formatMessage({ id: 'yes' })
+              : intl.formatMessage({ id: 'no' })}
+          </Tag>
         </Descriptions.Item>
+
+        <Descriptions.Item
+          label={<b className="text-[#3bab7b]">{intl.formatMessage({ id: 'businessName' })}</b>}
+        >
+          {displayValue(user.business_name)}
+        </Descriptions.Item>
+
+        <Descriptions.Item
+          label={<b className="text-[#3bab7b]">{intl.formatMessage({ id: 'employeePosition' })}</b>}
+        >
+          {displayValue(user.employee_position)}
+        </Descriptions.Item>
+
+        <Descriptions.Item
+          label={<b className="text-[#3bab7b]">{intl.formatMessage({ id: 'createdAt' })}</b>}
+        >
+          {displayValue(user.created_at)}
+        </Descriptions.Item>
+
+        <Descriptions.Item
+          label={<b className="text-[#3bab7b]">{intl.formatMessage({ id: 'updatedAt' })}</b>}
+        >
+          {displayValue(user.updated_at)}
+        </Descriptions.Item>
+
+        {/* ===== Social Media ===== */}
+        <Descriptions.Item
+          label={<b className="text-[#3bab7b]">{intl.formatMessage({ id: 'createdAt' })}</b>}
+        >
+          {displayValue(user.created_at)}
+        </Descriptions.Item>
+        <Descriptions.Item
+          label={<b className="text-[#3bab7b]">{intl.formatMessage({ id: 'updatedAt' })}</b>}
+        >
+          {displayValue(user.updated_at)}
+        </Descriptions.Item>
+
+        {/* ===== Social Media ===== */}
+        {user.socialMedia?.length > 0 && (
+          <Descriptions.Item
+            label={<b className="text-[#3bab7b]">{intl.formatMessage({ id: 'socialMedia' })}</b>}
+          >
+            <div className="flex flex-wrap gap-2">
+              {user.socialMedia.map((item) => (
+                <a key={item.social_media_id} href={item.url} target="_blank" rel="noreferrer">
+                  <Tag color="blue" className="flex items-center gap-1 cursor-pointer px-2 py-1">
+                    {item.social_media_image && (
+                      <Avatar size="small" src={item.social_media_image} />
+                    )}
+                    {item.social_media_name}
+                  </Tag>
+                </a>
+              ))}
+            </div>
+          </Descriptions.Item>
+        )}
       </Descriptions>
+
+      {/* ===== Delete Modal ===== */}
+
+      <Modal
+        open={deleteModalOpen}
+        confirmLoading={delLoading}
+        okButtonProps={{ danger: true }}
+        onCancel={() => setDeleteModalOpen(false)}
+        onOk={handleDelete}
+      >
+        <h3 className="text-[#3bab7b] font-semibold mb-2">
+          <FormattedMessage id="deleteUser" />
+        </h3>
+        <p>
+          <FormattedMessage id="deleteConfirmUser" />
+        </p>
+      </Modal>
     </section>
   );
 }

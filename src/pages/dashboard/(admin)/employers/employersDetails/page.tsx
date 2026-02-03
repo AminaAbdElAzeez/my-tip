@@ -74,14 +74,14 @@ function EmployersDetails() {
 
     if (!statusData) {
       return (
-        <Tag>
+        <Tag className="py-1 px-2">
           <FormattedMessage id="noData" />
         </Tag>
       );
     }
 
     return (
-      <Tag color={statusData.color}>
+      <Tag color={statusData.color} className="py-1 px-2">
         <FormattedMessage id={statusData.key} />
       </Tag>
     );

@@ -1,21 +1,12 @@
-import { useEffect, useState } from "react";
-import axios from "utlis/library/helpers/axios";
-import {
-  Table,
-  Button,
-  Modal,
-  Form,
-  message,
-  Tooltip,
-  Select,
-  Image,
-} from "antd";
-import type { ColumnsType } from "antd/es/table";
-import { AiOutlineEye } from "react-icons/ai";
-import { FiEdit } from "react-icons/fi";
-import { FormattedMessage, useIntl } from "react-intl";
-import { Outlet, useLocation } from "react-router-dom";
-import RollerLoading from "components/loading/roller";
+import { useEffect, useState } from 'react';
+import axios from 'utlis/library/helpers/axios';
+import { Table, Button, Modal, Form, message, Tooltip, Select, Image } from 'antd';
+import type { ColumnsType } from 'antd/es/table';
+import { AiOutlineEye } from 'react-icons/ai';
+import { FiEdit } from 'react-icons/fi';
+import { FormattedMessage, useIntl } from 'react-intl';
+import { Outlet, useLocation, useNavigate } from 'react-router-dom';
+import RollerLoading from 'components/loading/roller';
 
 /* ================= Types ================= */
 
@@ -46,6 +37,7 @@ function Suggestions() {
 
   const location = useLocation();
   const intl = useIntl();
+  const navigate = useNavigate()
 
   const [editForm] = Form.useForm();
 
@@ -58,11 +50,11 @@ function Suggestions() {
   /* ================= Status Map ================= */
 
   const suggestionStatusMap: Record<number, string> = {
-    1: intl.formatMessage({ id: "pending" }),
-    2: intl.formatMessage({ id: "reviewed" }),
-    3: intl.formatMessage({ id: "implemented" }),
-    4: intl.formatMessage({ id: "rejected" }),
-  };
+  1: intl.formatMessage({ id: 'pending' }),
+  2: intl.formatMessage({ id: 'reviewed' }),
+  3: intl.formatMessage({ id: 'implemented' }),
+  4: intl.formatMessage({ id: 'rejected' }),
+};
 
   /* ================= Fetch Suggestions ================= */
 
@@ -81,7 +73,7 @@ function Suggestions() {
         total: res.data?.pagination?.total || 0,
       }));
     } catch (err: any) {
-      message.error(err.message || intl.formatMessage({ id: "fetchFailed" }));
+      message.error(err.message || intl.formatMessage({ id: 'fetchFailed' }));
     } finally {
       setLoading(false);
     }
@@ -100,13 +92,10 @@ function Suggestions() {
       setEditLoading(true);
 
       const formData = new FormData();
-      formData.append("_method", "put");
-      formData.append("status", values.status);
+      formData.append('_method', 'put');
+      formData.append('status', values.status);
 
-      const res = await axios.post(
-        `/back/admin/suggestions/${selectedId}/status`,
-        formData,
-      );
+      const res = await axios.post(`/back/admin/suggestions/${selectedId}/status`, formData);
 
       message.success(res.data?.message);
 
@@ -123,62 +112,57 @@ function Suggestions() {
 
   const columns: ColumnsType<Suggestion> = [
     {
-      title: intl.formatMessage({ id: "suggestionsId" }),
-      dataIndex: "id",
-      align: "center",
-      width: "8%",
+      title: intl.formatMessage({ id: 'suggestionsId' }),
+      dataIndex: 'id',
+      align: 'center',
+      width: '8%',
     },
     {
-      title: intl.formatMessage({ id: "userId" }),
-      dataIndex: ["user", "id"],
-      align: "center",
-      width: "7%",
+      title: intl.formatMessage({ id: 'userId' }),
+      dataIndex: ['user', 'id'],
+      align: 'center',
+      width: '7%',
     },
     {
-      title: intl.formatMessage({ id: "userName" }),
-      dataIndex: ["user", "name"],
-      align: "center",
-      width: "13%",
+      title: intl.formatMessage({ id: 'userName' }),
+      dataIndex: ['user', 'name'],
+      align: 'center',
+      width: '13%',
     },
     {
-      title: intl.formatMessage({ id: "userEmail" }),
-      dataIndex: ["user", "email"],
-      align: "center",
-      width: "12%",
+      title: intl.formatMessage({ id: 'userEmail' }),
+      dataIndex: ['user', 'email'],
+      align: 'center',
+      width: '12%',
     },
     {
-      title: intl.formatMessage({ id: "suggestionType" }),
-      dataIndex: "suggestion_type",
-      align: "center",
-      width: "10%",
+      title: intl.formatMessage({ id: 'suggestionType' }),
+      dataIndex: 'suggestion_type',
+      align: 'center',
+      width: '10%',
     },
     {
-      title: intl.formatMessage({ id: "description" }),
-      dataIndex: "description",
-      align: "center",
-      width: "14%",
+      title: intl.formatMessage({ id: 'description' }),
+      dataIndex: 'description',
+      align: 'center',
+      width: '14%',
     },
     {
-      title: intl.formatMessage({ id: "status" }),
-      dataIndex: "status",
-      align: "center",
-      width: "8%",
+      title: intl.formatMessage({ id: 'status' }),
+      dataIndex: 'status',
+      align: 'center',
+      width: '8%',
       render: (val) => {
-        const color =
-          val === 3
-            ? "text-green-600"
-            : val === 4
-              ? "text-red-600"
-              : "text-orange-500";
+        const color = val === 3 ? 'text-green-600' : val === 4 ? 'text-red-600' : 'text-orange-500';
 
         return <span className={color}>{suggestionStatusMap[val]}</span>;
       },
     },
     {
-      title: intl.formatMessage({ id: "attachment" }),
-      dataIndex: "attachment",
-      align: "center",
-      width: "9%",
+      title: intl.formatMessage({ id: 'attachment' }),
+      dataIndex: 'attachment',
+      align: 'center',
+      width: '9%',
       render: (img) =>
         img ? (
           <Image
@@ -186,7 +170,7 @@ function Suggestions() {
             style={{
               width: 100,
               height: 70,
-              objectFit: "cover",
+              objectFit: 'cover',
               borderRadius: 8,
             }}
             preview={{
@@ -207,40 +191,48 @@ function Suggestions() {
         ),
     },
     {
-      title: intl.formatMessage({ id: "createdAt" }),
-      dataIndex: "created_at",
-      align: "center",
-      width: "6%",
+      title: intl.formatMessage({ id: 'createdAt' }),
+      dataIndex: 'created_at',
+      align: 'center',
+      width: '6%',
     },
     {
-      title: intl.formatMessage({ id: "updatedAt" }),
-      dataIndex: "updated_at",
-      align: "center",
-      width: "7%",
+      title: intl.formatMessage({ id: 'updatedAt' }),
+      dataIndex: 'updated_at',
+      align: 'center',
+      width: '7%',
     },
     {
-      title: intl.formatMessage({ id: "actions" }),
-      align: "center",
-      width: "6%",
-      fixed: "right",
+      title: intl.formatMessage({ id: 'actions' }),
+      align: 'center',
+      width: '6%',
+      fixed: 'right',
       render: (_, record) => (
-        <Tooltip title={intl.formatMessage({ id: "changeStatus" })}>
-          <FiEdit
-            className="text-[#3bab7b] text-xl cursor-pointer"
-            onClick={() => {
-              setSelectedId(record.id);
-              editForm.setFieldsValue({ status: record.status });
-              setEditOpen(true);
-            }}
-          />
-        </Tooltip>
+        <div className="flex justify-center gap-2">
+          <Tooltip title={intl.formatMessage({ id: 'viewSuggestion' })}>
+            <AiOutlineEye
+              className="text-[#214380] text-2xl cursor-pointer"
+              onClick={() => navigate(`/admin/suggestions/${record.id}`)}
+            />
+          </Tooltip>
+          <Tooltip title={intl.formatMessage({ id: 'changeStatus' })}>
+            <FiEdit
+              className="text-[#3bab7b] text-xl cursor-pointer"
+              onClick={() => {
+                setSelectedId(record.id);
+                editForm.setFieldsValue({ status: record.status });
+                setEditOpen(true);
+              }}
+            />
+          </Tooltip>
+        </div>
       ),
     },
   ];
 
   return (
     <>
-      {location.pathname.endsWith("/suggestions") ? (
+      {location.pathname.endsWith('/suggestions') ? (
         <div className="pt-3">
           {loading ? (
             <RollerLoading />
@@ -284,15 +276,15 @@ function Suggestions() {
         <Form layout="vertical" form={editForm} onFinish={handleEditStatus}>
           <Form.Item
             name="status"
-            label={intl.formatMessage({ id: "status" })}
+            label={intl.formatMessage({ id: 'status' })}
             rules={[{ required: true }]}
           >
             <Select
               options={[
-                { value: 1, label: intl.formatMessage({ id: "pending" }) },
-                { value: 2, label: intl.formatMessage({ id: "reviewed" }) },
-                { value: 3, label: intl.formatMessage({ id: "implemented" }) },
-                { value: 4, label: intl.formatMessage({ id: "rejected" }) },
+                { value: 1, label: intl.formatMessage({ id: 'pending' }) },
+                { value: 2, label: intl.formatMessage({ id: 'reviewed' }) },
+                { value: 3, label: intl.formatMessage({ id: 'implemented' }) },
+                { value: 4, label: intl.formatMessage({ id: 'rejected' }) },
               ]}
             />
           </Form.Item>

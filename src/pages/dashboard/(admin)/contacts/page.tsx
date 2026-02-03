@@ -1,11 +1,12 @@
-import { useEffect, useState } from "react";
-import axios from "utlis/library/helpers/axios";
-import { Table, Modal, Form, message, Tooltip, Select, Input } from "antd";
-import type { ColumnsType } from "antd/es/table";
-import { FiEdit } from "react-icons/fi";
-import { FormattedMessage, useIntl } from "react-intl";
-import { Outlet, useLocation } from "react-router-dom";
-import RollerLoading from "components/loading/roller";
+import { useEffect, useState } from 'react';
+import axios from 'utlis/library/helpers/axios';
+import { Table, Modal, Form, message, Tooltip, Select, Input } from 'antd';
+import type { ColumnsType } from 'antd/es/table';
+import { FiEdit } from 'react-icons/fi';
+import { FormattedMessage, useIntl } from 'react-intl';
+import { Outlet, useLocation, useNavigate } from 'react-router-dom';
+import RollerLoading from 'components/loading/roller';
+import { AiOutlineEye } from 'react-icons/ai';
 
 /* ================= Types ================= */
 
@@ -34,6 +35,7 @@ function Contacts() {
 
   const location = useLocation();
   const intl = useIntl();
+  const navigate=useNavigate()
 
   const [editForm] = Form.useForm();
 
@@ -46,10 +48,10 @@ function Contacts() {
   /* ================= Status Map ================= */
 
   const contactStatusMap: Record<number, string> = {
-    1: intl.formatMessage({ id: "pending" }),
-    2: intl.formatMessage({ id: "read" }),
-    3: intl.formatMessage({ id: "replied" }),
-    4: intl.formatMessage({ id: "closed" }),
+    1: intl.formatMessage({ id: 'pending' }),
+    2: intl.formatMessage({ id: 'read' }),
+    3: intl.formatMessage({ id: 'replied' }),
+    4: intl.formatMessage({ id: 'closed' }),
   };
 
   /* ================= Fetch Contacts ================= */
@@ -71,10 +73,10 @@ function Contacts() {
 
       // message from backend
       if (res.data?.message) {
-        message.success(res.data.message);
+        // message.success(res.data.message);
       }
     } catch (err: any) {
-      message.error(err.message || intl.formatMessage({ id: "fetchFailed" }));
+      message.error(err.message || intl.formatMessage({ id: 'fetchFailed' }));
     } finally {
       setLoading(false);
     }
@@ -93,17 +95,14 @@ function Contacts() {
       setEditLoading(true);
 
       const formData = new FormData();
-      formData.append("_method", "put");
-      formData.append("status", values.status);
+      formData.append('_method', 'put');
+      formData.append('status', values.status);
 
       if (values.admin_notes) {
-        formData.append("admin_notes", values.admin_notes);
+        formData.append('admin_notes', values.admin_notes);
       }
 
-      const res = await axios.post(
-        `/back/admin/contacts/${selectedId}/status`,
-        formData,
-      );
+      const res = await axios.post(`/back/admin/contacts/${selectedId}/status`, formData);
 
       // message from backend
       message.success(res.data?.message);
@@ -121,89 +120,104 @@ function Contacts() {
 
   const columns: ColumnsType<Contact> = [
     {
-      title: intl.formatMessage({ id: "contactId" }),
-      dataIndex: "id",
-      align: "center",
-      width: "6%",
+      title: intl.formatMessage({ id: 'contactId' }),
+      dataIndex: 'id',
+      align: 'center',
+      // width: "6%",
     },
     {
-      title: intl.formatMessage({ id: "name" }),
-      dataIndex: "name",
-      align: "center",
-      width: "10%",
+      title: intl.formatMessage({ id: 'name' }),
+      dataIndex: 'name',
+      align: 'center',
+      // width: "10%",
     },
     {
-      title: intl.formatMessage({ id: "email" }),
-      dataIndex: "email",
-      align: "center",
-      width: "14%",
+      title: intl.formatMessage({ id: 'email' }),
+      dataIndex: 'email',
+      align: 'center',
+      // width: "14%",
     },
     {
-      title: intl.formatMessage({ id: "phone" }),
-      dataIndex: "phone",
-      align: "center",
-      width: "11%",
+      title: intl.formatMessage({ id: 'phone' }),
+      dataIndex: 'phone',
+      align: 'center',
+      // width: "11%",
     },
     {
-      title: intl.formatMessage({ id: "contactType" }),
-      dataIndex: "contact_type",
-      align: "center",
-      width: "12%",
+      title: intl.formatMessage({ id: 'contactType' }),
+      dataIndex: 'contact_type',
+      align: 'center',
+      // width: "12%",
     },
     {
-      title: intl.formatMessage({ id: "message" }),
-      dataIndex: "message",
-      align: "center",
-      width: "18%",
+      title: intl.formatMessage({ id: 'message' }),
+      dataIndex: 'message',
+      align: 'center',
+      // width: "18%",
     },
     {
-      title: intl.formatMessage({ id: "status" }),
-      dataIndex: "status",
-      align: "center",
-      width: "8%",
+      title: intl.formatMessage({ id: 'status' }),
+      dataIndex: 'status',
+      align: 'center',
+      // width: "8%",
       render: (val) => {
-        const color =
-          val === 3
-            ? "text-green-600"
-            : val === 4
-              ? "text-red-600"
-              : "text-orange-500";
+        const color = val === 3 ? 'text-green-600' : val === 4 ? 'text-red-600' : 'text-orange-500';
 
         return <span className={color}>{contactStatusMap[val]}</span>;
       },
     },
     {
-      title: intl.formatMessage({ id: "createdAt" }),
-      dataIndex: "created_at",
-      align: "center",
-      width: "10%",
+      title: intl.formatMessage({ id: 'createdAt' }),
+      dataIndex: 'created_at',
+      align: 'center',
+      // width: "10%",
     },
     {
-      title: intl.formatMessage({ id: "actions" }),
-      align: "center",
-      width: "7%",
-      fixed: "right",
+      title: intl.formatMessage({ id: 'updatedAt' }),
+      dataIndex: 'updated_at',
+      align: 'center',
+      // width: "10%",
+    },
+    {
+      title: intl.formatMessage({ id: 'adminNotes' }),
+      dataIndex: 'admin_notes',
+      align: 'center',
+      // width: "10%",
+    },
+    {
+      title: intl.formatMessage({ id: 'actions' }),
+      align: 'center',
+      // width: "7%",
+      fixed: 'right',
       render: (_, record) => (
-        <Tooltip title={intl.formatMessage({ id: "changeStatus" })}>
-          <FiEdit
-            className="text-[#3bab7b] text-xl cursor-pointer"
-            onClick={() => {
-              setSelectedId(record.id);
-              editForm.setFieldsValue({
-                status: record.status,
-                admin_notes: record.admin_notes,
-              });
-              setEditOpen(true);
-            }}
-          />
-        </Tooltip>
+        <div className="flex justify-center gap-2">
+          <Tooltip title={intl.formatMessage({ id: 'viewContact' })}>
+            <AiOutlineEye
+              className="text-[#214380] text-2xl cursor-pointer"
+              onClick={() => navigate(`/admin/contacts/${record.id}`)}
+            />
+          </Tooltip>
+          <Tooltip title={intl.formatMessage({ id: 'changeStatus' })}>
+            <FiEdit
+              className="text-[#3bab7b] text-xl cursor-pointer"
+              onClick={() => {
+                setSelectedId(record.id);
+                editForm.setFieldsValue({
+                  status: record.status,
+                  admin_notes: record.admin_notes,
+                });
+                setEditOpen(true);
+              }}
+            />
+          </Tooltip>
+        </div>
       ),
     },
   ];
 
   return (
     <>
-      {location.pathname.endsWith("/contacts") ? (
+      {location.pathname.endsWith('/contacts') ? (
         <div className="pt-3">
           {loading ? (
             <RollerLoading />
@@ -212,7 +226,7 @@ function Contacts() {
               columns={columns}
               dataSource={data}
               rowKey="id"
-              scroll={{ x: 1600, y: 375 }}
+              scroll={{ x: 1800, y: 375 }}
               pagination={{
                 current: pagination.current,
                 pageSize: pagination.pageSize,
@@ -247,24 +261,25 @@ function Contacts() {
         <Form layout="vertical" form={editForm} onFinish={handleEditStatus}>
           <Form.Item
             name="status"
-            label={intl.formatMessage({ id: "status" })}
+            label={intl.formatMessage({ id: 'status' })}
             rules={[{ required: true }]}
           >
             <Select
               options={[
-                { value: 1, label: intl.formatMessage({ id: "pending" }) },
-                { value: 2, label: intl.formatMessage({ id: "read" }) },
-                { value: 3, label: intl.formatMessage({ id: "replied" }) },
-                { value: 4, label: intl.formatMessage({ id: "closed" }) },
+                { value: 1, label: intl.formatMessage({ id: 'pending' }) },
+                { value: 2, label: intl.formatMessage({ id: 'read' }) },
+                { value: 3, label: intl.formatMessage({ id: 'replied' }) },
+                { value: 4, label: intl.formatMessage({ id: 'closed' }) },
               ]}
             />
           </Form.Item>
 
           <Form.Item
             name="admin_notes"
-            label={intl.formatMessage({ id: "adminNotes" })}
+            label={intl.formatMessage({ id: 'adminNotes' })}
+            rules={[{ required: true }]}
           >
-            <Input.TextArea rows={4} />
+            <Input.TextArea rows={4} placeholder={intl.formatMessage({ id: 'adminNotes' })} />
           </Form.Item>
         </Form>
       </Modal>

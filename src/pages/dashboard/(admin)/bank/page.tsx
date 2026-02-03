@@ -1,24 +1,14 @@
-import { useEffect, useState } from "react";
-import axios from "utlis/library/helpers/axios";
-import {
-  Table,
-  Button,
-  Modal,
-  Form,
-  Input,
-  message,
-  Tooltip,
-  Upload,
-  Image,
-} from "antd";
-import type { ColumnsType } from "antd/es/table";
-import { FaPlus } from "react-icons/fa6";
-import { FiEdit, FiTrash } from "react-icons/fi";
-import { AiOutlineEye } from "react-icons/ai";
-import { UploadOutlined } from "@ant-design/icons";
-import { FormattedMessage, useIntl } from "react-intl";
-import { Outlet, useLocation } from "react-router-dom";
-import RollerLoading from "components/loading/roller";
+import { useEffect, useState } from 'react';
+import axios from 'utlis/library/helpers/axios';
+import { Table, Button, Modal, Form, Input, message, Tooltip, Upload, Image } from 'antd';
+import type { ColumnsType } from 'antd/es/table';
+import { FaPlus } from 'react-icons/fa6';
+import { FiEdit, FiTrash } from 'react-icons/fi';
+import { AiOutlineEye } from 'react-icons/ai';
+import { UploadOutlined } from '@ant-design/icons';
+import { FormattedMessage, useIntl } from 'react-intl';
+import { Outlet, useLocation } from 'react-router-dom';
+import RollerLoading from 'components/loading/roller';
 
 /* ================= Types ================= */
 
@@ -48,6 +38,9 @@ function Banks() {
   const [addLoading, setAddLoading] = useState(false);
   const [editLoading, setEditLoading] = useState(false);
   const [delLoading, setDelLoading] = useState(false);
+
+  const [previewOpen, setPreviewOpen] = useState(false);
+  const [previewImage, setPreviewImage] = useState('');
 
   const location = useLocation();
   const intl = useIntl();
@@ -80,7 +73,7 @@ function Banks() {
         total: pg?.total || 0,
       }));
     } catch (err: any) {
-      message.error(err.message || intl.formatMessage({ id: "fetchFailed" }));
+      message.error(err.message || intl.formatMessage({ id: 'fetchFailed' }));
     } finally {
       setLoading(false);
     }
@@ -97,11 +90,11 @@ function Banks() {
       setAddLoading(true);
 
       const formData = new FormData();
-      formData.append("name_ar", values.name_ar);
-      formData.append("name_en", values.name_en);
+      formData.append('name_ar', values.name_ar);
+      formData.append('name_en', values.name_en);
 
       if (values.logo?.[0]) {
-        formData.append("logo", values.logo[0].originFileObj);
+        formData.append('logo', values.logo[0].originFileObj);
       }
 
       const res = await axios.post(`/back/admin/banks`, formData);
@@ -126,12 +119,12 @@ function Banks() {
       setEditLoading(true);
 
       const formData = new FormData();
-      formData.append("_method", "put");
-      formData.append("name_ar", values.name_ar);
-      formData.append("name_en", values.name_en);
+      formData.append('_method', 'put');
+      formData.append('name_ar', values.name_ar);
+      formData.append('name_en', values.name_en);
 
       if (values.logo && values.logo[0] && values.logo[0].originFileObj) {
-        formData.append("logo", values.logo[0].originFileObj);
+        formData.append('logo', values.logo[0].originFileObj);
       }
 
       const res = await axios.post(`/back/admin/banks/${selectedId}`, formData);
@@ -179,11 +172,11 @@ function Banks() {
 
   const columns: ColumnsType<Bank> = [
     {
-      title: intl.formatMessage({ id: "bankId" }),
-      dataIndex: "id",
-      key: "id",
-      align: "center",
-      width: "7%",
+      title: intl.formatMessage({ id: 'bankId' }),
+      dataIndex: 'id',
+      key: 'id',
+      align: 'center',
+      width: '7%',
       render: (text) =>
         text || (
           <p className="text-gray-300">
@@ -192,11 +185,11 @@ function Banks() {
         ),
     },
     {
-      title: intl.formatMessage({ id: "nameAr" }),
-      dataIndex: "name_ar",
-      key: "name_ar",
-      align: "center",
-      width: "20%",
+      title: intl.formatMessage({ id: 'nameAr' }),
+      dataIndex: 'name_ar',
+      key: 'name_ar',
+      align: 'center',
+      width: '20%',
       render: (text) =>
         text || (
           <p className="text-gray-300">
@@ -205,11 +198,11 @@ function Banks() {
         ),
     },
     {
-      title: intl.formatMessage({ id: "nameEn" }),
-      dataIndex: "name_en",
-      key: "name_en",
-      align: "center",
-      width: "20%",
+      title: intl.formatMessage({ id: 'nameEn' }),
+      dataIndex: 'name_en',
+      key: 'name_en',
+      align: 'center',
+      width: '20%',
       render: (text) =>
         text || (
           <p className="text-gray-300">
@@ -218,10 +211,10 @@ function Banks() {
         ),
     },
     {
-      title: intl.formatMessage({ id: "logo" }),
-      dataIndex: "logo",
-      align: "center",
-      width: "15%",
+      title: intl.formatMessage({ id: 'logo' }),
+      dataIndex: 'logo',
+      align: 'center',
+      width: '15%',
       render: (img) =>
         img ? (
           <Image
@@ -229,7 +222,7 @@ function Banks() {
             style={{
               width: 100,
               height: 70,
-              objectFit: "cover",
+              objectFit: 'cover',
               borderRadius: 8,
             }}
             preview={{
@@ -250,11 +243,11 @@ function Banks() {
         ),
     },
     {
-      title: intl.formatMessage({ id: "createdAt" }),
-      dataIndex: "created_at",
-      key: "created_at",
-      align: "center",
-      width: "15%",
+      title: intl.formatMessage({ id: 'createdAt' }),
+      dataIndex: 'created_at',
+      key: 'created_at',
+      align: 'center',
+      width: '15%',
       render: (text) =>
         text || (
           <p className="text-gray-300">
@@ -263,11 +256,11 @@ function Banks() {
         ),
     },
     {
-      title: intl.formatMessage({ id: "updatedAt" }),
-      dataIndex: "updated_at",
-      key: "updated_at",
-      align: "center",
-      width: "15%",
+      title: intl.formatMessage({ id: 'updatedAt' }),
+      dataIndex: 'updated_at',
+      key: 'updated_at',
+      align: 'center',
+      width: '15%',
       render: (text) =>
         text || (
           <p className="text-gray-300">
@@ -276,13 +269,13 @@ function Banks() {
         ),
     },
     {
-      title: intl.formatMessage({ id: "actions" }),
-      fixed: "right",
-      width: "8%",
-      align: "center",
+      title: intl.formatMessage({ id: 'actions' }),
+      fixed: 'right',
+      width: '8%',
+      align: 'center',
       render: (_, record) => (
         <div className="flex justify-center gap-3">
-          <Tooltip title={intl.formatMessage({ id: "edit" })}>
+          <Tooltip title={intl.formatMessage({ id: 'edit' })}>
             <FiEdit
               className="text-[#3bab7b] text-xl cursor-pointer"
               onClick={() => {
@@ -290,9 +283,9 @@ function Banks() {
                 const fileList = record.logo
                   ? [
                       {
-                        uid: "-1",
+                        uid: '-1',
                         name: record.name_en,
-                        status: "done",
+                        status: 'done',
                         url: record.logo,
                       },
                     ]
@@ -308,7 +301,7 @@ function Banks() {
             />
           </Tooltip>
 
-          <Tooltip title={intl.formatMessage({ id: "delete" })}>
+          <Tooltip title={intl.formatMessage({ id: 'delete' })}>
             <FiTrash
               className="text-[#d30606] text-xl cursor-pointer"
               onClick={() => {
@@ -324,17 +317,14 @@ function Banks() {
 
   return (
     <>
-      {location.pathname.endsWith("/banks") ? (
+      {location.pathname.endsWith('/banks') ? (
         <div className="pt-3">
           {loading ? (
             <RollerLoading />
           ) : (
             <Table
               title={() => (
-                <Tooltip
-                  title={intl.formatMessage({ id: "addBank" })}
-                  color="#3bab7b"
-                >
+                <Tooltip title={intl.formatMessage({ id: 'addBank' })} color="#3bab7b">
                   <Button
                     type="primary"
                     shape="circle"
@@ -385,31 +375,43 @@ function Banks() {
         <Form layout="vertical" form={addForm} onFinish={handleAdd}>
           <Form.Item
             name="name_ar"
-            label={intl.formatMessage({ id: "nameAr" })}
+            label={intl.formatMessage({ id: 'nameAr' })}
             rules={[{ required: true }]}
           >
-            <Input placeholder={intl.formatMessage({ id: "nameAr" })} />
+            <Input placeholder={intl.formatMessage({ id: 'nameAr' })} />
           </Form.Item>
 
           <Form.Item
             name="name_en"
-            label={intl.formatMessage({ id: "nameEn" })}
+            label={intl.formatMessage({ id: 'nameEn' })}
             rules={[{ required: true }]}
           >
-            <Input placeholder={intl.formatMessage({ id: "nameEn" })} />
+            <Input placeholder={intl.formatMessage({ id: 'nameEn' })} />
           </Form.Item>
 
           <Form.Item
             name="logo"
-            label={intl.formatMessage({ id: "logo" })}
+            label={intl.formatMessage({ id: 'logo' })}
             valuePropName="fileList"
             getValueFromEvent={normFile}
             rules={[{ required: true }]}
           >
-            <Upload beforeUpload={() => false} maxCount={1}>
-              <Button icon={<UploadOutlined />}>
-                <FormattedMessage id="uploadLogo" />
-              </Button>
+            <Upload
+              listType="picture-card"
+              maxCount={1}
+              beforeUpload={() => false}
+              onPreview={(file) => {
+                setPreviewImage(file.url || file.thumbUrl);
+                setPreviewOpen(true);
+              }}
+              showUploadList={{
+                showPreviewIcon: true,
+                showRemoveIcon: true,
+              }}
+            >
+              <div className="flex flex-col items-center">
+                <FaPlus />
+              </div>
             </Upload>
           </Form.Item>
         </Form>
@@ -430,7 +432,7 @@ function Banks() {
         <Form layout="vertical" form={editForm} onFinish={handleEdit}>
           <Form.Item
             name="name_ar"
-            label={intl.formatMessage({ id: "nameAr" })}
+            label={intl.formatMessage({ id: 'nameAr' })}
             rules={[{ required: true }]}
           >
             <Input />
@@ -438,7 +440,7 @@ function Banks() {
 
           <Form.Item
             name="name_en"
-            label={intl.formatMessage({ id: "nameEn" })}
+            label={intl.formatMessage({ id: 'nameEn' })}
             rules={[{ required: true }]}
           >
             <Input />
@@ -446,14 +448,26 @@ function Banks() {
 
           <Form.Item
             name="logo"
-            label={intl.formatMessage({ id: "logo" })}
+            label={intl.formatMessage({ id: 'logo' })}
             valuePropName="fileList"
             getValueFromEvent={normFile}
           >
-            <Upload beforeUpload={() => false} maxCount={1}>
-              <Button icon={<UploadOutlined />}>
-                <FormattedMessage id="uploadLogo" />
-              </Button>
+            <Upload
+              listType="picture-card"
+              maxCount={1}
+              beforeUpload={() => false}
+              onPreview={(file) => {
+                setPreviewImage(file.url || file.thumbUrl);
+                setPreviewOpen(true);
+              }}
+              showUploadList={{
+                showPreviewIcon: true,
+                showRemoveIcon: true,
+              }}
+            >
+              <div className="flex flex-col items-center">
+                <FaPlus />
+              </div>
             </Upload>
           </Form.Item>
         </Form>
@@ -474,6 +488,24 @@ function Banks() {
         <p>
           <FormattedMessage id="deleteConfirmBank" />
         </p>
+      </Modal>
+
+      <Modal
+        open={previewOpen}
+        footer={null}
+        onCancel={() => setPreviewOpen(false)}
+        closable={false}
+        centered
+        className="!w-auto !max-w-[90vw]"
+        bodyStyle={{ padding: 0 }}
+      >
+        <div className="flex items-center justify-center max-h-[80vh]">
+          <img
+            alt="preview"
+            src={previewImage}
+            className="max-w-full max-h-[80vh] !min-w-[250px] w-full object-contain rounded"
+          />
+        </div>
       </Modal>
     </>
   );

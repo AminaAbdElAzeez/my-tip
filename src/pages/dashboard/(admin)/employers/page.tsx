@@ -1,27 +1,16 @@
-import { useEffect, useState } from "react";
-import axios from "utlis/library/helpers/axios";
-import {
-  Table,
-  Button,
-  Modal,
-  Form,
-  message,
-  Tooltip,
-  Image,
-  Input,
-  Select,
-  Switch,
-} from "antd";
-import type { ColumnsType } from "antd/es/table";
-import { FaPlus } from "react-icons/fa6";
-import { FiEdit, FiTrash } from "react-icons/fi";
-import { AiOutlineEye } from "react-icons/ai";
-import { FormattedMessage, useIntl } from "react-intl";
-import { Outlet, useLocation, useNavigate } from "react-router-dom";
-import RollerLoading from "components/loading/roller";
-import { Upload } from "antd";
-import type { UploadFile } from "antd/es/upload/interface";
-import { PlusOutlined } from "@ant-design/icons";
+import { useEffect, useState } from 'react';
+import axios from 'utlis/library/helpers/axios';
+import { Table, Button, Modal, Form, message, Tooltip, Image, Input, Select, Switch } from 'antd';
+import type { ColumnsType } from 'antd/es/table';
+import { FaPlus } from 'react-icons/fa6';
+import { FiEdit, FiTrash } from 'react-icons/fi';
+import { AiOutlineEye } from 'react-icons/ai';
+import { FormattedMessage, useIntl } from 'react-intl';
+import { Outlet, useLocation, useNavigate } from 'react-router-dom';
+import RollerLoading from 'components/loading/roller';
+import { Upload } from 'antd';
+import type { UploadFile } from 'antd/es/upload/interface';
+import { PlusOutlined } from '@ant-design/icons';
 
 /* ================= Types ================= */
 interface Employer {
@@ -44,9 +33,9 @@ interface Employer {
 }
 
 const EMPLOYER_STATUS_MAP: Record<number, { key: string; color: string }> = {
-  1: { key: "employer.status.pending", color: "orange" },
-  2: { key: "employer.status.active", color: "green" },
-  3: { key: "employer.status.inactive", color: "red" },
+  1: { key: 'employer.status.pending', color: 'orange' },
+  2: { key: 'employer.status.active', color: 'green' },
+  3: { key: 'employer.status.inactive', color: 'red' },
 };
 
 function Employers() {
@@ -66,12 +55,10 @@ function Employers() {
   const [editItem, setEditItem] = useState<Employer | null>(null);
 
   const [previewOpen, setPreviewOpen] = useState(false);
-  const [previewImage, setPreviewImage] = useState("");
-  const [previewTitle, setPreviewTitle] = useState("");
+  const [previewImage, setPreviewImage] = useState('');
+  const [previewTitle, setPreviewTitle] = useState('');
 
-  const [businessTypes, setBusinessTypes] = useState<
-    { id: number; name: string }[]
-  >([]);
+  const [businessTypes, setBusinessTypes] = useState<{ id: number; name: string }[]>([]);
 
   const location = useLocation();
   const navigate = useNavigate();
@@ -86,10 +73,10 @@ function Employers() {
   });
 
   const EMPLOYER_STATUS_KEYS: Record<number, string> = {
-    1: "employer.status.pending",
-    2: "employer.status.active",
-    3: "employer.status.inactive",
-    5: "employer.status.rejected",
+    1: 'employer.status.pending',
+    2: 'employer.status.active',
+    3: 'employer.status.inactive',
+    5: 'employer.status.rejected',
   };
 
   /* ================= Fetch Once ================= */
@@ -97,15 +84,15 @@ function Employers() {
     try {
       setLoading(true);
 
-      const lang = intl.locale.startsWith("ar") ? "ar-sa" : "en-us";
+      const lang = intl.locale.startsWith('ar') ? 'ar' : 'en';
 
       const res = await axios.get(`/back/admin/employers`, {
-        headers: { "Accept-Language": lang },
+        headers: { 'Accept-Language': lang },
       });
 
       setAllData(res.data?.data || []);
     } catch {
-      message.error(intl.formatMessage({ id: "failedToFetchEmployers" }));
+      message.error(intl.formatMessage({ id: 'failedToFetchEmployers' }));
     } finally {
       setLoading(false);
     }
@@ -113,11 +100,11 @@ function Employers() {
 
   const fetchBusinessTypes = async () => {
     try {
-      const res = await axios.get("/back/admin/business-types");
+      const res = await axios.get('/back/admin/business-types');
 
       setBusinessTypes(res.data?.data || []);
     } catch {
-      message.error(intl.formatMessage({ id: "fetchBusinessTypesFailed" }));
+      message.error(intl.formatMessage({ id: 'fetchBusinessTypesFailed' }));
     }
   };
 
@@ -137,21 +124,19 @@ function Employers() {
   const handleDelete = async (id: number) => {
     try {
       setDelLoading(true);
-      const lang = intl.locale.startsWith("ar") ? "ar-sa" : "en-us";
+      const lang = intl.locale.startsWith('ar') ? 'ar' : 'en';
       // const token = localStorage.getItem("token");
 
       const res = await axios.delete(`/back/admin/employers/${id}`, {
         headers: {
-          "Accept-Language": lang,
+          'Accept-Language': lang,
           // Authorization: `Bearer ${token}`,
         },
       });
-      message.success(
-        res.data?.message || intl.formatMessage({ id: "delSuccess" }),
-      );
+      message.success(res.data?.message || intl.formatMessage({ id: 'delSuccess' }));
       fetchEmployers();
     } catch (err: any) {
-      message.error(err.message || intl.formatMessage({ id: "delFailed" }));
+      message.error(err.message || intl.formatMessage({ id: 'delFailed' }));
     } finally {
       setDelLoading(false);
     }
@@ -168,18 +153,18 @@ function Employers() {
 
     setPreviewImage(file.url || file.preview);
     setPreviewOpen(true);
-    setPreviewTitle(file.name || "Preview");
+    setPreviewTitle(file.name || 'Preview');
   };
 
   /* ================= Columns ================= */
 
   const columns: ColumnsType<Employer> = [
     {
-      title: intl.formatMessage({ id: "employerId" }),
-      dataIndex: "id",
-      key: "id",
-      align: "center",
-      width: "8%",
+      title: intl.formatMessage({ id: 'employerId' }),
+      dataIndex: 'id',
+      key: 'id',
+      align: 'center',
+      width: '8%',
       render: (text) =>
         text || (
           <p className="text-gray-300">
@@ -188,11 +173,11 @@ function Employers() {
         ),
     },
     {
-      title: intl.formatMessage({ id: "userName" }),
-      dataIndex: "user_name",
-      key: "user_name",
-      align: "center",
-      width: "10%",
+      title: intl.formatMessage({ id: 'userName' }),
+      dataIndex: 'user_name',
+      key: 'user_name',
+      align: 'center',
+      width: '10%',
       render: (text) =>
         text || (
           <p className="text-gray-300">
@@ -201,11 +186,11 @@ function Employers() {
         ),
     },
     {
-      title: intl.formatMessage({ id: "email" }),
-      dataIndex: "user_email",
-      key: "user_email",
-      align: "center",
-      width: "13%",
+      title: intl.formatMessage({ id: 'email' }),
+      dataIndex: 'user_email',
+      key: 'user_email',
+      align: 'center',
+      width: '13%',
       render: (text) =>
         text || (
           <p className="text-gray-300">
@@ -214,11 +199,11 @@ function Employers() {
         ),
     },
     {
-      title: intl.formatMessage({ id: "phone" }),
-      dataIndex: "user_phone",
-      key: "user_phone",
-      align: "center",
-      width: "8%",
+      title: intl.formatMessage({ id: 'phone' }),
+      dataIndex: 'user_phone',
+      key: 'user_phone',
+      align: 'center',
+      width: '8%',
       render: (text) =>
         text || (
           <p className="text-gray-300">
@@ -227,11 +212,11 @@ function Employers() {
         ),
     },
     {
-      title: intl.formatMessage({ id: "businessName" }),
-      dataIndex: "business_name",
-      key: "business_name",
-      align: "center",
-      width: "10%",
+      title: intl.formatMessage({ id: 'businessName' }),
+      dataIndex: 'business_name',
+      key: 'business_name',
+      align: 'center',
+      width: '10%',
       render: (text) =>
         text || (
           <p className="text-gray-300">
@@ -240,11 +225,11 @@ function Employers() {
         ),
     },
     {
-      title: intl.formatMessage({ id: "businessType" }),
-      dataIndex: "business_type_name",
-      key: "business_type_name",
-      align: "center",
-      width: "7%",
+      title: intl.formatMessage({ id: 'businessType' }),
+      dataIndex: 'business_type_name',
+      key: 'business_type_name',
+      align: 'center',
+      width: '7%',
       render: (text) =>
         text || (
           <p className="text-gray-300">
@@ -253,11 +238,11 @@ function Employers() {
         ),
     },
     {
-      title: intl.formatMessage({ id: "status" }),
-      dataIndex: "status",
-      key: "status",
-      align: "center",
-      width: "8%",
+      title: intl.formatMessage({ id: 'status' }),
+      dataIndex: 'status',
+      key: 'status',
+      align: 'center',
+      width: '8%',
       render: (status) => {
         const item = EMPLOYER_STATUS_MAP[status];
 
@@ -272,11 +257,11 @@ function Employers() {
     },
 
     {
-      title: intl.formatMessage({ id: "createdAt" }),
-      dataIndex: "created_at",
-      key: "created_at",
-      align: "center",
-      width: "10%",
+      title: intl.formatMessage({ id: 'createdAt' }),
+      dataIndex: 'created_at',
+      key: 'created_at',
+      align: 'center',
+      width: '10%',
       render: (text) =>
         text || (
           <p className="text-gray-300">
@@ -285,11 +270,11 @@ function Employers() {
         ),
     },
     {
-      title: intl.formatMessage({ id: "updatedAt" }),
-      dataIndex: "updated_at",
-      key: "updated_at",
-      align: "center",
-      width: "10%",
+      title: intl.formatMessage({ id: 'updatedAt' }),
+      dataIndex: 'updated_at',
+      key: 'updated_at',
+      align: 'center',
+      width: '10%',
       render: (text) =>
         text || (
           <p className="text-gray-300">
@@ -298,11 +283,11 @@ function Employers() {
         ),
     },
     {
-      title: intl.formatMessage({ id: "image" }),
-      dataIndex: "image",
-      key: "image",
-      width: "10%",
-      align: "center",
+      title: intl.formatMessage({ id: 'image' }),
+      dataIndex: 'image',
+      key: 'image',
+      width: '10%',
+      align: 'center',
       render: (img) =>
         img ? (
           <Image
@@ -311,7 +296,7 @@ function Employers() {
             style={{
               width: 100,
               height: 70,
-              objectFit: "cover",
+              objectFit: 'cover',
               borderRadius: 8,
             }}
             preview={{
@@ -333,23 +318,20 @@ function Employers() {
     },
 
     {
-      title: intl.formatMessage({ id: "actions" }),
-      fixed: "right",
-      width: "6%",
-      align: "center",
+      title: intl.formatMessage({ id: 'actions' }),
+      fixed: 'right',
+      width: '6%',
+      align: 'center',
       render: (_, record) => (
         <div className="flex justify-center gap-2">
-          <Tooltip title={intl.formatMessage({ id: "viewEmployer" })}>
+          <Tooltip title={intl.formatMessage({ id: 'viewEmployer' })}>
             <AiOutlineEye
               className="text-[#214380] text-2xl cursor-pointer"
               onClick={() => navigate(`/admin/employers/${record.id}`)}
             />
           </Tooltip>
 
-          <Tooltip
-            title={intl.formatMessage({ id: "editEmployer" })}
-            color="#2ab479"
-          >
+          <Tooltip title={intl.formatMessage({ id: 'editEmployer' })} color="#2ab479">
             <FiEdit
               className="text-[#3bab7b] text-xl cursor-pointer"
               onClick={() => {
@@ -358,7 +340,7 @@ function Employers() {
                   name: record.user_name,
                   email: record.user_email,
                   phone: record.user_phone,
-                  password: "",
+                  password: '',
                   business_name_en: record.business_name,
                   business_name_ar: record.business_name,
                   commercial_register: record.commercial_register,
@@ -368,9 +350,9 @@ function Employers() {
                   image: record.image
                     ? [
                         {
-                          uid: "-1",
-                          name: "image.png",
-                          status: "done",
+                          uid: '-1',
+                          name: 'image.png',
+                          status: 'done',
                           url: record.image,
                         },
                       ]
@@ -384,7 +366,7 @@ function Employers() {
             />
           </Tooltip>
 
-          <Tooltip title={intl.formatMessage({ id: "deleteEmployer" })}>
+          <Tooltip title={intl.formatMessage({ id: 'deleteEmployer' })}>
             <FiTrash
               className="text-[#d30606] text-xl cursor-pointer"
               onClick={() => {
@@ -400,17 +382,14 @@ function Employers() {
 
   return (
     <>
-      {location.pathname.endsWith("/employers") ? (
+      {location.pathname.endsWith('/employers') ? (
         <div className=" pt-3">
           {loading ? (
             <RollerLoading />
           ) : (
             <Table
               title={() => (
-                <Tooltip
-                  title={intl.formatMessage({ id: "addEmployer" })}
-                  color="#2ab479"
-                >
+                <Tooltip title={intl.formatMessage({ id: 'addEmployer' })} color="#2ab479">
                   <Button
                     type="primary"
                     shape="circle"
@@ -431,7 +410,7 @@ function Employers() {
                 pageSize: pagination.pageSize,
                 total: allData.length,
                 showSizeChanger: true,
-                pageSizeOptions: ["10", "15", "20", "50", "100"],
+                pageSizeOptions: ['10', '15', '20', '50', '100'],
 
                 onChange: (page, size) => {
                   setPagination({
@@ -459,35 +438,37 @@ function Employers() {
 
             const formData = new FormData();
 
-            formData.append("name", values.name);
-            formData.append("email", values.email);
-            formData.append("phone", values.phone);
-            formData.append("password", values.password);
+            formData.append('name', values.name);
+            formData.append('email', values.email);
+            formData.append('phone', values.phone);
+            formData.append('password', values.password);
 
-            formData.append("business_name_en", values.business_name_en);
-            formData.append("business_name_ar", values.business_name_ar);
+            formData.append('business_name_en', values.business_name_en);
+            formData.append('business_name_ar', values.business_name_ar);
 
-            formData.append("commercial_register", values.commercial_register);
-            formData.append("tax_number", values.tax_number);
+            formData.append('commercial_register', values.commercial_register);
+            formData.append('tax_number', values.tax_number);
 
-            formData.append("business_type_id", values.business_type_id);
+            formData.append('business_type_id', values.business_type_id);
 
             if (values.image?.[0]?.originFileObj) {
-              formData.append("image", values.image[0].originFileObj);
+              formData.append('image', values.image[0].originFileObj);
             }
+            const lang = intl.locale.startsWith('ar') ? 'ar' : 'en';
 
-            const res = await axios.post("/back/admin/employers", formData);
+            const res = await axios.post('/back/admin/employers', formData, {
+              headers: {
+                'Accept-Language': lang,
+                // Authorization: `Bearer ${token}`,
+              },
+            });
 
-            message.success(
-              res.data?.message || intl.formatMessage({ id: "addSuccess" }),
-            );
+            message.success(res.data?.message || intl.formatMessage({ id: 'addSuccess' }));
 
             setIsAddModalOpen(false);
             fetchEmployers();
           } catch (err: any) {
-            message.error(
-              err.message || intl.formatMessage({ id: "addFailed" }),
-            );
+            message.error(err.message || intl.formatMessage({ id: 'addFailed' }));
           } finally {
             setAddLoading(false);
           }
@@ -500,80 +481,90 @@ function Employers() {
         <Form layout="vertical" form={addForm}>
           <Form.Item
             name="name"
-            label={intl.formatMessage({ id: "userName" })}
+            label={intl.formatMessage({ id: 'userName' })}
             rules={[{ required: true }]}
           >
-            <Input placeholder={intl.formatMessage({ id: "userName" })} />
+            <Input placeholder={intl.formatMessage({ id: 'userName' })} />
           </Form.Item>
 
           <Form.Item
             name="email"
-            label={intl.formatMessage({ id: "email" })}
-            rules={[{ type: "email", required: true }]}
+            label={intl.formatMessage({ id: 'email' })}
+            rules={[{ type: 'email', required: true }]}
           >
-            <Input placeholder={intl.formatMessage({ id: "email" })} />
+            <Input placeholder={intl.formatMessage({ id: 'email' })} />
           </Form.Item>
 
           <Form.Item
             name="phone"
-            label={intl.formatMessage({ id: "phone" })}
-            rules={[{ required: true }]}
+            label={intl.formatMessage({ id: 'phone' })}
+            rules={[
+              {
+                required: true,
+              },
+              {
+                validator: (_, value) => {
+                  if (!value) return Promise.resolve();
+                  const saudiPhoneRegex = /^(5\d{8}|9665\d{8})$/;
+                  if (saudiPhoneRegex.test(value)) {
+                    return Promise.resolve();
+                  }
+                  return Promise.reject(new Error(intl.formatMessage({ id: 'invalidPhone' })));
+                },
+              },
+            ]}
           >
-            <Input placeholder={intl.formatMessage({ id: "phone" })} />
+            <Input placeholder={intl.formatMessage({ id: 'phone' })} />
           </Form.Item>
 
           <Form.Item
             name="password"
-            label={intl.formatMessage({ id: "password" })}
+            label={intl.formatMessage({ id: 'password' })}
             rules={[{ required: true }]}
           >
-            <Input.Password
-              placeholder={intl.formatMessage({ id: "password" })}
-            />
+            <Input.Password placeholder={intl.formatMessage({ id: 'password' })} />
           </Form.Item>
 
           <Form.Item
             name="business_name_en"
-            label={intl.formatMessage({ id: "businessNameEn" })}
+            label={intl.formatMessage({ id: 'businessNameEn' })}
             rules={[{ required: true }]}
           >
-            <Input placeholder={intl.formatMessage({ id: "businessNameEn" })} />
+            <Input placeholder={intl.formatMessage({ id: 'businessNameEn' })} />
           </Form.Item>
 
           <Form.Item
             name="business_name_ar"
-            label={intl.formatMessage({ id: "businessNameAr" })}
+            label={intl.formatMessage({ id: 'businessNameAr' })}
             rules={[{ required: true }]}
           >
-            <Input placeholder={intl.formatMessage({ id: "businessNameAr" })} />
+            <Input placeholder={intl.formatMessage({ id: 'businessNameAr' })} />
           </Form.Item>
 
           <Form.Item
             name="commercial_register"
-            label={intl.formatMessage({ id: "commercialRegister" })}
+            label={intl.formatMessage({ id: 'commercialRegister' })}
             rules={[{ required: true }]}
           >
-            <Input
-              placeholder={intl.formatMessage({ id: "commercialRegister" })}
-            />
+            <Input placeholder={intl.formatMessage({ id: 'commercialRegister' })} />
           </Form.Item>
 
           <Form.Item
             name="tax_number"
-            label={intl.formatMessage({ id: "taxNumber" })}
+            label={intl.formatMessage({ id: 'taxNumber' })}
             rules={[{ required: true }]}
           >
-            <Input placeholder={intl.formatMessage({ id: "taxNumber" })} />
+            <Input placeholder={intl.formatMessage({ id: 'taxNumber' })} />
           </Form.Item>
 
           <Form.Item
             name="business_type_id"
-            label={intl.formatMessage({ id: "businessType" })}
+            label={intl.formatMessage({ id: 'businessType' })}
             rules={[{ required: true }]}
           >
             <Select
               className="w-full border p-2! rounded"
-              placeholder={intl.formatMessage({ id: "businessType" })}
+              placeholder={intl.formatMessage({ id: 'businessType' })}
             >
               {businessTypes.map((item) => (
                 <option key={item.id} value={item.id}>
@@ -585,7 +576,7 @@ function Employers() {
 
           <Form.Item
             name="image"
-            label={intl.formatMessage({ id: "image" })}
+            label={intl.formatMessage({ id: 'image' })}
             valuePropName="fileList"
             getValueFromEvent={(e) => e?.fileList}
             rules={[{ required: true }]}
@@ -618,39 +609,38 @@ function Employers() {
             const values = await editForm.validateFields();
 
             const formData = new FormData();
-            formData.append("_method", "put");
+            formData.append('_method', 'put');
 
             // Append all fields
-            formData.append("name", values.name);
-            formData.append("email", values.email);
-            formData.append("phone", values.phone);
-            formData.append("password", values.password || ""); // يمكن تخليه اختياري
-            formData.append("business_name_en", values.business_name_en);
-            formData.append("business_name_ar", values.business_name_ar);
-            formData.append("commercial_register", values.commercial_register);
-            formData.append("tax_number", values.tax_number);
-            formData.append("business_type_id", values.business_type_id);
-            formData.append("status", values.status);
+            formData.append('name', values.name);
+            formData.append('email', values.email);
+            formData.append('phone', values.phone);
+            formData.append('password', values.password || ''); // يمكن تخليه اختياري
+            formData.append('business_name_en', values.business_name_en);
+            formData.append('business_name_ar', values.business_name_ar);
+            formData.append('commercial_register', values.commercial_register);
+            formData.append('tax_number', values.tax_number);
+            formData.append('business_type_id', values.business_type_id);
+            formData.append('status', values.status);
 
             // Handle image upload
             if (values.image?.[0]?.originFileObj) {
-              formData.append("image", values.image[0].originFileObj);
+              formData.append('image', values.image[0].originFileObj);
             }
+            const lang = intl.locale.startsWith('ar') ? 'ar' : 'en';
 
-            const res = await axios.post(
-              `/back/admin/employers/${editItem?.id}`,
-              formData,
-            );
+            const res = await axios.post(`/back/admin/employers/${editItem?.id}`, formData, {
+              headers: {
+                'Accept-Language': lang,
+                // Authorization: `Bearer ${token}`,
+              },
+            });
 
-            message.success(
-              res.data?.message || intl.formatMessage({ id: "updateSuccess" }),
-            );
+            message.success(res.data?.message || intl.formatMessage({ id: 'updateSuccess' }));
             setIsEditModalOpen(false);
             fetchEmployers();
           } catch (err: any) {
-            message.error(
-              err.message || intl.formatMessage({ id: "editFailed" }),
-            );
+            message.error(err.message || intl.formatMessage({ id: 'editFailed' }));
           } finally {
             setEditLoading(false);
           }
@@ -663,77 +653,84 @@ function Employers() {
         <Form layout="vertical" form={editForm}>
           <Form.Item
             name="name"
-            label={intl.formatMessage({ id: "userName" })}
+            label={intl.formatMessage({ id: 'userName' })}
             rules={[{ required: true }]}
           >
-            <Input placeholder={intl.formatMessage({ id: "userName" })} />
+            <Input placeholder={intl.formatMessage({ id: 'userName' })} />
           </Form.Item>
 
           <Form.Item
             name="email"
-            label={intl.formatMessage({ id: "email" })}
-            rules={[{ type: "email", required: true }]}
+            label={intl.formatMessage({ id: 'email' })}
+            rules={[{ type: 'email', required: true }]}
           >
-            <Input placeholder={intl.formatMessage({ id: "email" })} />
+            <Input placeholder={intl.formatMessage({ id: 'email' })} />
           </Form.Item>
 
           <Form.Item
             name="phone"
-            label={intl.formatMessage({ id: "phone" })}
-            rules={[{ required: true }]}
+            label={intl.formatMessage({ id: 'phone' })}
+            rules={[
+              {
+                required: true,
+              },
+              {
+                validator: (_, value) => {
+                  if (!value) return Promise.resolve();
+                  const saudiPhoneRegex = /^(5\d{8}|9665\d{8})$/;
+                  if (saudiPhoneRegex.test(value)) {
+                    return Promise.resolve();
+                  }
+                  return Promise.reject(new Error(intl.formatMessage({ id: 'invalidPhone' })));
+                },
+              },
+            ]}
           >
-            <Input placeholder={intl.formatMessage({ id: "phone" })} />
+            <Input placeholder={intl.formatMessage({ id: 'phone' })} />
           </Form.Item>
 
-          <Form.Item
-            name="password"
-            label={intl.formatMessage({ id: "password" })}
-          >
-            <Input.Password
-              placeholder={intl.formatMessage({ id: "password" })}
-            />
+          <Form.Item name="password" label={intl.formatMessage({ id: 'password' })}>
+            <Input.Password placeholder={intl.formatMessage({ id: 'password' })} />
           </Form.Item>
 
           <Form.Item
             name="business_name_en"
-            label={intl.formatMessage({ id: "businessNameEn" })}
+            label={intl.formatMessage({ id: 'businessNameEn' })}
             rules={[{ required: true }]}
           >
-            <Input placeholder={intl.formatMessage({ id: "businessNameEn" })} />
+            <Input placeholder={intl.formatMessage({ id: 'businessNameEn' })} />
           </Form.Item>
 
           <Form.Item
             name="business_name_ar"
-            label={intl.formatMessage({ id: "businessNameAr" })}
+            label={intl.formatMessage({ id: 'businessNameAr' })}
             rules={[{ required: true }]}
           >
-            <Input placeholder={intl.formatMessage({ id: "businessNameAr" })} />
+            <Input placeholder={intl.formatMessage({ id: 'businessNameAr' })} />
           </Form.Item>
 
           <Form.Item
             name="commercial_register"
-            label={intl.formatMessage({ id: "commercialRegister" })}
+            label={intl.formatMessage({ id: 'commercialRegister' })}
             rules={[{ required: true }]}
           >
-            <Input
-              placeholder={intl.formatMessage({ id: "commercialRegister" })}
-            />
+            <Input placeholder={intl.formatMessage({ id: 'commercialRegister' })} />
           </Form.Item>
 
           <Form.Item
             name="tax_number"
-            label={intl.formatMessage({ id: "taxNumber" })}
+            label={intl.formatMessage({ id: 'taxNumber' })}
             rules={[{ required: true }]}
           >
-            <Input placeholder={intl.formatMessage({ id: "taxNumber" })} />
+            <Input placeholder={intl.formatMessage({ id: 'taxNumber' })} />
           </Form.Item>
 
           <Form.Item
             name="business_type_id"
-            label={intl.formatMessage({ id: "businessType" })}
+            label={intl.formatMessage({ id: 'businessType' })}
             rules={[{ required: true }]}
           >
-            <Select placeholder={intl.formatMessage({ id: "businessType" })}>
+            <Select placeholder={intl.formatMessage({ id: 'businessType' })}>
               {businessTypes.map((item) => (
                 <Select.Option key={item.id} value={item.id}>
                   {item.name}
@@ -744,7 +741,7 @@ function Employers() {
 
           <Form.Item
             name="status"
-            label={intl.formatMessage({ id: "status" })}
+            label={intl.formatMessage({ id: 'status' })}
             rules={[{ required: true }]}
           >
             <Select>
@@ -762,7 +759,7 @@ function Employers() {
 
           <Form.Item
             name="image"
-            label={intl.formatMessage({ id: "image" })}
+            label={intl.formatMessage({ id: 'image' })}
             valuePropName="fileList"
             getValueFromEvent={(e) => e?.fileList}
           >
@@ -789,6 +786,9 @@ function Employers() {
           setDeleteModalOpen(false);
         }}
       >
+        <h3 className="text-[#3bab7b] text-lg mb-2">
+          <FormattedMessage id="deleteEmployer" />
+        </h3>
         <FormattedMessage id="deleteConfirmEmployer" />
       </Modal>
 
