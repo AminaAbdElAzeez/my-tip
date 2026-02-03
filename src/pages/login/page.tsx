@@ -364,7 +364,7 @@ function Login() {
                       validator: (_, value) => {
                         if (!value) return Promise.resolve();
                         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-                        const saudiPhoneRegex = /^(05\d{8}|9665\d{8})$/;
+                        const saudiPhoneRegex = /^(5\d{8}|9665\d{8})$/;
                         if (
                           emailRegex.test(value) ||
                           saudiPhoneRegex.test(value)
@@ -424,7 +424,7 @@ function Login() {
                 <Button
                   type="link"
                   onClick={() => handleForgetPassword()}
-                  className="flex justify-end items-center text-center w-full -mt-6 mb-4 text-[#3bab7b] hover:!text-[#3bab7b] hover:underline underline-offset-4 transition-all duration-500"
+                  className="text-base font-medium flex justify-end items-center text-center w-full -mt-6 mb-4 text-[#3bab7b] hover:!text-[#3bab7b] hover:underline underline-offset-4 transition-all duration-500 !px-0"
                 >
                   <FormattedMessage id="forget.password" />
                 </Button>
@@ -513,7 +513,7 @@ function Login() {
           <Button
             type="link"
             onClick={resendOtp}
-            className="flex justify-center items-center text-center w-full -mt-3 text-[#3bab7b] hover:!text-[#3bab7b] hover:underline underline-offset-4 transition-all duration-500"
+            className="text-base font-medium flex justify-center items-center text-center w-full -mt-3 text-[#3bab7b] hover:!text-[#3bab7b] hover:underline underline-offset-4 transition-all duration-500"
           >
             <FormattedMessage id="otp.resend" />
           </Button>

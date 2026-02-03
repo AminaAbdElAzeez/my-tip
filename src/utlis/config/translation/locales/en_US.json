@@ -1283,7 +1283,7 @@
   "stats.platformRevenue": "Platform Revenue",
   "balance.total": "Total Balance",
   "balance.adminProfit": "Admin Profits",
-  "analytics.title": "Performance Analytics",
+  "analytics.title": "Support Statistics",
   "analytics.transactions": "Transactions",
   "activity.recent": "Recent Activity",
   "pending.employers": "Pending Employers",
@@ -1364,5 +1364,12 @@
   "taxNumber": "Tax Number",
   "pendingRequests": "Pending Requests",
   "approveEmployer": "Approve Employer",
-  "rejectEmployer": "Reject Employer"
+  "rejectEmployer": "Reject Employer",
+  "myCard": "My Card",
+  "adminProfits": "Admin Profits",
+  "totalBalance": "Total Balance",
+  "table.submittedDate": "Submitted Date",
+  "table.userId": "User Id",
+  "table.employerId": "Owner Id",
+  "itemsChart": "Items"
 }

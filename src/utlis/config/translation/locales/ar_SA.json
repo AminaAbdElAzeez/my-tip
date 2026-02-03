@@ -1282,11 +1282,11 @@
   "stats.platformRevenue": "أرباح المنصة",
   "balance.total": "إجمالي الرصيد",
   "balance.adminProfit": "أرباح الإدارة",
-  "analytics.title": "تحليل الأداء",
+  "analytics.title": "احصائيات الدعم",
   "analytics.transactions": "عملية",
   "activity.recent": "آخر النشاطات",
-  "pending.employers": "طلبات أصحاب الأعمال المعلقة",
-  "pending.users": "طلبات المستخدمين المعلقة",
+  "pending.employers": "طلبات أصحاب الأعمال المنتظرة",
+  "pending.users": "طلبات المستخدمين المنتظرة",
   "table.owner": "اسم المالك",
   "table.business": "اسم النشاط",
   "table.cr": "السجل التجاري",
@@ -1365,5 +1365,12 @@
   "taxNumber": "رقم الضريبة",
   "pendingRequests": "الطلبات المنتظرة",
   "approveEmployer": "قبول صاحب العمل",
-  "rejectEmployer": "رفض صاحب العمل"
+  "rejectEmployer": "رفض صاحب العمل",
+  "myCard": "بطاقتي",
+  "adminProfits": "أرباح الإدارة",
+  "totalBalance": "الرصيد الإجمالي",
+  "table.submittedDate": "تاريخ التقديم",
+  "table.userId": "رقم المستخدم",
+  "table.employerId": "رقم المالك",
+  "itemsChart": "العناصر"
 }
