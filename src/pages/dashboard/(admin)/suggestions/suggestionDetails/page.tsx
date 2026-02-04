@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import axios from 'utlis/library/helpers/axios';
 import { useNavigate, useParams } from 'react-router-dom';
-import { message, Descriptions, Tooltip, Modal, Button, Tag, Image } from 'antd';
+import { message, Descriptions, Tooltip, Modal, Button, Tag, Image, Form, Select } from 'antd';
 import { FormattedMessage, useIntl } from 'react-intl';
 import RollerLoading from 'components/loading/roller';
 import { FiEdit, FiTrash } from 'react-icons/fi';
@@ -27,12 +27,17 @@ function SuggestionDetails() {
   const [data, setData] = useState<Suggestion | null>(null);
   const [loading, setLoading] = useState(false);
 
+  const [selectedId, setSelectedId] = useState<number | null>(null);
+  const [editOpen, setEditOpen] = useState(false);
+  const [editLoading, setEditLoading] = useState(false);
+
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [deleteLoading, setDeleteLoading] = useState(false);
 
   const { id } = useParams();
   const navigate = useNavigate();
   const intl = useIntl();
+  const [editForm] = Form.useForm();
 
   const suggestionStatusMap: Record<number, string> = {
     1: intl.formatMessage({ id: 'pending' }),
@@ -78,23 +83,36 @@ function SuggestionDetails() {
     fetchSuggestion();
   }, [id]);
 
-  /* ================= Delete ================= */
+  /* ================= Fetch Once / On Locale or Pagination ================= */
+  useEffect(() => {
+    fetchSuggestion();
+  }, [id,intl.locale]);
 
-  const handleDelete = async () => {
-    if (!id) return;
+  /* ================= Update Status ================= */
+
+  const handleEditStatus = async (values: any) => {
+    if (!selectedId) return;
 
     try {
-      setDeleteLoading(true);
+      setEditLoading(true);
 
-      const res = await axios.delete(`/back/admin/suggestions/${id}`);
+      const formData = new FormData();
+      formData.append('_method', 'put');
+      formData.append('status', values.status);
+      const lang = intl.locale.startsWith('ar') ? 'ar' : 'en';
 
-      message.success(res.data?.message || intl.formatMessage({ id: 'delSuccess' }));
+      const res = await axios.post(`/back/admin/suggestions/${selectedId}/status`, formData, {
+        headers: { 'Accept-Language': lang },
+      });
 
-      navigate('/admin/suggestions');
+      message.success(res.data?.message);
+
+      setEditOpen(false);
+      fetchSuggestion();
     } catch (err: any) {
-      message.error(err.message || intl.formatMessage({ id: 'delFailed' }));
+      message.error(err.message);
     } finally {
-      setDeleteLoading(false);
+      setEditLoading(false);
     }
   };
 
@@ -112,8 +130,21 @@ function SuggestionDetails() {
   return (
     <section className="pt-3">
       {/* ================= Actions ================= */}
+      <div className="flex justify-end items-center gap-3">
+        {/* Edit */}
+        <Tooltip title={intl.formatMessage({ id: 'changeStatus' })} color="#27aa71">
+          <FiEdit
+            className="text-[#27aa71] text-2xl cursor-pointer"
+            onClick={() => {
+              setSelectedId(data.id);
+              editForm.setFieldsValue({ status: data.status });
+              setEditOpen(true);
+            }}
+          />
+        </Tooltip>
+      </div>
 
-      <Descriptions bordered column={1}>
+      <Descriptions bordered column={1} className="mt-4">
         <Descriptions.Item
           label={
             <b className="text-[#3bab7b]">
@@ -239,22 +270,34 @@ function SuggestionDetails() {
         </Descriptions.Item>
       </Descriptions>
 
-      {/* ================= Delete Modal ================= */}
+      {/* ================= Update Status Modal ================= */}
 
       <Modal
-        open={deleteOpen}
-        confirmLoading={deleteLoading}
-        onCancel={() => setDeleteOpen(false)}
-        okButtonProps={{ danger: true }}
-        onOk={handleDelete}
+        open={editOpen}
+        onCancel={() => setEditOpen(false)}
+        confirmLoading={editLoading}
+        onOk={() => editForm.submit()}
       >
-        <h2 className="text-[#d30606] font-semibold text-lg mb-2">
-          <FormattedMessage id="deleteSuggestion" />
+        <h2 className="text-[#3bab7b] font-semibold text-lg mb-3">
+          <FormattedMessage id="updateSuggestionStatus" />
         </h2>
 
-        <p>
-          <FormattedMessage id="deleteConfirmSuggestion" />
-        </p>
+        <Form layout="vertical" form={editForm} onFinish={handleEditStatus}>
+          <Form.Item
+            name="status"
+            label={intl.formatMessage({ id: 'status' })}
+            rules={[{ required: true }]}
+          >
+            <Select
+              options={[
+                { value: 1, label: intl.formatMessage({ id: 'pending' }) },
+                { value: 2, label: intl.formatMessage({ id: 'reviewed' }) },
+                { value: 3, label: intl.formatMessage({ id: 'implemented' }) },
+                { value: 4, label: intl.formatMessage({ id: 'rejected' }) },
+              ]}
+            />
+          </Form.Item>
+        </Form>
       </Modal>
     </section>
   );

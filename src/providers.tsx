@@ -31,9 +31,18 @@ import Suggestions from './pages/dashboard/(admin)/suggestions/page';
 import Contacts from './pages/dashboard/(admin)/contacts/page';
 import Withdrawals from './pages/dashboard/(admin)/withdrawals/page';
 import EmployersDetails from './pages/dashboard/(admin)/employers/employersDetails/page';
-import PendingRequests from './pages/dashboard/(admin)/employers/employersDetails/pendingRequests/page';
+import PendingRequests from './pages/dashboard/(admin)/employers/pendingRequests/page';
 import SuggestionDetails from './pages/dashboard/(admin)/suggestions/suggestionDetails/page';
 import ContactDetails from './pages/dashboard/(admin)/contacts/contactDetails/page';
+import PendingUserRequests from './pages/dashboard/(admin)/users/pendingUsers/page';
+import Tips from './pages/dashboard/(admin)/tips/page';
+import TipsDetails from './pages/dashboard/(admin)/tips/tipsDetails/page';
+import SocialMedia from './pages/dashboard/(admin)/socialMedia/page';
+import AppVersion from './pages/dashboard/(admin)/appVersion/page';
+import ContactTypes from './pages/dashboard/(admin)/contactsType/page';
+import Settings from './pages/dashboard/(admin)/settings/page';
+import Notifications from './pages/dashboard/(admin)/notifications/page';
+import BusinessTypes from './pages/dashboard/(admin)/businessTypes/page';
 
 const router = createBrowserRouter([
   {
@@ -55,11 +64,10 @@ const router = createBrowserRouter([
           {
             path: 'employers',
             element: <Employers />,
-            children: [{ path: ':id', element: <EmployersDetails /> }],
-          },
-          {
-            path: 'pendingRequests',
-            element: <PendingRequests />,
+            children: [
+              { path: ':id', element: <EmployersDetails /> },
+              { path: 'pending', element: <PendingRequests /> },
+            ],
           },
           {
             path: 'profile',
@@ -76,7 +84,10 @@ const router = createBrowserRouter([
           {
             path: 'users',
             element: <Users />,
-            children: [{ path: ':id', element: <UserDetails /> }],
+            children: [
+              { path: ':id', element: <UserDetails /> },
+              { path: 'pending', element: <PendingUserRequests /> },
+            ],
           },
           {
             path: 'suggestions',
@@ -91,6 +102,41 @@ const router = createBrowserRouter([
           {
             path: 'withdrawals',
             element: <Withdrawals />,
+          },
+          {
+            path: 'tips',
+            element: <Tips />,
+            children: [{ path: ':id', element: <TipsDetails /> }],
+          },
+
+          {
+            path: 'socialMedia',
+            element: <SocialMedia />,
+          },
+          {
+            path: 'appVersion',
+            element: <AppVersion />,
+          },
+          {
+            path: 'contactTypes',
+            element: <ContactTypes />,
+          },
+          // {
+          //   path: 'suggestionTypes',
+          //   element: <Tips />,
+          // },
+          {
+            path: 'settings',
+            element: <Settings />,
+          },
+          {
+            path: 'notification',
+            element: <Notifications />,
+          },
+          {
+            path: 'businessTypes',
+            element: <BusinessTypes />,
+            children: [{ path: ':id', element: <TipsDetails /> }],
           },
         ],
       },

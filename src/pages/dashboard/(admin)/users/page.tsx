@@ -55,10 +55,8 @@ function Users() {
 
   const [pagination, setPagination] = useState({
     current: 1,
-    pageSize: 15,
-    total: 0,
+    pageSize: 10,
   });
-
   // ================= Maps for localization =================
   const userStatusMap: Record<number, string> = {
     1: intl.formatMessage({ id: 'statusPending' }),
@@ -80,7 +78,7 @@ function Users() {
   const fetchUsers = async () => {
     try {
       setLoading(true);
-      const lang = intl.locale.startsWith('ar') ? 'ar-sa' : 'en-us';
+      const lang = intl.locale.startsWith('ar') ? 'ar' : 'en';
       const res = await axios.get(
         `/back/admin/users?page=${pagination.current}&take=${pagination.pageSize}`,
         { headers: { 'Accept-Language': lang } },
@@ -99,7 +97,27 @@ function Users() {
 
   useEffect(() => {
     fetchUsers();
-  }, [pagination.current, pagination.pageSize]);
+  }, []);
+
+  /* ================= Fetch Once / On Locale or Pagination ================= */
+  useEffect(() => {
+    fetchUsers();
+  }, [intl.locale]);
+
+  /* ================= Client Pagination ================= */
+  const handleTableChange = (paginationData: any) => {
+    setPagination({
+      current: paginationData.current,
+      pageSize: paginationData.pageSize,
+    });
+  };
+
+  /* ================= Client Pagination ================= */
+
+  const startIndex = (pagination.current - 1) * pagination.pageSize;
+  const endIndex = pagination.current * pagination.pageSize;
+
+  const paginatedData = data.slice(startIndex, endIndex);
 
   // Image
   const handlePreview = async (file: any) => {
@@ -128,11 +146,14 @@ function Users() {
       formData.append('password_confirmation', values.password_confirmation);
       formData.append('type', values.type);
       formData.append('status', values.status);
-      if (values.image?.[0]?.originFileObj) {
-        formData.append('image', values.image[0].originFileObj);
+      if (values.profile_image?.[0]?.originFileObj) {
+        formData.append('profile_image', values.profile_image[0].originFileObj);
       }
+      const lang = intl.locale.startsWith('ar') ? 'ar' : 'en';
 
-      const res = await axios.post('/back/admin/users', formData);
+      const res = await axios.post('/back/admin/users', formData, {
+        headers: { 'Accept-Language': lang },
+      });
       message.success(res.data?.message || intl.formatMessage({ id: 'addSuccess' }));
       setAddOpen(false);
       fetchUsers();
@@ -159,11 +180,14 @@ function Users() {
       }
       formData.append('type', values.type);
       formData.append('status', values.status);
-      if (values.image?.[0]?.originFileObj) {
-        formData.append('image', values.image[0].originFileObj);
+      if (values.profile_image?.[0]?.originFileObj) {
+        formData.append('profile_image', values.profile_image[0].originFileObj);
       }
+      const lang = intl.locale.startsWith('ar') ? 'ar' : 'en';
 
-      const res = await axios.post(`/back/admin/users/${selectedId}`, formData);
+      const res = await axios.post(`/back/admin/users/${selectedId}`, formData, {
+        headers: { 'Accept-Language': lang },
+      });
       message.success(res.data?.message || intl.formatMessage({ id: 'editSuccess' }));
       setEditOpen(false);
       fetchUsers();
@@ -189,7 +213,7 @@ function Users() {
 
       editForm.setFieldsValue({
         ...editItem,
-        image: fileList, // مهم جدًا: Upload محتاج array
+        profile_image: fileList,
       });
     }
   }, [editItem]);
@@ -199,7 +223,11 @@ function Users() {
     if (!selectedId) return;
     try {
       setDelLoading(true);
-      const res = await axios.delete(`/back/admin/users/${selectedId}`);
+      const lang = intl.locale.startsWith('ar') ? 'ar' : 'en';
+
+      const res = await axios.delete(`/back/admin/users/${selectedId}`, {
+        headers: { 'Accept-Language': lang },
+      });
       message.success(res.data?.message || intl.formatMessage({ id: 'deleteSuccess' }));
       setDeleteOpen(false);
       fetchUsers();
@@ -223,7 +251,13 @@ function Users() {
       dataIndex: 'id',
       key: 'id',
       align: 'center',
-      width: '7%',
+      width: '6%',
+      render: (text) =>
+        text || (
+          <p className="text-gray-300">
+            <FormattedMessage id="noData" />
+          </p>
+        ),
     },
     {
       title: intl.formatMessage({ id: 'name' }),
@@ -231,6 +265,12 @@ function Users() {
       key: 'name',
       align: 'center',
       width: '10%',
+      render: (text) =>
+        text || (
+          <p className="text-gray-300">
+            <FormattedMessage id="noData" />
+          </p>
+        ),
     },
     {
       title: intl.formatMessage({ id: 'email' }),
@@ -238,6 +278,12 @@ function Users() {
       key: 'email',
       align: 'center',
       width: '10%',
+      render: (text) =>
+        text || (
+          <p className="text-gray-300">
+            <FormattedMessage id="noData" />
+          </p>
+        ),
     },
     {
       title: intl.formatMessage({ id: 'phone' }),
@@ -245,6 +291,12 @@ function Users() {
       key: 'phone',
       align: 'center',
       width: '7%',
+      render: (text) =>
+        text || (
+          <p className="text-gray-300">
+            <FormattedMessage id="noData" />
+          </p>
+        ),
     },
     {
       title: intl.formatMessage({ id: 'type' }),
@@ -259,7 +311,7 @@ function Users() {
       dataIndex: 'status',
       key: 'status',
       align: 'center',
-      width: '8%',
+      width: '7%',
       render: (status) => {
         const color = status === 2 ? 'text-green-600' : 'text-red-600';
         return (
@@ -345,6 +397,12 @@ function Users() {
       key: 'created_at',
       align: 'center',
       width: '7%',
+      render: (text) =>
+        text || (
+          <p className="text-gray-300">
+            <FormattedMessage id="noData" />
+          </p>
+        ),
     },
     {
       title: intl.formatMessage({ id: 'updatedAt' }),
@@ -352,24 +410,30 @@ function Users() {
       key: 'updated_at',
       align: 'center',
       width: '7%',
+      render: (text) =>
+        text || (
+          <p className="text-gray-300">
+            <FormattedMessage id="noData" />
+          </p>
+        ),
     },
     {
       title: intl.formatMessage({ id: 'actions' }),
       key: 'actions',
       fixed: 'right',
-      width: '5%',
+      width: '6%',
       align: 'center',
       render: (_, record) => (
         <div className="flex justify-center gap-3">
-          <Tooltip title={intl.formatMessage({ id: 'viewUser' })}>
+          <Tooltip title={intl.formatMessage({ id: 'viewUser' })} color="#a86b9e">
             <AiOutlineEye
-              className="text-[#214380] text-2xl cursor-pointer"
+              className="text-[#a86b9e] text-2xl cursor-pointer"
               onClick={() => navigate(`/admin/users/${record.id}`)}
             />
           </Tooltip>
-          <Tooltip title={intl.formatMessage({ id: 'edit' })}>
+          <Tooltip title={intl.formatMessage({ id: 'editUser' })} color="#27aa71">
             <FiEdit
-              className="text-[#3bab7b] text-xl cursor-pointer"
+              className="text-[#27aa71] text-xl cursor-pointer"
               onClick={() => {
                 setSelectedId(record.id);
 
@@ -387,13 +451,13 @@ function Users() {
                 setEditItem(record);
                 editForm.setFieldsValue({
                   ...record,
-                  image: fileList,
+                  profile_image: fileList,
                 });
                 setEditOpen(true);
               }}
             />
           </Tooltip>
-          <Tooltip title={intl.formatMessage({ id: 'delete' })}>
+          <Tooltip title={intl.formatMessage({ id: 'deleteUser' })} color='#d30606'>
             <FiTrash
               className="text-[#d30606] text-xl cursor-pointer"
               onClick={() => {
@@ -416,7 +480,7 @@ function Users() {
           ) : (
             <Table
               title={() => (
-                <Tooltip title={intl.formatMessage({ id: 'addUser' })}>
+                <Tooltip title={intl.formatMessage({ id: 'addUser' })} color="#2ab479">
                   <Button
                     type="primary"
                     shape="circle"
@@ -429,21 +493,20 @@ function Users() {
                 </Tooltip>
               )}
               columns={columns}
-              dataSource={data}
+              dataSource={paginatedData}
               rowKey="id"
               scroll={{ x: 2000, y: 375 }}
               pagination={{
                 current: pagination.current,
                 pageSize: pagination.pageSize,
-                total: pagination.total,
+                total: data.length,
                 showSizeChanger: true,
-                onChange: (page, size) =>
-                  setPagination({
-                    ...pagination,
-                    current: page,
-                    pageSize: size!,
-                  }),
+                pageSizeOptions: ['10', '15', '20', '50', '100'],
+                onChange: (page, size) => {
+                  setPagination({ current: page, pageSize: size! });
+                },
               }}
+              onChange={handleTableChange}
             />
           )}
         </div>
@@ -528,10 +591,12 @@ function Users() {
           >
             <Select
               placeholder={intl.formatMessage({ id: 'type' })}
-              options={Object.entries(userTypeMap).map(([value, label]) => ({
-                value: Number(value),
-                label,
-              }))}
+              options={Object.entries(userTypeMap)
+                .filter(([value]) => [4, 5].includes(Number(value)))
+                .map(([value, label]) => ({
+                  value: Number(value),
+                  label,
+                }))}
             />
           </Form.Item>
           <Form.Item
@@ -548,7 +613,7 @@ function Users() {
             />
           </Form.Item>
           <Form.Item
-            name="image"
+            name="profile_image"
             label={intl.formatMessage({ id: 'image' })}
             valuePropName="fileList"
             getValueFromEvent={normFile}
@@ -647,10 +712,12 @@ function Users() {
           >
             <Select
               placeholder={intl.formatMessage({ id: 'type' })}
-              options={Object.entries(userTypeMap).map(([value, label]) => ({
-                value: Number(value),
-                label,
-              }))}
+              options={Object.entries(userTypeMap)
+                .filter(([value]) => [4, 5].includes(Number(value)))
+                .map(([value, label]) => ({
+                  value: Number(value),
+                  label,
+                }))}
             />
           </Form.Item>
           <Form.Item
@@ -667,7 +734,7 @@ function Users() {
             />
           </Form.Item>
           <Form.Item
-            name="image"
+            name="profile_image"
             label={intl.formatMessage({ id: 'image' })}
             valuePropName="fileList"
             getValueFromEvent={normFile}

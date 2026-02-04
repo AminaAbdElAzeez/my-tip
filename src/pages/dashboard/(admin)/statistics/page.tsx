@@ -1,24 +1,7 @@
 import { useState } from 'react';
 import { Card, Row, Col, Select, Spin, List, Tag, Table, Skeleton } from 'antd';
 
-import {
-  PieChart,
-  Pie,
-  Cell,
-  ResponsiveContainer,
-  Tooltip,
-  AreaChart,
-  XAxis,
-  YAxis,
-  Area,
-} from 'recharts';
-import {
-  DollarOutlined,
-  UserOutlined,
-  WalletOutlined,
-  ArrowUpOutlined,
-  ArrowDownOutlined,
-} from '@ant-design/icons';
+import { ResponsiveContainer, Tooltip, AreaChart, XAxis, YAxis, Area } from 'recharts';
 import { useQuery } from '@tanstack/react-query';
 import { FormattedMessage, useIntl } from 'react-intl';
 import axios from 'utlis/library/helpers/axios';
@@ -27,7 +10,6 @@ import { useSelector } from 'react-redux';
 import { BiDollar } from 'react-icons/bi';
 import { FaUser, FaWallet } from 'react-icons/fa';
 import { FaArrowTrendDown, FaArrowTrendUp, FaTriangleExclamation } from 'react-icons/fa6';
-import { ColumnsType } from 'antd/es/table';
 import RollerLoading from 'components/loading/roller';
 
 const { Option } = Select;
@@ -63,12 +45,12 @@ const Statistics = () => {
   };
 
   const { data: dashboardData, isLoading } = useQuery({
-    queryKey: ['dashboard'],
+    queryKey: ['dashboard', locale],
     queryFn: fetchDashboard,
   });
-
+  
   const { data: statisticsData, isLoading: chartLoading } = useQuery({
-    queryKey: ['statistics', duration],
+    queryKey: ['statistics', duration, locale],
     queryFn: () => fetchStatistics(duration),
   });
 

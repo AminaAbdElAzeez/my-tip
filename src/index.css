@@ -657,3 +657,19 @@ html[dir='rtl'] .leaflet-control-geosearch button.reset {
   background-color: #239e68;
 }
 /* scroll in statistics in recent activity */
+
+.ql-toolbar.ql-snow {
+  border-radius: 10px 10px 0 0 !important;
+  -webkit-border-radius: 10px 10px 0 0 !important;
+  -moz-border-radius: 10px 10px 0 0 !important;
+  -ms-border-radius: 10px 10px 0 0 !important;
+  -o-border-radius: 10px 10px 0 0 !important;
+}
+
+.ql-toolbar.ql-snow + .ql-container.ql-snow {
+  border-radius: 0 0 10px 10px !important;
+  -webkit-border-radius: 0 0 10px 10px !important;
+  -moz-border-radius: 0 0 10px 10px !important;
+  -ms-border-radius: 0 0 10px 10px !important;
+  -o-border-radius: 0 0 10px 10px !important;
+}

@@ -37,34 +37,34 @@ function Suggestions() {
 
   const location = useLocation();
   const intl = useIntl();
-  const navigate = useNavigate()
+  const navigate = useNavigate();
 
   const [editForm] = Form.useForm();
 
   const [pagination, setPagination] = useState({
     current: 1,
-    pageSize: 15,
-    total: 0,
+    pageSize: 10,
   });
 
   /* ================= Status Map ================= */
 
   const suggestionStatusMap: Record<number, string> = {
-  1: intl.formatMessage({ id: 'pending' }),
-  2: intl.formatMessage({ id: 'reviewed' }),
-  3: intl.formatMessage({ id: 'implemented' }),
-  4: intl.formatMessage({ id: 'rejected' }),
-};
+    1: intl.formatMessage({ id: 'pending' }),
+    2: intl.formatMessage({ id: 'reviewed' }),
+    3: intl.formatMessage({ id: 'implemented' }),
+    4: intl.formatMessage({ id: 'rejected' }),
+  };
 
   /* ================= Fetch Suggestions ================= */
 
   const fetchSuggestions = async () => {
     try {
       setLoading(true);
+      const lang = intl.locale.startsWith('ar') ? 'ar' : 'en';
 
-      const res = await axios.get(
-        `/back/admin/suggestions?page=${pagination.current}&take=${pagination.pageSize}`,
-      );
+      const res = await axios.get(`/back/admin/suggestions`, {
+        headers: { 'Accept-Language': lang },
+      });
 
       setData(res.data?.data || []);
 
@@ -81,7 +81,27 @@ function Suggestions() {
 
   useEffect(() => {
     fetchSuggestions();
-  }, [pagination.current, pagination.pageSize]);
+  }, []);
+
+  /* ================= Fetch Once / On Locale or Pagination ================= */
+  useEffect(() => {
+    fetchSuggestions();
+  }, [intl.locale]);
+
+  /* ================= Client Pagination ================= */
+  const handleTableChange = (paginationData: any) => {
+    setPagination({
+      current: paginationData.current,
+      pageSize: paginationData.pageSize,
+    });
+  };
+
+  /* ================= Client Pagination ================= */
+
+  const startIndex = (pagination.current - 1) * pagination.pageSize;
+  const endIndex = pagination.current * pagination.pageSize;
+
+  const paginatedData = data.slice(startIndex, endIndex);
 
   /* ================= Update Status ================= */
 
@@ -94,8 +114,11 @@ function Suggestions() {
       const formData = new FormData();
       formData.append('_method', 'put');
       formData.append('status', values.status);
+      const lang = intl.locale.startsWith('ar') ? 'ar' : 'en';
 
-      const res = await axios.post(`/back/admin/suggestions/${selectedId}/status`, formData);
+      const res = await axios.post(`/back/admin/suggestions/${selectedId}/status`, formData, {
+        headers: { 'Accept-Language': lang },
+      });
 
       message.success(res.data?.message);
 
@@ -116,36 +139,72 @@ function Suggestions() {
       dataIndex: 'id',
       align: 'center',
       width: '8%',
+      render: (text) =>
+        text || (
+          <p className="text-gray-300">
+            <FormattedMessage id="noData" />
+          </p>
+        ),
     },
     {
       title: intl.formatMessage({ id: 'userId' }),
       dataIndex: ['user', 'id'],
       align: 'center',
       width: '7%',
+      render: (text) =>
+        text || (
+          <p className="text-gray-300">
+            <FormattedMessage id="noData" />
+          </p>
+        ),
     },
     {
       title: intl.formatMessage({ id: 'userName' }),
       dataIndex: ['user', 'name'],
       align: 'center',
-      width: '13%',
+      width: '11%',
+      render: (text) =>
+        text || (
+          <p className="text-gray-300">
+            <FormattedMessage id="noData" />
+          </p>
+        ),
     },
     {
       title: intl.formatMessage({ id: 'userEmail' }),
       dataIndex: ['user', 'email'],
       align: 'center',
-      width: '12%',
+      width: '13%',
+      render: (text) =>
+        text || (
+          <p className="text-gray-300">
+            <FormattedMessage id="noData" />
+          </p>
+        ),
     },
     {
       title: intl.formatMessage({ id: 'suggestionType' }),
       dataIndex: 'suggestion_type',
       align: 'center',
       width: '10%',
+      render: (text) =>
+        text || (
+          <p className="text-gray-300">
+            <FormattedMessage id="noData" />
+          </p>
+        ),
     },
     {
       title: intl.formatMessage({ id: 'description' }),
       dataIndex: 'description',
       align: 'center',
-      width: '14%',
+      width: '12%',
+      render: (text) =>
+        text || (
+          <p className="text-gray-300">
+            <FormattedMessage id="noData" />
+          </p>
+        ),
     },
     {
       title: intl.formatMessage({ id: 'status' }),
@@ -162,7 +221,7 @@ function Suggestions() {
       title: intl.formatMessage({ id: 'attachment' }),
       dataIndex: 'attachment',
       align: 'center',
-      width: '9%',
+      width: '10%',
       render: (img) =>
         img ? (
           <Image
@@ -194,30 +253,42 @@ function Suggestions() {
       title: intl.formatMessage({ id: 'createdAt' }),
       dataIndex: 'created_at',
       align: 'center',
-      width: '6%',
+      width: '8%',
+      render: (text) =>
+        text || (
+          <p className="text-gray-300">
+            <FormattedMessage id="noData" />
+          </p>
+        ),
     },
     {
       title: intl.formatMessage({ id: 'updatedAt' }),
       dataIndex: 'updated_at',
       align: 'center',
-      width: '7%',
+      width: '8%',
+      render: (text) =>
+        text || (
+          <p className="text-gray-300">
+            <FormattedMessage id="noData" />
+          </p>
+        ),
     },
     {
       title: intl.formatMessage({ id: 'actions' }),
       align: 'center',
-      width: '6%',
+      width: '5%',
       fixed: 'right',
       render: (_, record) => (
         <div className="flex justify-center gap-2">
-          <Tooltip title={intl.formatMessage({ id: 'viewSuggestion' })}>
+          <Tooltip title={intl.formatMessage({ id: 'viewSuggestion' })} color="#a86b9e">
             <AiOutlineEye
-              className="text-[#214380] text-2xl cursor-pointer"
+              className="text-[#a86b9e] text-2xl cursor-pointer"
               onClick={() => navigate(`/admin/suggestions/${record.id}`)}
             />
           </Tooltip>
-          <Tooltip title={intl.formatMessage({ id: 'changeStatus' })}>
+          <Tooltip title={intl.formatMessage({ id: 'changeStatus' })} color="#27aa71">
             <FiEdit
-              className="text-[#3bab7b] text-xl cursor-pointer"
+              className="text-[#27aa71] text-xl cursor-pointer"
               onClick={() => {
                 setSelectedId(record.id);
                 editForm.setFieldsValue({ status: record.status });
@@ -239,21 +310,20 @@ function Suggestions() {
           ) : (
             <Table
               columns={columns}
-              dataSource={data}
+              dataSource={paginatedData}
               rowKey="id"
-              scroll={{ x: 1800, y: 375 }}
+              scroll={{ x: 1800, y: 440 }}
               pagination={{
                 current: pagination.current,
                 pageSize: pagination.pageSize,
-                total: pagination.total,
+                total: data.length,
                 showSizeChanger: true,
-                onChange: (page, size) =>
-                  setPagination({
-                    ...pagination,
-                    current: page,
-                    pageSize: size!,
-                  }),
+                pageSizeOptions: ['10', '15', '20', '50', '100'],
+                onChange: (page, size) => {
+                  setPagination({ current: page, pageSize: size! });
+                },
               }}
+              onChange={handleTableChange}
             />
           )}
         </div>

@@ -113,6 +113,19 @@ function Employers() {
     fetchBusinessTypes();
   }, []);
 
+  /* ================= Fetch Once / On Locale or Pagination ================= */
+  useEffect(() => {
+    fetchEmployers();
+  }, [intl.locale]);
+
+  /* ================= Client Pagination ================= */
+  const handleTableChange = (paginationData: any) => {
+    setPagination({
+      current: paginationData.current,
+      pageSize: paginationData.pageSize,
+    });
+  };
+
   /* ================= Client Pagination ================= */
 
   const startIndex = (pagination.current - 1) * pagination.pageSize;
@@ -134,7 +147,9 @@ function Employers() {
         },
       });
       message.success(res.data?.message || intl.formatMessage({ id: 'delSuccess' }));
-      fetchEmployers();
+      navigate('/admin/employers');
+
+      // fetchEmployers();
     } catch (err: any) {
       message.error(err.message || intl.formatMessage({ id: 'delFailed' }));
     } finally {
@@ -324,16 +339,16 @@ function Employers() {
       align: 'center',
       render: (_, record) => (
         <div className="flex justify-center gap-2">
-          <Tooltip title={intl.formatMessage({ id: 'viewEmployer' })}>
+          <Tooltip title={intl.formatMessage({ id: 'viewEmployer' })} color="#a86b9e">
             <AiOutlineEye
-              className="text-[#214380] text-2xl cursor-pointer"
+              className="text-[#a86b9e] text-2xl cursor-pointer"
               onClick={() => navigate(`/admin/employers/${record.id}`)}
             />
           </Tooltip>
 
-          <Tooltip title={intl.formatMessage({ id: 'editEmployer' })} color="#2ab479">
+          <Tooltip title={intl.formatMessage({ id: 'editEmployer' })} color="#27aa71">
             <FiEdit
-              className="text-[#3bab7b] text-xl cursor-pointer"
+              className="text-[#27aa71] text-xl cursor-pointer"
               onClick={() => {
                 setEditItem(record);
                 editForm.setFieldsValue({
@@ -360,13 +375,11 @@ function Employers() {
                 });
 
                 setIsEditModalOpen(true);
-
-                setIsEditModalOpen(true);
               }}
             />
           </Tooltip>
 
-          <Tooltip title={intl.formatMessage({ id: 'deleteEmployer' })}>
+          <Tooltip title={intl.formatMessage({ id: 'deleteEmployer' })} color="#d30606">
             <FiTrash
               className="text-[#d30606] text-xl cursor-pointer"
               onClick={() => {
@@ -387,6 +400,39 @@ function Employers() {
           {loading ? (
             <RollerLoading />
           ) : (
+            // <Table
+            //   title={() => (
+            //     <Tooltip title={intl.formatMessage({ id: 'addEmployer' })} color="#2ab479">
+            //       <Button
+            //         type="primary"
+            //         shape="circle"
+            //         icon={<FaPlus />}
+            //         onClick={() => {
+            //           addForm.resetFields();
+            //           setIsAddModalOpen(true);
+            //         }}
+            //       />
+            //     </Tooltip>
+            //   )}
+            //   rowKey="id"
+            //   columns={columns}
+            //   dataSource={paginatedData}
+            //   scroll={{ x: 2000, y: 365 }}
+            //   pagination={{
+            //     current: pagination.current,
+            //     pageSize: pagination.pageSize,
+            //     total: allData.length,
+            //     showSizeChanger: true,
+            //     pageSizeOptions: ['10', '15', '20', '50', '100'],
+
+            //     onChange: (page, size) => {
+            //       setPagination({
+            //         current: page,
+            //         pageSize: size!,
+            //       });
+            //     },
+            //   }}
+            // />
             <Table
               title={() => (
                 <Tooltip title={intl.formatMessage({ id: 'addEmployer' })} color="#2ab479">
@@ -404,21 +450,19 @@ function Employers() {
               rowKey="id"
               columns={columns}
               dataSource={paginatedData}
-              scroll={{ x: 2000, y: 365 }}
+              scroll={{ x: 2000, y: 375 }}
+              loading={loading}
               pagination={{
                 current: pagination.current,
                 pageSize: pagination.pageSize,
                 total: allData.length,
                 showSizeChanger: true,
                 pageSizeOptions: ['10', '15', '20', '50', '100'],
-
                 onChange: (page, size) => {
-                  setPagination({
-                    current: page,
-                    pageSize: size!,
-                  });
+                  setPagination({ current: page, pageSize: size! });
                 },
               }}
+              onChange={handleTableChange}
             />
           )}
         </div>
@@ -427,9 +471,13 @@ function Employers() {
       )}
       {/* create */}
       <Modal
+        destroyOnClose
         open={isAddModalOpen}
         confirmLoading={addLoading}
-        onCancel={() => setIsAddModalOpen(false)}
+        onCancel={() => {
+          addForm.resetFields();
+          setIsAddModalOpen(false);
+        }}
         onOk={async () => {
           try {
             setAddLoading(true);
@@ -464,9 +512,10 @@ function Employers() {
             });
 
             message.success(res.data?.message || intl.formatMessage({ id: 'addSuccess' }));
-
+            addForm.resetFields();
             setIsAddModalOpen(false);
             fetchEmployers();
+            navigate('/admin/employers/pending');
           } catch (err: any) {
             message.error(err.message || intl.formatMessage({ id: 'addFailed' }));
           } finally {
@@ -474,7 +523,7 @@ function Employers() {
           }
         }}
       >
-        <h3 className="font-semibold mb-3">
+        <h3 className="text-[#3bab7b] text-xl mb-3 font-semibold">
           <FormattedMessage id="addEmployer" />
         </h3>
 
@@ -615,7 +664,7 @@ function Employers() {
             formData.append('name', values.name);
             formData.append('email', values.email);
             formData.append('phone', values.phone);
-            formData.append('password', values.password || ''); // يمكن تخليه اختياري
+            formData.append('password', values.password || '');
             formData.append('business_name_en', values.business_name_en);
             formData.append('business_name_ar', values.business_name_ar);
             formData.append('commercial_register', values.commercial_register);

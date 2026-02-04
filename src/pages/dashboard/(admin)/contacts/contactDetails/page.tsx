@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import axios from 'utlis/library/helpers/axios';
 import { useNavigate, useParams } from 'react-router-dom';
-import { message, Descriptions, Tooltip, Modal, Button, Tag, Form, Select } from 'antd';
+import { message, Descriptions, Tooltip, Modal, Button, Tag, Form, Select, Input } from 'antd';
 import { FormattedMessage, useIntl } from 'react-intl';
 import RollerLoading from 'components/loading/roller';
 import { FiEdit, FiTrash } from 'react-icons/fi';
@@ -27,6 +27,7 @@ interface Contact {
 function ContactDetails() {
   const [data, setData] = useState<Contact | null>(null);
   const [loading, setLoading] = useState(false);
+  const [selectedId, setSelectedId] = useState<number | null>(null);
 
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [deleteLoading, setDeleteLoading] = useState(false);
@@ -96,25 +97,32 @@ function ContactDetails() {
 
   /* ================= Update Status ================= */
 
-  const handleUpdateStatus = async (values: any) => {
-    if (!id) return;
+  const handleEditStatus = async (values: any) => {
+    if (!selectedId) return;
 
     try {
       setEditLoading(true);
 
       const formData = new FormData();
       formData.append('_method', 'put');
-      formData.append('status', String(values.status));
+      formData.append('status', values.status);
 
-      const res = await axios.post(`/back/admin/contacts/${id}/status`, formData);
+      if (values.admin_notes) {
+        formData.append('admin_notes', values.admin_notes);
+      }
+      const lang = intl.locale.startsWith('ar') ? 'ar' : 'en';
 
+      const res = await axios.post(`/back/admin/contacts/${selectedId}/status`, formData, {
+        headers: { 'Accept-Language': lang },
+      });
+
+      // message from backend
       message.success(res.data?.message);
 
-      editForm.resetFields();
       setEditOpen(false);
       fetchContact();
     } catch (err: any) {
-      message.error(err.response?.data?.message || intl.formatMessage({ id: 'editFailed' }));
+      message.error(err.message);
     } finally {
       setEditLoading(false);
     }
@@ -152,53 +160,127 @@ function ContactDetails() {
     );
 
   return (
-    <section className='pt-3'>
+    <section className="pt-3">
       {/* ================= Actions ================= */}
-
-      
+      <div className="flex justify-end items-center gap-3">
+        {/* Edit */}
+        <Tooltip title={intl.formatMessage({ id: 'changeStatus' })} color="#27aa71">
+          <FiEdit
+            className="text-[#27aa71] text-2xl cursor-pointer"
+            onClick={() => {
+              setSelectedId(data.id);
+              editForm.setFieldsValue({
+                status: data.status,
+                admin_notes: data.admin_notes,
+              });
+              setEditOpen(true);
+            }}
+          />
+        </Tooltip>
+      </div>
 
       {/* ================= Details ================= */}
 
-      <Descriptions bordered column={1}>
-        <Descriptions.Item label={<b className="text-[#3bab7b]"><FormattedMessage id="contactId" /></b>}>
+      <Descriptions bordered column={1} className="mt-4">
+        <Descriptions.Item
+          label={
+            <b className="text-[#3bab7b]">
+              <FormattedMessage id="contactId" />
+            </b>
+          }
+        >
           {displayValue(data.id)}
         </Descriptions.Item>
 
-        <Descriptions.Item label={<b className="text-[#3bab7b]"><FormattedMessage id="name" /></b>}>
+        <Descriptions.Item
+          label={
+            <b className="text-[#3bab7b]">
+              <FormattedMessage id="name" />
+            </b>
+          }
+        >
           {displayValue(data.name)}
         </Descriptions.Item>
 
-        <Descriptions.Item label={<b className="text-[#3bab7b]"><FormattedMessage id="email" /></b>}>
+        <Descriptions.Item
+          label={
+            <b className="text-[#3bab7b]">
+              <FormattedMessage id="email" />
+            </b>
+          }
+        >
           {displayValue(data.email)}
         </Descriptions.Item>
 
-        <Descriptions.Item label={<b className="text-[#3bab7b]"><FormattedMessage id="phone" /></b>}>
+        <Descriptions.Item
+          label={
+            <b className="text-[#3bab7b]">
+              <FormattedMessage id="phone" />
+            </b>
+          }
+        >
           {displayValue(data.phone)}
         </Descriptions.Item>
 
-        <Descriptions.Item label={<b className="text-[#3bab7b]"><FormattedMessage id="contactType" /></b>}>
+        <Descriptions.Item
+          label={
+            <b className="text-[#3bab7b]">
+              <FormattedMessage id="contactType" />
+            </b>
+          }
+        >
           {displayValue(data.contact_type)}
         </Descriptions.Item>
 
-        <Descriptions.Item label={<b className="text-[#3bab7b]"><FormattedMessage id="message" /></b>}>
+        <Descriptions.Item
+          label={
+            <b className="text-[#3bab7b]">
+              <FormattedMessage id="message" />
+            </b>
+          }
+        >
           {displayValue(data.message)}
         </Descriptions.Item>
 
-        <Descriptions.Item label={<b className="text-[#3bab7b]"><FormattedMessage id="adminNotes" /></b>}>
+        <Descriptions.Item
+          label={
+            <b className="text-[#3bab7b]">
+              <FormattedMessage id="adminNotes" />
+            </b>
+          }
+        >
           {displayValue(data.admin_notes)}
         </Descriptions.Item>
 
-        <Descriptions.Item label={<b className="text-[#3bab7b]"><FormattedMessage id="status" /></b>}>
-          <Tag color={statusColors[data.status]} className='py-1 px-2'>
+        <Descriptions.Item
+          label={
+            <b className="text-[#3bab7b]">
+              <FormattedMessage id="status" />
+            </b>
+          }
+        >
+          <Tag color={statusColors[data.status]} className="py-1 px-2">
             {contactStatusMap[data.status]}
           </Tag>
         </Descriptions.Item>
 
-        <Descriptions.Item label={<b className="text-[#3bab7b]"><FormattedMessage id="createdAt" /></b>}>
+        <Descriptions.Item
+          label={
+            <b className="text-[#3bab7b]">
+              <FormattedMessage id="createdAt" />
+            </b>
+          }
+        >
           {displayValue(data.created_at)}
         </Descriptions.Item>
 
-        <Descriptions.Item label={<b className="text-[#3bab7b]"><FormattedMessage id="updatedAt" /></b>}>
+        <Descriptions.Item
+          label={
+            <b className="text-[#3bab7b]">
+              <FormattedMessage id="updatedAt" />
+            </b>
+          }
+        >
           {displayValue(data.updated_at)}
         </Descriptions.Item>
       </Descriptions>
@@ -207,47 +289,38 @@ function ContactDetails() {
 
       <Modal
         open={editOpen}
-        confirmLoading={editLoading}
         onCancel={() => setEditOpen(false)}
+        confirmLoading={editLoading}
         onOk={() => editForm.submit()}
       >
         <h2 className="text-[#3bab7b] font-semibold text-lg mb-3">
           <FormattedMessage id="updateContactStatus" />
         </h2>
 
-        <Form layout="vertical" form={editForm} onFinish={handleUpdateStatus}>
+        <Form layout="vertical" form={editForm} onFinish={handleEditStatus}>
           <Form.Item
             name="status"
-            label={<FormattedMessage id="status" />}
+            label={intl.formatMessage({ id: 'status' })}
             rules={[{ required: true }]}
           >
-            <Select>
-              {[1, 2, 3, 4].map((item) => (
-                <Select.Option key={item} value={item}>
-                  {contactStatusMap[item]}
-                </Select.Option>
-              ))}
-            </Select>
+            <Select
+              options={[
+                { value: 1, label: intl.formatMessage({ id: 'pending' }) },
+                { value: 2, label: intl.formatMessage({ id: 'read' }) },
+                { value: 3, label: intl.formatMessage({ id: 'replied' }) },
+                { value: 4, label: intl.formatMessage({ id: 'closed' }) },
+              ]}
+            />
+          </Form.Item>
+
+          <Form.Item
+            name="admin_notes"
+            label={intl.formatMessage({ id: 'adminNotes' })}
+            rules={[{ required: true }]}
+          >
+            <Input.TextArea rows={4} placeholder={intl.formatMessage({ id: 'adminNotes' })} />
           </Form.Item>
         </Form>
-      </Modal>
-
-      {/* ================= Delete Modal ================= */}
-
-      <Modal
-        open={deleteOpen}
-        confirmLoading={deleteLoading}
-        onCancel={() => setDeleteOpen(false)}
-        okButtonProps={{ danger: true }}
-        onOk={handleDelete}
-      >
-        <h2 className="text-[#d30606] font-semibold text-lg mb-2">
-          <FormattedMessage id="deleteContact" />
-        </h2>
-
-        <p>
-          <FormattedMessage id="deleteConfirmContact" />
-        </p>
       </Modal>
     </section>
   );

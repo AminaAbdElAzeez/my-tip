@@ -1,11 +1,26 @@
 import { useEffect, useState } from 'react';
 import axios from 'utlis/library/helpers/axios';
 import { useNavigate, useParams } from 'react-router-dom';
-import { message, Descriptions, Tooltip, Modal, Button, Tag, Avatar, Image } from 'antd';
+import {
+  message,
+  Descriptions,
+  Tooltip,
+  Modal,
+  Button,
+  Tag,
+  Avatar,
+  Image,
+  Upload,
+  Select,
+  Form,
+  Input,
+} from 'antd';
+import { PlusOutlined, UploadOutlined } from '@ant-design/icons';
 import { FormattedMessage, useIntl } from 'react-intl';
 import RollerLoading from 'components/loading/roller';
 import { FiEdit, FiTrash } from 'react-icons/fi';
 import { AiOutlineEye } from 'react-icons/ai';
+import { FaPlus } from 'react-icons/fa';
 
 interface SocialMedia {
   social_media_id: number;
@@ -38,10 +53,28 @@ function UserDetails() {
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [delLoading, setDelLoading] = useState(false);
 
+  const [data, setData] = useState<User[]>([]);
+
+  const [selectedId, setSelectedId] = useState<number | null>(null);
+  const [editItem, setEditItem] = useState<User | null>(null);
+
+  const [addOpen, setAddOpen] = useState(false);
+  const [editOpen, setEditOpen] = useState(false);
+  const [deleteOpen, setDeleteOpen] = useState(false);
+
+  const [addLoading, setAddLoading] = useState(false);
+  const [editLoading, setEditLoading] = useState(false);
+
+  const [previewOpen, setPreviewOpen] = useState(false);
+  const [previewImage, setPreviewImage] = useState('');
+  const [previewTitle, setPreviewTitle] = useState('');
+
   const { id } = useParams();
   const navigate = useNavigate();
   const intl = useIntl();
 
+  const [addForm] = Form.useForm();
+  const [editForm] = Form.useForm();
   /* ================= Status Map ================= */
 
   // ================= Maps for localization =================
@@ -97,23 +130,135 @@ function UserDetails() {
     fetchUser();
   }, [id]);
 
-  /* ================= Delete ================= */
+  useEffect(() => {
+    fetchUser();
+  }, [intl.locale, id]);
 
-  const handleDelete = async () => {
-    if (!id) return;
+  // Image
+  const handlePreview = async (file: any) => {
+    if (!file.url && !file.preview) {
+      file.preview = await new Promise((resolve) => {
+        const reader = new FileReader();
+        reader.readAsDataURL(file.originFileObj);
+        reader.onload = () => resolve(reader.result);
+      });
+    }
 
+    setPreviewImage(file.url || file.preview);
+    setPreviewOpen(true);
+    setPreviewTitle(file.name || 'Preview');
+  };
+
+  /* ================= Add User ================= */
+  const handleAdd = async (values: any) => {
     try {
-      setDelLoading(true);
-      const res = await axios.delete(`/admin/users/${id}`);
+      setAddLoading(true);
+      const formData = new FormData();
+      formData.append('name', values.name);
+      formData.append('email', values.email);
+      formData.append('phone', values.phone);
+      formData.append('password', values.password);
+      formData.append('password_confirmation', values.password_confirmation);
+      formData.append('type', values.type);
+      formData.append('status', values.status);
+      if (values.profile_image?.[0]?.originFileObj) {
+        formData.append('profile_image', values.profile_image[0].originFileObj);
+      }
+      const lang = intl.locale.startsWith('ar') ? 'ar' : 'en';
 
-      message.success(res.data?.message || intl.formatMessage({ id: 'delSuccess' }));
-
+      const res = await axios.post('/back/admin/users', formData, {
+        headers: { 'Accept-Language': lang },
+      });
+      message.success(res.data?.message || intl.formatMessage({ id: 'addSuccess' }));
+      setAddOpen(false);
+      fetchUser();
       navigate('/admin/users');
     } catch (err: any) {
-      message.error(err.message || intl.formatMessage({ id: 'delFailed' }));
+      message.error(err.message || intl.formatMessage({ id: 'addFailed' }));
+    } finally {
+      setAddLoading(false);
+    }
+  };
+
+  /* ================= Edit User ================= */
+  const handleEdit = async (values: any) => {
+    if (!selectedId) return;
+    try {
+      setEditLoading(true);
+      const formData = new FormData();
+      formData.append('_method', 'put');
+      formData.append('name', values.name);
+      formData.append('email', values.email);
+      formData.append('phone', values.phone);
+      if (values.password) {
+        formData.append('password', values.password);
+        formData.append('password_confirmation', values.password_confirmation);
+      }
+      formData.append('type', values.type);
+      formData.append('status', values.status);
+      if (values.profile_image?.[0]?.originFileObj) {
+        formData.append('profile_image', values.profile_image[0].originFileObj);
+      }
+      const lang = intl.locale.startsWith('ar') ? 'ar' : 'en';
+
+      const res = await axios.post(`/back/admin/users/${selectedId}`, formData, {
+        headers: { 'Accept-Language': lang },
+      });
+      message.success(res.data?.message || intl.formatMessage({ id: 'editSuccess' }));
+      setEditOpen(false);
+      fetchUser();
+    } catch (err: any) {
+      message.error(err.message || intl.formatMessage({ id: 'editFailed' }));
+    } finally {
+      setEditLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    if (editItem) {
+      const fileList = editItem.image
+        ? [
+            {
+              uid: '-1',
+              name: 'current_image.jpg',
+              status: 'done',
+              url: editItem.image,
+            },
+          ]
+        : [];
+
+      editForm.setFieldsValue({
+        ...editItem,
+        profile_image: fileList,
+      });
+    }
+  }, [editItem]);
+
+  /* ================= Delete User ================= */
+  const handleDelete = async () => {
+    if (!selectedId) return;
+    try {
+      setDelLoading(true);
+      const lang = intl.locale.startsWith('ar') ? 'ar' : 'en';
+
+      const res = await axios.delete(`/back/admin/users/${selectedId}`, {
+        headers: { 'Accept-Language': lang },
+      });
+      message.success(res.data?.message || intl.formatMessage({ id: 'deleteSuccess' }));
+      setDeleteOpen(false);
+      // fetchUser();
+      navigate('/admin/users');
+    } catch (err: any) {
+      message.error(err.message || intl.formatMessage({ id: 'deleteFailed' }));
     } finally {
       setDelLoading(false);
     }
+  };
+
+  /* ================= Upload Helper ================= */
+  const normFile = (e: any) => {
+    if (!e) return [];
+    return Array.isArray(e) ? e : e.fileList;
   };
 
   /* ================= Loading ================= */
@@ -132,10 +277,61 @@ function UserDetails() {
   return (
     <section className="pt-3">
       {/* ===== Header Actions ===== */}
+      <div className="flex justify-end items-center gap-3">
+        {/* Edit */}
+        <Tooltip title={intl.formatMessage({ id: 'editUser' })} color="#27aa71">
+          <FiEdit
+            className="text-[#27aa71] text-2xl cursor-pointer"
+            onClick={() => {
+              setSelectedId(user.id);
 
+              const fileList = user.image
+                ? [
+                    {
+                      uid: '-1',
+                      name: 'image.png',
+                      status: 'done',
+                      url: user.image,
+                    },
+                  ]
+                : [];
+
+              setEditItem(user);
+              editForm.setFieldsValue({
+                ...user,
+                profile_image: fileList,
+              });
+              setEditOpen(true);
+            }}
+          />
+        </Tooltip>
+
+        {/* Delete */}
+        <Tooltip title={intl.formatMessage({ id: 'deleteUser' })} color="#d30606ff">
+          <FiTrash
+            className="text-[#d30606ff] text-2xl cursor-pointer"
+            onClick={() => {
+              setSelectedId(user.id);
+              setDeleteOpen(true);
+            }}
+          />
+        </Tooltip>
+
+        <Tooltip title={intl.formatMessage({ id: 'addUser' })} color="#2ab479">
+          <Button
+            type="primary"
+            shape="circle"
+            icon={<FaPlus />}
+            onClick={() => {
+              addForm.resetFields();
+              setAddOpen(true);
+            }}
+          />
+        </Tooltip>
+      </div>
       {/* ===== Details ===== */}
 
-      <Descriptions bordered column={1}>
+      <Descriptions bordered column={1} className="mt-4">
         <Descriptions.Item
           label={
             <b className="text-[#3bab7b]">
@@ -304,21 +500,280 @@ function UserDetails() {
         )}
       </Descriptions>
 
-      {/* ===== Delete Modal ===== */}
+      {/* ================= Add Modal ================= */}
+      <Modal
+        open={addOpen}
+        onCancel={() => setAddOpen(false)}
+        confirmLoading={addLoading}
+        onOk={() => addForm.submit()}
+      >
+        <h2 className="text-[#3bab7b] font-semibold text-lg mb-3">
+          <FormattedMessage id="addUser" />
+        </h2>
+        <Form layout="vertical" form={addForm} onFinish={handleAdd}>
+          <Form.Item
+            name="name"
+            label={intl.formatMessage({ id: 'name' })}
+            rules={[{ required: true }]}
+          >
+            <Input placeholder={intl.formatMessage({ id: 'name' })} />
+          </Form.Item>
+          <Form.Item
+            name="email"
+            label={intl.formatMessage({ id: 'email' })}
+            rules={[{ required: true }]}
+          >
+            <Input placeholder={intl.formatMessage({ id: 'email' })} />
+          </Form.Item>
+          <Form.Item
+            name="phone"
+            label={intl.formatMessage({ id: 'phone' })}
+            rules={[
+              {
+                required: true,
+              },
+              {
+                validator: (_, value) => {
+                  if (!value) return Promise.resolve();
+                  const saudiPhoneRegex = /^(5\d{8}|9665\d{8})$/;
+                  if (saudiPhoneRegex.test(value)) {
+                    return Promise.resolve();
+                  }
+                  return Promise.reject(new Error(intl.formatMessage({ id: 'invalidPhone' })));
+                },
+              },
+            ]}
+          >
+            <Input placeholder={intl.formatMessage({ id: 'phone' })} />
+          </Form.Item>
+          <Form.Item
+            name="password"
+            label={intl.formatMessage({ id: 'password' })}
+            rules={[{ required: true }]}
+          >
+            <Input.Password placeholder={intl.formatMessage({ id: 'password' })} />
+          </Form.Item>
+          <Form.Item
+            name="password_confirmation"
+            label={intl.formatMessage({ id: 'confirmPassword' })}
+            rules={[
+              { required: true },
+              ({ getFieldValue }) => ({
+                validator(_, value) {
+                  if (!value || getFieldValue('password') === value) {
+                    return Promise.resolve();
+                  }
+                  return Promise.reject(intl.formatMessage({ id: 'reset.password.not.match' }));
+                },
+              }),
+            ]}
+          >
+            <Input.Password placeholder={intl.formatMessage({ id: 'confirmPassword' })} />
+          </Form.Item>
+          <Form.Item
+            name="type"
+            label={intl.formatMessage({ id: 'type' })}
+            rules={[{ required: true }]}
+          >
+            <Select
+              placeholder={intl.formatMessage({ id: 'type' })}
+              options={Object.entries(userTypeMap)
+                .filter(([value]) => [4, 5].includes(Number(value)))
+                .map(([value, label]) => ({
+                  value: Number(value),
+                  label,
+                }))}
+            />
+          </Form.Item>
+          <Form.Item
+            name="status"
+            label={intl.formatMessage({ id: 'status' })}
+            rules={[{ required: true }]}
+          >
+            <Select
+              placeholder={intl.formatMessage({ id: 'status' })}
+              options={Object.entries(userStatusMap).map(([value, label]) => ({
+                value: Number(value),
+                label,
+              }))}
+            />
+          </Form.Item>
+          <Form.Item
+            name="profile_image"
+            label={intl.formatMessage({ id: 'image' })}
+            valuePropName="fileList"
+            getValueFromEvent={normFile}
+            rules={[{ required: true }]}
+          >
+            <Upload
+              listType="picture-card"
+              maxCount={1}
+              beforeUpload={() => false}
+              onPreview={handlePreview}
+              showUploadList={{
+                showPreviewIcon: true,
+                showRemoveIcon: true,
+              }}
+            >
+              <PlusOutlined />
+            </Upload>
+          </Form.Item>
+        </Form>
+      </Modal>
+
+      {/* ================= Edit Modal ================= */}
+      <Modal
+        open={editOpen}
+        onCancel={() => setEditOpen(false)}
+        confirmLoading={editLoading}
+        onOk={() => editForm.submit()}
+      >
+        <h2 className="text-[#3bab7b] font-semibold text-lg mb-3">
+          <FormattedMessage id="editUser" />
+        </h2>
+        <Form layout="vertical" form={editForm} onFinish={handleEdit}>
+          <Form.Item
+            name="name"
+            label={intl.formatMessage({ id: 'name' })}
+            rules={[{ required: true }]}
+          >
+            <Input placeholder={intl.formatMessage({ id: 'name' })} />
+          </Form.Item>
+          <Form.Item
+            name="email"
+            label={intl.formatMessage({ id: 'email' })}
+            rules={[{ required: true }]}
+          >
+            <Input placeholder={intl.formatMessage({ id: 'email' })} />
+          </Form.Item>
+          <Form.Item
+            name="phone"
+            label={intl.formatMessage({ id: 'phone' })}
+            rules={[
+              {
+                required: true,
+              },
+              {
+                validator: (_, value) => {
+                  if (!value) return Promise.resolve();
+                  const saudiPhoneRegex = /^(5\d{8}|9665\d{8})$/;
+                  if (saudiPhoneRegex.test(value)) {
+                    return Promise.resolve();
+                  }
+                  return Promise.reject(new Error(intl.formatMessage({ id: 'invalidPhone' })));
+                },
+              },
+            ]}
+          >
+            <Input placeholder={intl.formatMessage({ id: 'phone' })} />
+          </Form.Item>
+          <Form.Item
+            name="password"
+            label={intl.formatMessage({ id: 'password' })}
+            // rules={[{ required: true }]}
+          >
+            <Input.Password placeholder={intl.formatMessage({ id: 'password' })} />
+          </Form.Item>
+          <Form.Item
+            name="password_confirmation"
+            label={intl.formatMessage({ id: 'confirmPassword' })}
+            rules={[
+              { required: true },
+              ({ getFieldValue }) => ({
+                validator(_, value) {
+                  if (!value || getFieldValue('password') === value) {
+                    return Promise.resolve();
+                  }
+                  return Promise.reject(intl.formatMessage({ id: 'reset.password.not.match' }));
+                },
+              }),
+            ]}
+          >
+            <Input.Password placeholder={intl.formatMessage({ id: 'confirmPassword' })} />
+          </Form.Item>
+          <Form.Item
+            name="type"
+            label={intl.formatMessage({ id: 'type' })}
+            rules={[{ required: true }]}
+          >
+            <Select
+              placeholder={intl.formatMessage({ id: 'type' })}
+              options={Object.entries(userTypeMap)
+                .filter(([value]) => [4, 5].includes(Number(value)))
+                .map(([value, label]) => ({
+                  value: Number(value),
+                  label,
+                }))}
+            />
+          </Form.Item>
+          <Form.Item
+            name="status"
+            label={intl.formatMessage({ id: 'status' })}
+            rules={[{ required: true }]}
+          >
+            <Select
+              placeholder={intl.formatMessage({ id: 'status' })}
+              options={Object.entries(userStatusMap).map(([value, label]) => ({
+                value: Number(value),
+                label,
+              }))}
+            />
+          </Form.Item>
+          <Form.Item
+            name="profile_image"
+            label={intl.formatMessage({ id: 'image' })}
+            valuePropName="fileList"
+            getValueFromEvent={normFile}
+            // rules={[{ required: true }]}
+          >
+            <Upload
+              listType="picture-card"
+              maxCount={1}
+              beforeUpload={() => false}
+              onPreview={handlePreview}
+              showUploadList={{
+                showPreviewIcon: true,
+                showRemoveIcon: true,
+              }}
+            >
+              <PlusOutlined />
+            </Upload>
+          </Form.Item>
+        </Form>
+      </Modal>
+
+      {/* ================= Delete Modal ================= */}
+      <Modal
+        open={deleteOpen}
+        onCancel={() => setDeleteOpen(false)}
+        confirmLoading={delLoading}
+        onOk={handleDelete}
+        okButtonProps={{ danger: true }}
+      >
+        <h2 className="text-[#d30606] font-semibold text-lg mb-2">
+          <FormattedMessage id="deleteUser" />
+        </h2>
+        <p>
+          <FormattedMessage id="deleteConfirm" />
+        </p>
+      </Modal>
 
       <Modal
-        open={deleteModalOpen}
-        confirmLoading={delLoading}
-        okButtonProps={{ danger: true }}
-        onCancel={() => setDeleteModalOpen(false)}
-        onOk={handleDelete}
+        open={previewOpen}
+        footer={null}
+        onCancel={() => setPreviewOpen(false)}
+        closable={false}
+        centered
+        className="!w-auto !max-w-[90vw]"
+        bodyStyle={{ padding: 0 }}
       >
-        <h3 className="text-[#3bab7b] font-semibold mb-2">
-          <FormattedMessage id="deleteUser" />
-        </h3>
-        <p>
-          <FormattedMessage id="deleteConfirmUser" />
-        </p>
+        <div className="flex items-center justify-center max-h-[80vh]">
+          <img
+            alt={previewTitle}
+            src={previewImage}
+            className="max-w-full max-h-[80vh] !min-w-[250px] w-full object-contain rounded"
+          />
+        </div>
       </Modal>
     </section>
   );

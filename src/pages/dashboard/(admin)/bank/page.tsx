@@ -50,8 +50,7 @@ function Banks() {
 
   const [pagination, setPagination] = useState({
     current: 1,
-    pageSize: 15,
-    total: 0,
+    pageSize: 10,
   });
 
   /* ================= Fetch Banks ================= */
@@ -59,10 +58,11 @@ function Banks() {
   const fetchBanks = async () => {
     try {
       setLoading(true);
+      const lang = intl.locale.startsWith('ar') ? 'ar' : 'en';
 
-      const res = await axios.get(
-        `/back/admin/banks?page=${pagination.current}&take=${pagination.pageSize}`,
-      );
+      const res = await axios.get(`/back/admin/banks`, {
+        headers: { 'Accept-Language': lang },
+      });
 
       setData(res.data?.data || []);
 
@@ -81,7 +81,27 @@ function Banks() {
 
   useEffect(() => {
     fetchBanks();
-  }, [pagination.current, pagination.pageSize]);
+  }, []);
+
+  /* ================= Fetch Once / On Locale or Pagination ================= */
+  useEffect(() => {
+    fetchBanks();
+  }, [intl.locale]);
+
+  /* ================= Client Pagination ================= */
+  const handleTableChange = (paginationData: any) => {
+    setPagination({
+      current: paginationData.current,
+      pageSize: paginationData.pageSize,
+    });
+  };
+
+  /* ================= Client Pagination ================= */
+
+  const startIndex = (pagination.current - 1) * pagination.pageSize;
+  const endIndex = pagination.current * pagination.pageSize;
+
+  const paginatedData = data.slice(startIndex, endIndex);
 
   /* ================= Add ================= */
 
@@ -96,8 +116,11 @@ function Banks() {
       if (values.logo?.[0]) {
         formData.append('logo', values.logo[0].originFileObj);
       }
+      const lang = intl.locale.startsWith('ar') ? 'ar' : 'en';
 
-      const res = await axios.post(`/back/admin/banks`, formData);
+      const res = await axios.post(`/back/admin/banks`, formData, {
+        headers: { 'Accept-Language': lang },
+      });
 
       message.success(res.data?.message);
 
@@ -126,8 +149,11 @@ function Banks() {
       if (values.logo && values.logo[0] && values.logo[0].originFileObj) {
         formData.append('logo', values.logo[0].originFileObj);
       }
+      const lang = intl.locale.startsWith('ar') ? 'ar' : 'en';
 
-      const res = await axios.post(`/back/admin/banks/${selectedId}`, formData);
+      const res = await axios.post(`/back/admin/banks/${selectedId}`, formData, {
+        headers: { 'Accept-Language': lang },
+      });
 
       message.success(res.data?.message);
 
@@ -147,8 +173,11 @@ function Banks() {
 
     try {
       setDelLoading(true);
+      const lang = intl.locale.startsWith('ar') ? 'ar' : 'en';
 
-      const res = await axios.delete(`/back/admin/banks/${selectedId}`);
+      const res = await axios.delete(`/back/admin/banks/${selectedId}`, {
+        headers: { 'Accept-Language': lang },
+      });
 
       message.success(res.data?.message);
 
@@ -275,9 +304,9 @@ function Banks() {
       align: 'center',
       render: (_, record) => (
         <div className="flex justify-center gap-3">
-          <Tooltip title={intl.formatMessage({ id: 'edit' })}>
+          <Tooltip title={intl.formatMessage({ id: 'editBank' })} color="#27aa71">
             <FiEdit
-              className="text-[#3bab7b] text-xl cursor-pointer"
+              className="text-[#27aa71] text-xl cursor-pointer"
               onClick={() => {
                 setSelectedId(record.id);
                 const fileList = record.logo
@@ -301,7 +330,7 @@ function Banks() {
             />
           </Tooltip>
 
-          <Tooltip title={intl.formatMessage({ id: 'delete' })}>
+          <Tooltip title={intl.formatMessage({ id: 'deleteBank' })} color="#d30606">
             <FiTrash
               className="text-[#d30606] text-xl cursor-pointer"
               onClick={() => {
@@ -337,22 +366,20 @@ function Banks() {
                 </Tooltip>
               )}
               columns={columns}
-              dataSource={data}
+              dataSource={paginatedData}
               rowKey="id"
-              scroll={{ x: 1400, y: 375 }}
+              scroll={{ x: 1250, y: 375 }}
               pagination={{
                 current: pagination.current,
                 pageSize: pagination.pageSize,
-                total: pagination.total,
+                total: data.length,
                 showSizeChanger: true,
+                pageSizeOptions: ['10', '15', '20', '50', '100'],
                 onChange: (page, size) => {
-                  setPagination({
-                    current: page,
-                    pageSize: size!,
-                    total: pagination.total,
-                  });
+                  setPagination({ current: page, pageSize: size! });
                 },
               }}
+              onChange={handleTableChange}
             />
           )}
         </div>

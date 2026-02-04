@@ -35,14 +35,13 @@ function Contacts() {
 
   const location = useLocation();
   const intl = useIntl();
-  const navigate=useNavigate()
+  const navigate = useNavigate();
 
   const [editForm] = Form.useForm();
 
   const [pagination, setPagination] = useState({
     current: 1,
-    pageSize: 15,
-    total: 0,
+    pageSize: 10,
   });
 
   /* ================= Status Map ================= */
@@ -59,10 +58,12 @@ function Contacts() {
   const fetchContacts = async () => {
     try {
       setLoading(true);
+      const lang = intl.locale.startsWith('ar') ? 'ar' : 'en';
 
       const res = await axios.get(
-        `/back/admin/contacts?page=${pagination.current}&take=${pagination.pageSize}`,
-      );
+        `/back/admin/contacts`, {
+        headers: { 'Accept-Language': lang },
+      });
 
       setData(res.data?.data || []);
 
@@ -84,7 +85,27 @@ function Contacts() {
 
   useEffect(() => {
     fetchContacts();
-  }, [pagination.current, pagination.pageSize]);
+  }, []);
+
+  /* ================= Fetch Once / On Locale or Pagination ================= */
+  useEffect(() => {
+    fetchContacts();
+  }, [intl.locale]);
+
+  /* ================= Client Pagination ================= */
+  const handleTableChange = (paginationData: any) => {
+    setPagination({
+      current: paginationData.current,
+      pageSize: paginationData.pageSize,
+    });
+  };
+
+  /* ================= Client Pagination ================= */
+
+  const startIndex = (pagination.current - 1) * pagination.pageSize;
+  const endIndex = pagination.current * pagination.pageSize;
+
+  const paginatedData = data.slice(startIndex, endIndex);
 
   /* ================= Update Status ================= */
 
@@ -101,8 +122,11 @@ function Contacts() {
       if (values.admin_notes) {
         formData.append('admin_notes', values.admin_notes);
       }
+      const lang = intl.locale.startsWith('ar') ? 'ar' : 'en';
 
-      const res = await axios.post(`/back/admin/contacts/${selectedId}/status`, formData);
+      const res = await axios.post(`/back/admin/contacts/${selectedId}/status`, formData, {
+        headers: { 'Accept-Language': lang },
+      });
 
       // message from backend
       message.success(res.data?.message);
@@ -123,43 +147,79 @@ function Contacts() {
       title: intl.formatMessage({ id: 'contactId' }),
       dataIndex: 'id',
       align: 'center',
-      // width: "6%",
+      width: "6%",
+      render: (text) =>
+        text || (
+          <p className="text-gray-300">
+            <FormattedMessage id="noData" />
+          </p>
+        ),
     },
     {
       title: intl.formatMessage({ id: 'name' }),
       dataIndex: 'name',
       align: 'center',
-      // width: "10%",
+      width: "9%",
+      render: (text) =>
+        text || (
+          <p className="text-gray-300">
+            <FormattedMessage id="noData" />
+          </p>
+        ),
     },
     {
       title: intl.formatMessage({ id: 'email' }),
       dataIndex: 'email',
       align: 'center',
-      // width: "14%",
+      width: "12%",
+      render: (text) =>
+        text || (
+          <p className="text-gray-300">
+            <FormattedMessage id="noData" />
+          </p>
+        ),
     },
     {
       title: intl.formatMessage({ id: 'phone' }),
       dataIndex: 'phone',
       align: 'center',
-      // width: "11%",
+      width: "9%",
+      render: (text) =>
+        text || (
+          <p className="text-gray-300">
+            <FormattedMessage id="noData" />
+          </p>
+        ),
     },
     {
       title: intl.formatMessage({ id: 'contactType' }),
       dataIndex: 'contact_type',
       align: 'center',
-      // width: "12%",
+      width: "10%",
+      render: (text) =>
+        text || (
+          <p className="text-gray-300">
+            <FormattedMessage id="noData" />
+          </p>
+        ),
     },
     {
       title: intl.formatMessage({ id: 'message' }),
       dataIndex: 'message',
       align: 'center',
-      // width: "18%",
+      width: "14%",
+      render: (text) =>
+        text || (
+          <p className="text-gray-300">
+            <FormattedMessage id="noData" />
+          </p>
+        ),
     },
     {
       title: intl.formatMessage({ id: 'status' }),
       dataIndex: 'status',
       align: 'center',
-      // width: "8%",
+      width: "7%",
       render: (val) => {
         const color = val === 3 ? 'text-green-600' : val === 4 ? 'text-red-600' : 'text-orange-500';
 
@@ -170,36 +230,54 @@ function Contacts() {
       title: intl.formatMessage({ id: 'createdAt' }),
       dataIndex: 'created_at',
       align: 'center',
-      // width: "10%",
+      width: "9%",
+      render: (text) =>
+        text || (
+          <p className="text-gray-300">
+            <FormattedMessage id="noData" />
+          </p>
+        ),
     },
     {
       title: intl.formatMessage({ id: 'updatedAt' }),
       dataIndex: 'updated_at',
       align: 'center',
-      // width: "10%",
+      width: "9%",
+      render: (text) =>
+        text || (
+          <p className="text-gray-300">
+            <FormattedMessage id="noData" />
+          </p>
+        ),
     },
     {
       title: intl.formatMessage({ id: 'adminNotes' }),
       dataIndex: 'admin_notes',
       align: 'center',
-      // width: "10%",
+      width: "9%",
+      render: (text) =>
+        text || (
+          <p className="text-gray-300">
+            <FormattedMessage id="noData" />
+          </p>
+        ),
     },
     {
       title: intl.formatMessage({ id: 'actions' }),
       align: 'center',
-      // width: "7%",
+      width: "6%",
       fixed: 'right',
       render: (_, record) => (
         <div className="flex justify-center gap-2">
-          <Tooltip title={intl.formatMessage({ id: 'viewContact' })}>
+          <Tooltip title={intl.formatMessage({ id: 'viewContact' })} color='#a86b9e'>
             <AiOutlineEye
-              className="text-[#214380] text-2xl cursor-pointer"
+              className="text-[#a86b9e] text-2xl cursor-pointer"
               onClick={() => navigate(`/admin/contacts/${record.id}`)}
             />
           </Tooltip>
-          <Tooltip title={intl.formatMessage({ id: 'changeStatus' })}>
+          <Tooltip title={intl.formatMessage({ id: 'changeStatus' })} color='#27aa71'>
             <FiEdit
-              className="text-[#3bab7b] text-xl cursor-pointer"
+              className="text-[#27aa71] text-xl cursor-pointer"
               onClick={() => {
                 setSelectedId(record.id);
                 editForm.setFieldsValue({
@@ -224,21 +302,21 @@ function Contacts() {
           ) : (
             <Table
               columns={columns}
-              dataSource={data}
+              dataSource={paginatedData}
               rowKey="id"
-              scroll={{ x: 1800, y: 375 }}
+              scroll={{ x: 1850, y: 440 }}
               pagination={{
                 current: pagination.current,
                 pageSize: pagination.pageSize,
-                total: pagination.total,
+                total: data.length,
                 showSizeChanger: true,
-                onChange: (page, size) =>
-                  setPagination({
-                    ...pagination,
-                    current: page,
-                    pageSize: size!,
-                  }),
+                pageSizeOptions: ['10', '15', '20', '50', '100'],
+                onChange: (page, size) => {
+                  setPagination({ current: page, pageSize: size! });
+                },
               }}
+              onChange={handleTableChange}
+              
             />
           )}
         </div>

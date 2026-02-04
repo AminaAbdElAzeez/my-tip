@@ -1,189 +1,232 @@
-import { useEffect, useState } from "react";
-import axios from "utlis/library/helpers/axios";
-import {
-  Table,
-  Button,
-  Modal,
-  Form,
-  Input,
-  message,
-  Tooltip,
-  Upload,
-  Image,
-} from "antd";
-import type { ColumnsType } from "antd/es/table";
-import { FaPlus } from "react-icons/fa6";
-import { FiEdit, FiTrash } from "react-icons/fi";
-import { AiOutlineEye } from "react-icons/ai";
-import { UploadOutlined } from "@ant-design/icons";
-import { FormattedMessage, useIntl } from "react-intl";
-import { Outlet, useLocation } from "react-router-dom";
-import RollerLoading from "components/loading/roller";
+import { useEffect, useState } from 'react';
+import axios from 'utlis/library/helpers/axios';
+import { Table, Button, Modal, Form, Input, message, Tooltip, Tag } from 'antd';
+import type { ColumnsType } from 'antd/es/table';
+import { DownloadOutlined } from '@ant-design/icons';
+import { FormattedMessage, useIntl } from 'react-intl';
+import RollerLoading from 'components/loading/roller';
+import { IoIosCloseCircleOutline, IoMdCheckmarkCircleOutline } from 'react-icons/io';
+import { BiDownload } from 'react-icons/bi';
 
 /* ================= Types ================= */
 
-interface Bank {
+interface WithdrawalUser {
   id: number;
   name: string;
-  name_ar: string;
-  name_en: string;
-  logo: string;
-  created_at: string;
-  updated_at: string;
+  email: string;
+}
+
+interface WithdrawalReviewer {
+  id: number;
+  name: string;
+}
+
+interface WithdrawalStatus {
+  value: number; // 0 pending | 1 approved | 2 rejected
+  label: string;
+}
+
+interface Withdrawal {
+  id: number;
+  reference: string;
+  amount: string;
+  currency: string;
+  is_priority?: number;
+  user: WithdrawalUser;
+  status: WithdrawalStatus;
+  rejection_reason: string | null;
+  review_notes: string | null;
+  requested_at: string;
+  reviewed_at: string | null;
+  reviewer: WithdrawalReviewer | null;
 }
 
 /* ================= Component ================= */
 
 function Withdrawals() {
-  const [data, setData] = useState<Bank[]>([]);
-  const [loading, setLoading] = useState(false);
-
-  const [selectedId, setSelectedId] = useState<number | null>(null);
-  const [editItem, setEditItem] = useState<Bank | null>(null);
-
-  const [addOpen, setAddOpen] = useState(false);
-  const [editOpen, setEditOpen] = useState(false);
-  const [deleteOpen, setDeleteOpen] = useState(false);
-
-  const [addLoading, setAddLoading] = useState(false);
-  const [editLoading, setEditLoading] = useState(false);
-  const [delLoading, setDelLoading] = useState(false);
-
-  const location = useLocation();
   const intl = useIntl();
 
-  const [addForm] = Form.useForm();
-  const [editForm] = Form.useForm();
+  const [data, setData] = useState<Withdrawal[]>([]);
+  const [loading, setLoading] = useState(false);
 
   const [pagination, setPagination] = useState({
     current: 1,
-    pageSize: 15,
-    total: 0,
+    pageSize: 10,
   });
 
-  /* ================= Fetch Banks ================= */
+  const [selectedItem, setSelectedItem] = useState<Withdrawal | null>(null);
 
-  const fetchBanks = async () => {
+  const [approveOpen, setApproveOpen] = useState(false);
+  const [rejectOpen, setRejectOpen] = useState(false);
+
+  const [actionLoading, setActionLoading] = useState(false);
+
+  const [form] = Form.useForm();
+
+  /* ================= Fetch Withdrawals ================= */
+
+  const fetchWithdrawals = async () => {
     try {
       setLoading(true);
+      const lang = intl.locale.startsWith('ar') ? 'ar' : 'en';
 
-      const res = await axios.get(
-        `/back/admin/banks?page=${pagination.current}&take=${pagination.pageSize}`,
-      );
+      const res = await axios.get(`/back/admin/withdrawals`, {
+        headers: { 'Accept-Language': lang },
+      });
 
       setData(res.data?.data || []);
 
-      const pg = res.data?.pagination;
-
       setPagination((prev) => ({
         ...prev,
-        total: pg?.total || 0,
+        total: res.data?.pagination?.total || 0,
       }));
     } catch (err: any) {
-      message.error(err.message || intl.formatMessage({ id: "fetchFailed" }));
+      message.error(err.response?.data?.message || err.message);
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
-    fetchBanks();
-  }, [pagination.current, pagination.pageSize]);
+    fetchWithdrawals();
+  }, []);
 
-  /* ================= Add ================= */
+  /* ================= Fetch Once / On Locale or Pagination ================= */
+  useEffect(() => {
+    fetchWithdrawals();
+  }, [intl.locale]);
 
-  const handleAdd = async (values: any) => {
+  /* ================= Client Pagination ================= */
+  const handleTableChange = (paginationData: any) => {
+    setPagination({
+      current: paginationData.current,
+      pageSize: paginationData.pageSize,
+    });
+  };
+
+  /* ================= Client Pagination ================= */
+
+  const startIndex = (pagination.current - 1) * pagination.pageSize;
+  const endIndex = pagination.current * pagination.pageSize;
+
+  const paginatedData = data.slice(startIndex, endIndex);
+
+  /* ================= Status UI ================= */
+
+  const renderStatus = (status: WithdrawalStatus) => {
+    if (status.value === 0) return <Tag color="orange" className='px-2 py-1'>{status.label}</Tag>;
+
+    if (status.value === 1) return <Tag color="green" className='px-2 py-1'>{status.label}</Tag>;
+
+    return <Tag color="red" className='px-2 py-1'>{status.label}</Tag>;
+  };
+
+  /* ================= Priority Guard ================= */
+
+  const handleActionClick = (record: Withdrawal, type: 'approve' | 'reject') => {
+    if (record.status.value !== 0) return;
+
+    if (record.is_priority === 1) {
+      message.warning(intl.formatMessage({ id: 'priorityBlocked' }));
+      return;
+    }
+
+    setSelectedItem(record);
+    form.resetFields();
+
+    if (type === 'approve') setApproveOpen(true);
+    else setRejectOpen(true);
+  };
+
+  /* ================= Approve ================= */
+
+  const handleApprove = async (values: any) => {
+    if (!selectedItem) return;
+
     try {
-      setAddLoading(true);
+      setActionLoading(true);
 
       const formData = new FormData();
-      formData.append("name_ar", values.name_ar);
-      formData.append("name_en", values.name_en);
+      formData.append('review_notes', values.review_notes);
+      const lang = intl.locale.startsWith('ar') ? 'ar' : 'en';
 
-      if (values.logo?.[0]) {
-        formData.append("logo", values.logo[0].originFileObj);
-      }
+      const res = await axios.post(`/back/admin/withdrawals/${selectedItem.id}/approve`, formData, {
+        headers: { 'Accept-Language': lang },
+      });
 
-      const res = await axios.post(`/back/admin/banks`, formData);
+      message.success(res.data.message);
 
-      message.success(res.data?.message);
-
-      setAddOpen(false);
-      fetchBanks();
+      setApproveOpen(false);
+      fetchWithdrawals();
     } catch (err: any) {
-      message.error(err.message);
+      message.error(err.response?.data?.message || err.message);
     } finally {
-      setAddLoading(false);
+      setActionLoading(false);
     }
   };
 
-  /* ================= Edit ================= */
+  /* ================= Reject ================= */
 
-  const handleEdit = async (values: any) => {
-    if (!selectedId) return;
+  const handleReject = async (values: any) => {
+    if (!selectedItem) return;
 
     try {
-      setEditLoading(true);
+      setActionLoading(true);
 
       const formData = new FormData();
-      formData.append("_method", "put");
-      formData.append("name_ar", values.name_ar);
-      formData.append("name_en", values.name_en);
+      formData.append('rejection_reason', values.rejection_reason);
+      formData.append('review_notes', values.review_notes);
+      const lang = intl.locale.startsWith('ar') ? 'ar' : 'en';
 
-      if (values.logo && values.logo[0] && values.logo[0].originFileObj) {
-        formData.append("logo", values.logo[0].originFileObj);
-      }
+      const res = await axios.post(`/back/admin/withdrawals/${selectedItem.id}/reject`, formData, {
+        headers: { 'Accept-Language': lang },
+      });
 
-      const res = await axios.post(`/back/admin/banks/${selectedId}`, formData);
+      message.success(res.data.message);
 
-      message.success(res.data?.message);
-
-      setEditOpen(false);
-      fetchBanks();
+      setRejectOpen(false);
+      fetchWithdrawals();
     } catch (err: any) {
-      message.error(err.message);
+      message.error(err.response?.data?.message || err.message);
     } finally {
-      setEditLoading(false);
+      setActionLoading(false);
     }
   };
 
-  /* ================= Delete ================= */
+  /* ================= Export ================= */
 
-  const handleDelete = async () => {
-    if (!selectedId) return;
-
+  const handleExport = async () => {
     try {
-      setDelLoading(true);
+      const lang = intl.locale.startsWith('ar') ? 'ar' : 'en';
 
-      const res = await axios.delete(`/back/admin/banks/${selectedId}`);
+      const res = await axios.get('/back/admin/withdrawals/export', {
+        responseType: 'blob',
+      });
 
-      message.success(res.data?.message);
+      const url = window.URL.createObjectURL(new Blob([res.data]));
 
-      setDeleteOpen(false);
-      fetchBanks();
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', 'withdrawals.xlsx');
+      document.body.appendChild(link);
+
+      link.click();
+
+      link.remove();
     } catch (err: any) {
-      message.error(err.message);
-    } finally {
-      setDelLoading(false);
+      message.error(err.response?.data?.message || err.message);
     }
   };
 
-  /* ================= Upload Helper ================= */
+  /* ================= Columns ================= */
 
-  const normFile = (e: any) => {
-    if (Array.isArray(e)) return e;
-    return e?.fileList;
-  };
-
-  /* ================= Table Columns ================= */
-
-  const columns: ColumnsType<Bank> = [
+  const columns: ColumnsType<Withdrawal> = [
     {
-      title: intl.formatMessage({ id: "bankId" }),
-      dataIndex: "id",
-      key: "id",
-      align: "center",
-      width: "7%",
+      title: intl.formatMessage({ id: 'withdrawalId' }),
+      dataIndex: 'id',
+      key: 'id',
+      align: 'center',
+      width: '7%',
       render: (text) =>
         text || (
           <p className="text-gray-300">
@@ -192,11 +235,11 @@ function Withdrawals() {
         ),
     },
     {
-      title: intl.formatMessage({ id: "nameAr" }),
-      dataIndex: "name_ar",
-      key: "name_ar",
-      align: "center",
-      width: "20%",
+      title: intl.formatMessage({ id: 'reference' }),
+      dataIndex: 'reference',
+      key: 'reference',
+      width: '10%',
+      align: 'center',
       render: (text) =>
         text || (
           <p className="text-gray-300">
@@ -205,275 +248,238 @@ function Withdrawals() {
         ),
     },
     {
-      title: intl.formatMessage({ id: "nameEn" }),
-      dataIndex: "name_en",
-      key: "name_en",
-      align: "center",
-      width: "20%",
-      render: (text) =>
-        text || (
-          <p className="text-gray-300">
-            <FormattedMessage id="noData" />
-          </p>
-        ),
-    },
-    {
-      title: intl.formatMessage({ id: "logo" }),
-      dataIndex: "logo",
-      align: "center",
-      width: "15%",
-      render: (img) =>
-        img ? (
-          <Image
-            src={img}
-            style={{
-              width: 100,
-              height: 70,
-              objectFit: "cover",
-              borderRadius: 8,
-            }}
-            preview={{
-              mask: (
-                <p className="flex items-center gap-1 text-white text-sm">
-                  <AiOutlineEye className="text-lg" />
-                  <span className="text-sm">
-                    <FormattedMessage id="preview" />
-                  </span>
-                </p>
-              ),
-            }}
-          />
-        ) : (
-          <span className="text-gray-400">
-            <FormattedMessage id="noImage" />
-          </span>
-        ),
-    },
-    {
-      title: intl.formatMessage({ id: "createdAt" }),
-      dataIndex: "created_at",
-      key: "created_at",
-      align: "center",
-      width: "15%",
-      render: (text) =>
-        text || (
-          <p className="text-gray-300">
-            <FormattedMessage id="noData" />
-          </p>
-        ),
-    },
-    {
-      title: intl.formatMessage({ id: "updatedAt" }),
-      dataIndex: "updated_at",
-      key: "updated_at",
-      align: "center",
-      width: "15%",
-      render: (text) =>
-        text || (
-          <p className="text-gray-300">
-            <FormattedMessage id="noData" />
-          </p>
-        ),
-    },
-    {
-      title: intl.formatMessage({ id: "actions" }),
-      fixed: "right",
-      width: "8%",
-      align: "center",
-      render: (_, record) => (
-        <div className="flex justify-center gap-3">
-          <Tooltip title={intl.formatMessage({ id: "edit" })}>
-            <FiEdit
-              className="text-[#3bab7b] text-xl cursor-pointer"
-              onClick={() => {
-                setSelectedId(record.id);
-                const fileList = record.logo
-                  ? [
-                      {
-                        uid: "-1",
-                        name: record.name_en,
-                        status: "done",
-                        url: record.logo,
-                      },
-                    ]
-                  : [];
-
-                editForm.setFieldsValue({
-                  ...record,
-                  logo: fileList,
-                });
-
-                setEditOpen(true);
-              }}
-            />
-          </Tooltip>
-
-          <Tooltip title={intl.formatMessage({ id: "delete" })}>
-            <FiTrash
-              className="text-[#d30606] text-xl cursor-pointer"
-              onClick={() => {
-                setSelectedId(record.id);
-                setDeleteOpen(true);
-              }}
-            />
-          </Tooltip>
+      title: intl.formatMessage({ id: 'user' }),
+      key: 'user',
+      align: 'center',
+      width: '10%',
+      render: (_, r) => (
+        <div>
+          <p className="font-semibold">{r.user?.name}</p>
+          <p className="text-xs text-gray-400">{r.user?.email}</p>
         </div>
       ),
     },
+    {
+      title: intl.formatMessage({ id: 'amount' }),
+      key: 'amount',
+      align: 'center',
+      width: '7%',
+      render: (_, r) => `${r.amount} ${r.currency}`,
+    },
+    {
+      title: intl.formatMessage({ id: 'status' }),
+      key: 'status',
+      align: 'center',
+      render: (_, r) => renderStatus(r.status),
+      width: '7%',
+    },
+    {
+      title: intl.formatMessage({ id: 'requestedAt' }),
+      dataIndex: 'requested_at',
+      key: 'requested_at',
+      width: '10%',
+      align: 'center',
+      render: (text) =>
+        text || (
+          <p className="text-gray-300">
+            <FormattedMessage id="noData" />
+          </p>
+        ),
+    },
+    {
+      title: intl.formatMessage({ id: 'reviewedAt' }),
+      dataIndex: 'reviewed_at',
+      key: 'reviewed_at',
+      align: 'center',
+      width: '10%',
+      render: (text) =>
+        text || (
+          <p className="text-gray-300">
+            <FormattedMessage id="noData" />
+          </p>
+        ),
+    },
+    {
+      title: intl.formatMessage({ id: 'reviewer' }),
+      key: 'reviewer',
+      align: 'center',
+      width: '10%',
+      render: (_, r) => r.reviewer?.name || <FormattedMessage id="noData" />,
+    },
+    {
+      title: intl.formatMessage({ id: 'reviewNotes' }),
+      dataIndex: 'review_notes',
+      key: 'review_notes',
+      align: 'center',
+      width: '10%',
+
+      render: (text) =>
+        text || (
+          <p className="text-gray-300">
+            <FormattedMessage id="noData" />
+          </p>
+        ),
+    },
+    {
+      title: intl.formatMessage({ id: 'rejectionReason' }),
+      dataIndex: 'rejection_reason',
+      key: 'rejection_reason',
+      align: 'center',
+      width: '10%',
+
+      render: (text) =>
+        text || (
+          <p className="text-gray-300">
+            <FormattedMessage id="noData" />
+          </p>
+        ),
+    },
+    {
+      title: intl.formatMessage({ id: 'actions' }),
+      key: 'actions',
+      align: 'center',
+      width: '9%',
+      fixed: 'right',
+      render: (_, record) => {
+        // not Pending
+        if (record.status.value !== 0) {
+          return renderStatus(record.status);
+        }
+
+        // Priority blocked
+        if (record.is_priority === 1) {
+          return (
+            <Tag color="red" className="text-center py-1 px-2">
+              <FormattedMessage id="priorityBlocked" />
+              <br />
+              <FormattedMessage id="priorityBlocked2" />
+            </Tag>
+          );
+        }
+
+        // Pending Actions
+        return (
+          <div className="flex justify-center gap-2">
+            <Tooltip title={intl.formatMessage({ id: 'approveWithdrawals' })} color="#3bab7b">
+              <IoMdCheckmarkCircleOutline
+                className="text-[#3bab7b] !text-3xl cursor-pointer"
+                onClick={() => handleActionClick(record, 'approve')}
+              />
+            </Tooltip>
+
+            <Tooltip title={intl.formatMessage({ id: 'rejectWithdrawals' })} color="#d30606ff">
+              <IoIosCloseCircleOutline
+                className="text-[#d30606ff] !text-3xl cursor-pointer"
+                onClick={() => handleActionClick(record, 'reject')}
+              />
+            </Tooltip>
+          </div>
+          // <div className="flex justify-center gap-2">
+          //   <Button
+          //     type="primary"
+          //     size="small"
+          //     onClick={() => handleActionClick(record, 'approve')}
+          //   >
+          //     <FormattedMessage id="approve" />
+          //   </Button>
+
+          //   <Button danger size="small" onClick={() => handleActionClick(record, 'reject')}>
+          //     <FormattedMessage id="reject" />
+          //   </Button>
+          // </div>
+        );
+      },
+    },
   ];
+
+  /* ================= UI ================= */
 
   return (
     <>
-      {location.pathname.endsWith("/banks") ? (
-        <div className="pt-3">
-          {loading ? (
-            <RollerLoading />
-          ) : (
-            <Table
-              title={() => (
-                <Tooltip
-                  title={intl.formatMessage({ id: "addBank" })}
-                  color="#3bab7b"
-                >
-                  <Button
-                    type="primary"
-                    shape="circle"
-                    icon={<FaPlus />}
-                    onClick={() => {
-                      addForm.resetFields();
-                      setAddOpen(true);
-                    }}
-                  />
-                </Tooltip>
-              )}
-              columns={columns}
-              dataSource={data}
-              rowKey="id"
-              scroll={{ x: 1400, y: 375 }}
-              pagination={{
-                current: pagination.current,
-                pageSize: pagination.pageSize,
-                total: pagination.total,
-                showSizeChanger: true,
-                onChange: (page, size) => {
-                  setPagination({
-                    current: page,
-                    pageSize: size!,
-                    total: pagination.total,
-                  });
-                },
-              }}
-            />
-          )}
-        </div>
+      {loading ? (
+        <RollerLoading />
       ) : (
-        <Outlet />
+        <Table
+          title={() => (
+            <Tooltip title={intl.formatMessage({ id: 'exportExcel' })} color="#2ab479">
+              <Button
+                type="primary"
+                shape="circle"
+                icon={<BiDownload className='text-xl'/>}
+                onClick={handleExport}
+              ></Button>
+            </Tooltip>
+          )}
+          columns={columns}
+          dataSource={paginatedData}
+          rowKey="id"
+          scroll={{ x: 2200, y: 385 }}
+          pagination={{
+            current: pagination.current,
+            pageSize: pagination.pageSize,
+            total: data.length,
+            showSizeChanger: true,
+            pageSizeOptions: ['10', '15', '20', '50', '100'],
+            onChange: (page, size) => {
+              setPagination({ current: page, pageSize: size! });
+            },
+          }}
+          onChange={handleTableChange}
+        />
       )}
 
-      {/* ================= Add Modal ================= */}
+      {/* ================= Approve Modal ================= */}
 
       <Modal
-        open={addOpen}
-        onCancel={() => setAddOpen(false)}
-        confirmLoading={addLoading}
-        onOk={() => addForm.submit()}
+        open={approveOpen}
+        onCancel={() => setApproveOpen(false)}
+        confirmLoading={actionLoading}
+        onOk={() => form.submit()}
       >
-        <h2 className="text-[#3bab7b] font-semibold text-lg mb-3">
-          <FormattedMessage id="addBank" />
-        </h2>
+        <h3 className="font-semibold text-lg mb-3">
+          <FormattedMessage id="approveWithdrawal" />
+        </h3>
 
-        <Form layout="vertical" form={addForm} onFinish={handleAdd}>
+        <Form layout="vertical" form={form} onFinish={handleApprove}>
           <Form.Item
-            name="name_ar"
-            label={intl.formatMessage({ id: "nameAr" })}
-            rules={[{ required: true }]}
+            name="review_notes"
+            label={<FormattedMessage id="reviewNotes" />}
+            rules={[{ required: true, message: intl.formatMessage({ id: 'reviewNotesReq' }) }]}
           >
-            <Input placeholder={intl.formatMessage({ id: "nameAr" })} />
-          </Form.Item>
-
-          <Form.Item
-            name="name_en"
-            label={intl.formatMessage({ id: "nameEn" })}
-            rules={[{ required: true }]}
-          >
-            <Input placeholder={intl.formatMessage({ id: "nameEn" })} />
-          </Form.Item>
-
-          <Form.Item
-            name="logo"
-            label={intl.formatMessage({ id: "logo" })}
-            valuePropName="fileList"
-            getValueFromEvent={normFile}
-            rules={[{ required: true }]}
-          >
-            <Upload beforeUpload={() => false} maxCount={1}>
-              <Button icon={<UploadOutlined />}>
-                <FormattedMessage id="uploadLogo" />
-              </Button>
-            </Upload>
+            <Input.TextArea rows={4} placeholder={intl.formatMessage({ id: 'reviewNotes' })} />
           </Form.Item>
         </Form>
       </Modal>
 
-      {/* ================= Edit Modal ================= */}
+      {/* ================= Reject Modal ================= */}
 
       <Modal
-        open={editOpen}
-        onCancel={() => setEditOpen(false)}
-        confirmLoading={editLoading}
-        onOk={() => editForm.submit()}
+        open={rejectOpen}
+        onCancel={() => setRejectOpen(false)}
+        confirmLoading={actionLoading}
+        onOk={() => form.submit()}
       >
-        <h2 className="text-[#3bab7b] font-semibold text-lg mb-3">
-          <FormattedMessage id="editBank" />
-        </h2>
+        <h3 className="font-semibold text-lg mb-3 text-red-600">
+          <FormattedMessage id="rejectWithdrawal" />
+        </h3>
 
-        <Form layout="vertical" form={editForm} onFinish={handleEdit}>
+        <Form layout="vertical" form={form} onFinish={handleReject}>
           <Form.Item
-            name="name_ar"
-            label={intl.formatMessage({ id: "nameAr" })}
-            rules={[{ required: true }]}
+            name="rejection_reason"
+            label={<FormattedMessage id="rejectionReason" />}
+            rules={[{ required: true, message: intl.formatMessage({ id: 'rejectionReasonReq' }) }]}
           >
-            <Input />
+            <Input placeholder={intl.formatMessage({ id: 'rejectionReason' })} />
           </Form.Item>
 
           <Form.Item
-            name="name_en"
-            label={intl.formatMessage({ id: "nameEn" })}
-            rules={[{ required: true }]}
+            name="review_notes"
+            label={<FormattedMessage id="reviewNotes" />}
+            rules={[{ required: true, message: intl.formatMessage({ id: 'reviewNotesReq' }) }]}
           >
-            <Input />
-          </Form.Item>
-
-          <Form.Item
-            name="logo"
-            label={intl.formatMessage({ id: "logo" })}
-            valuePropName="fileList"
-            getValueFromEvent={normFile}
-          >
-            <Upload beforeUpload={() => false} maxCount={1}>
-              <Button icon={<UploadOutlined />}>
-                <FormattedMessage id="uploadLogo" />
-              </Button>
-            </Upload>
+            <Input.TextArea rows={3} placeholder={intl.formatMessage({ id: 'reviewNotes' })} />
           </Form.Item>
         </Form>
-      </Modal>
-
-      {/* ================= Delete Modal ================= */}
-
-      <Modal
-        open={deleteOpen}
-        onCancel={() => setDeleteOpen(false)}
-        confirmLoading={delLoading}
-        onOk={handleDelete}
-        okButtonProps={{ danger: true }}
-      >
-        <h2 className="text-[#d30606] font-semibold text-lg mb-2">
-          <FormattedMessage id="deleteBank" />
-        </h2>
-        <p>
-          <FormattedMessage id="deleteConfirmBank" />
-        </p>
       </Modal>
     </>
   );

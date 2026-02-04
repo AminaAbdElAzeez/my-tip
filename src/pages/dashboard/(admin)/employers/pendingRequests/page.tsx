@@ -1,11 +1,13 @@
 import { useEffect, useState } from 'react';
 import axios from 'utlis/library/helpers/axios';
-import { Table, Button, Modal, message, Tooltip, Form, Input } from 'antd';
+import { Table, Button, Modal, message, Tooltip, Form, Input, Image } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 import { AiOutlineEye } from 'react-icons/ai';
 import { FiCheck, FiX } from 'react-icons/fi';
 import { FormattedMessage, useIntl } from 'react-intl';
 import RollerLoading from 'components/loading/roller';
+import { FaRegCircleCheck } from 'react-icons/fa6';
+import { IoIosCloseCircleOutline, IoMdCheckmarkCircleOutline } from 'react-icons/io';
 
 interface EmployerRequest {
   id: number;
@@ -42,10 +44,15 @@ function PendingRequests() {
   const intl = useIntl();
   const [rejectForm] = Form.useForm();
 
+  const [pagination, setPagination] = useState({
+    current: 1,
+    pageSize: 10,
+  });
+
   const fetchRequests = async () => {
     try {
       setLoading(true);
-      const lang = intl.locale.startsWith('ar') ? 'ar-sa' : 'en-us';
+      const lang = intl.locale.startsWith('ar') ? 'ar' : 'en';
 
       const res = await axios.get('/back/admin/employers/join-request', {
         headers: { 'Accept-Language': lang },
@@ -58,15 +65,36 @@ function PendingRequests() {
       setLoading(false);
     }
   };
-
   useEffect(() => {
     fetchRequests();
   }, []);
+  /* ================= Fetch Once / On Locale or Pagination ================= */
+  useEffect(() => {
+    fetchRequests();
+  }, [intl.locale]);
+
+  /* ================= Client Pagination ================= */
+  const handleTableChange = (paginationData: any) => {
+    setPagination({
+      current: paginationData.current,
+      pageSize: paginationData.pageSize,
+    });
+  };
+  /* ================= Client Pagination ================= */
+
+  const startIndex = (pagination.current - 1) * pagination.pageSize;
+  const endIndex = pagination.current * pagination.pageSize;
+
+  const paginatedData = data.slice(startIndex, endIndex);
 
   const handleApprove = async (id: number) => {
     try {
       setActionLoading(true);
-      const res = await axios.post(`/back/admin/employers/${id}/approve`);
+      const lang = intl.locale.startsWith('ar') ? 'ar' : 'en';
+
+      const res = await axios.post(`/back/admin/employers/${id}/approve`, {
+        headers: { 'Accept-Language': lang },
+      });
       message.success(res.data?.message || intl.formatMessage({ id: 'approveSuccess' }));
       fetchRequests();
     } catch (err: any) {
@@ -79,7 +107,11 @@ function PendingRequests() {
   const handleReject = async (id: number) => {
     try {
       setActionLoading(true);
-      const res = await axios.post(`/back/admin/employers/${id}/reject`);
+      const lang = intl.locale.startsWith('ar') ? 'ar' : 'en';
+
+      const res = await axios.post(`/back/admin/employers/${id}/reject`, {
+        headers: { 'Accept-Language': lang },
+      });
       message.success(res.data?.message || intl.formatMessage({ id: 'rejectSuccess' }));
       fetchRequests();
     } catch (err: any) {
@@ -95,21 +127,39 @@ function PendingRequests() {
       dataIndex: 'id',
       key: 'id',
       align: 'center',
-      width: '9%',
+      width: '8%',
+      render: (text) =>
+        text || (
+          <p className="text-gray-300">
+            <FormattedMessage id="noData" />
+          </p>
+        ),
     },
     {
       title: intl.formatMessage({ id: 'userName' }),
       dataIndex: 'user_name',
       key: 'user_name',
       align: 'center',
-      width: '10%',
+      width: '12%',
+      render: (text) =>
+        text || (
+          <p className="text-gray-300">
+            <FormattedMessage id="noData" />
+          </p>
+        ),
     },
     {
       title: intl.formatMessage({ id: 'email' }),
       dataIndex: 'user_email',
       key: 'user_email',
       align: 'center',
-      width: '10%',
+      width: '12%',
+      render: (text) =>
+        text || (
+          <p className="text-gray-300">
+            <FormattedMessage id="noData" />
+          </p>
+        ),
     },
     {
       title: intl.formatMessage({ id: 'phone' }),
@@ -117,27 +167,45 @@ function PendingRequests() {
       key: 'user_phone',
       align: 'center',
       width: '8%',
+      render: (text) =>
+        text || (
+          <p className="text-gray-300">
+            <FormattedMessage id="noData" />
+          </p>
+        ),
     },
     {
       title: intl.formatMessage({ id: 'businessName' }),
       dataIndex: 'business_name',
       key: 'business_name',
       align: 'center',
-      width: '10%',
+      width: '9%',
+      render: (text) =>
+        text || (
+          <p className="text-gray-300">
+            <FormattedMessage id="noData" />
+          </p>
+        ),
     },
     {
       title: intl.formatMessage({ id: 'businessType' }),
       dataIndex: 'business_type_name',
       key: 'business_type_name',
       align: 'center',
-      width: '10%',
+      width: '8%',
+      render: (text) =>
+        text || (
+          <p className="text-gray-300">
+            <FormattedMessage id="noData" />
+          </p>
+        ),
     },
     {
       title: intl.formatMessage({ id: 'status' }),
       dataIndex: 'status',
       key: 'status',
       align: 'center',
-      width: '10%',
+      width: '9%',
       render: (status) => {
         const item = EMPLOYER_STATUS_MAP[status];
         return (
@@ -151,18 +219,28 @@ function PendingRequests() {
       title: intl.formatMessage({ id: 'image' }),
       dataIndex: 'image',
       key: 'image',
-      align: 'center',
       width: '10%',
+      align: 'center',
       render: (img) =>
         img ? (
-          <img
+          <Image
             src={img}
             alt="Employer"
             style={{
-              width: 80,
-              height: 60,
+              width: 100,
+              height: 70,
               objectFit: 'cover',
-              borderRadius: 6,
+              borderRadius: 8,
+            }}
+            preview={{
+              mask: (
+                <p className="flex items-center gap-1 text-white text-sm">
+                  <AiOutlineEye className="text-lg" />
+                  <span className="text-sm">
+                    <FormattedMessage id="preview" />
+                  </span>
+                </p>
+              ),
             }}
           />
         ) : (
@@ -176,21 +254,33 @@ function PendingRequests() {
       dataIndex: 'created_at',
       key: 'created_at',
       align: 'center',
-      width: '10%',
+      width: '9%',
+      render: (text) =>
+        text || (
+          <p className="text-gray-300">
+            <FormattedMessage id="noData" />
+          </p>
+        ),
     },
     {
       title: intl.formatMessage({ id: 'updatedAt' }),
       dataIndex: 'updated_at',
       key: 'updated_at',
       align: 'center',
-      width: '10%',
+      width: '9%',
+      render: (text) =>
+        text || (
+          <p className="text-gray-300">
+            <FormattedMessage id="noData" />
+          </p>
+        ),
     },
     {
       title: intl.formatMessage({ id: 'actions' }),
       key: 'actions',
       align: 'center',
       fixed: 'right',
-      width: '7%',
+      width: '6%',
 
       render: (_, record) => {
         if (record.status !== 1) {
@@ -202,37 +292,27 @@ function PendingRequests() {
             </span>
           );
         }
+
         return (
           <div className="flex justify-center gap-2">
             <Tooltip title={intl.formatMessage({ id: 'approveEmployer' })} color="#3bab7b">
-              <Button
-                type="primary"
-                size="small"
-                className="!rounded-full !w-8 !h-8"
-                loading={buttonLoadingId === record.id && approveModalOpen === false}
+              <IoMdCheckmarkCircleOutline
+                className="text-[#3bab7b] !text-3xl cursor-pointer"
                 onClick={() => {
                   setSelectedRequestId(record.id);
                   setApproveModalOpen(true);
                 }}
-              >
-                <FiCheck />
-              </Button>
+              />
             </Tooltip>
 
             <Tooltip title={intl.formatMessage({ id: 'rejectEmployer' })} color="#d30606ff">
-              <Button
-                danger
-                size="small"
-                className="!rounded-full !w-8 !h-8"
-                loading={buttonLoadingId === record.id && rejectModalOpen === false}
+              <IoIosCloseCircleOutline
+                className="text-[#d30606ff] !text-3xl cursor-pointer"
                 onClick={() => {
                   setSelectedRequestId(record.id);
-                  setRejectReason('');
                   setRejectModalOpen(true);
                 }}
-              >
-                <FiX />
-              </Button>
+              />
             </Tooltip>
           </div>
         );
@@ -248,9 +328,19 @@ function PendingRequests() {
         <Table
           rowKey="id"
           columns={columns}
-          dataSource={data}
-          scroll={{ x: 1600, y: 420 }}
-          pagination={{ pageSize: 10 }}
+          dataSource={paginatedData}
+          scroll={{ x: 1900, y: 440 }}
+          pagination={{
+            current: pagination.current,
+            pageSize: pagination.pageSize,
+            total: data.length,
+            showSizeChanger: true,
+            pageSizeOptions: ['10', '15', '20', '50', '100'],
+            onChange: (page, size) => {
+              setPagination({ current: page, pageSize: size! });
+            },
+          }}
+          onChange={handleTableChange}
         />
       )}
       <Modal
@@ -266,7 +356,11 @@ function PendingRequests() {
           if (!selectedRequestId) return;
           try {
             setButtonLoadingId(selectedRequestId);
-            const res = await axios.post(`/back/admin/employers/${selectedRequestId}/approve`);
+            const lang = intl.locale.startsWith('ar') ? 'ar' : 'en';
+
+            const res = await axios.post(`/back/admin/employers/${selectedRequestId}/approve`, {
+              headers: { 'Accept-Language': lang },
+            });
             message.success(res.data?.message || intl.formatMessage({ id: 'approveSuccess' }));
             setApproveModalOpen(false);
             fetchRequests();
@@ -296,10 +390,17 @@ function PendingRequests() {
             const values = await rejectForm.validateFields();
 
             setButtonLoadingId(selectedRequestId);
+            const lang = intl.locale.startsWith('ar') ? 'ar' : 'en';
 
-            const res = await axios.post(`/back/admin/employers/${selectedRequestId}/reject`, {
-              rejection_reason: values.rejection_reason,
-            });
+            const res = await axios.post(
+              `/back/admin/employers/${selectedRequestId}/reject`,
+              {
+                rejection_reason: values.rejection_reason,
+              },
+              {
+                headers: { 'Accept-Language': lang },
+              },
+            );
 
             message.success(res.data?.message || intl.formatMessage({ id: 'rejectSuccess' }));
             setRejectModalOpen(false);
