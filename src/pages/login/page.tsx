@@ -229,9 +229,9 @@ function Login() {
 
       let redirectPath = "/";
       if (type === 1) {
-        redirectPath = "/admin/employers";
+        redirectPath = "/admin/statistics";
       } else {
-        redirectPath = "/admin/withdrawals";
+        redirectPath = "/employer/statistics";
       }
 
       // navigate(redirectPath);

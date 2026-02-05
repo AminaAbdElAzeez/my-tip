@@ -1,139 +1,336 @@
 import React, { useEffect, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import authAction from "store/auth/actions";
+import { useDispatch } from "react-redux";
 import { useQuery, useMutation } from "@tanstack/react-query";
+import {
+  Form,
+  Input,
+  Button,
+  Upload,
+  Switch,
+  Tabs,
+  Image,
+  Dropdown,
+  Menu,
+  Space,
+  Select,
+} from "antd";
+import { useForm } from "antd/lib/form/Form";
 import toast from "react-hot-toast";
 import axios from "utlis/library/helpers/axios";
-import { Button, Form, Input, notification } from "antd";
-import { useForm } from "antd/lib/form/Form";
-import { useNavigate } from "react-router-dom";
-import { FormattedMessage } from "react-intl";
+import authAction from "store/auth/actions";
+import { FormattedMessage, useIntl } from "react-intl";
 import RollerLoading from "components/loading/roller";
+import { AiOutlineEye } from "react-icons/ai";
+import { IoCameraSharp } from "react-icons/io5";
+import { DownOutlined } from "@ant-design/icons";
 
 const { logout } = authAction;
+
 const Profile = () => {
   const dispatch = useDispatch();
-  const [form] = useForm();
+  const [profileForm] = useForm();
+  const [passwordForm] = useForm();
+  const intl = useIntl();
+  const { Option } = Select;
+  const [lang, setLang] = useState("en");
+  const [activeTab, setActiveTab] = useState("1");
 
-  const navigate = useNavigate();
-
-  const [formData, setFormData] = useState({
-    name: "",
-    email: "",
-    password: "",
-  });
-
-  const fetchProfileData = async () => {
-    const { data } = await axios.get(`back/auth/profile`);
-    const profile = data?.data;
-
-    form.setFieldsValue({
-      name: profile?.name,
-      email: profile?.email,
+  /* ================= GET PROFILE ================= */
+  const fetchProfile = async () => {
+    const { data } = await axios.get("back/auth/profile");
+    profileForm.setFieldsValue({
+      name: data.data.name,
+      email: data.data.email,
+      active_notification: data.data.active_notification,
     });
-
-    return data;
+    return data.data;
   };
-  const { data, isLoading, error, refetch } = useQuery({
-    queryKey: ["fetchProfile"],
-    queryFn: fetchProfileData,
-    // refetchInterval: 5000,
+
+  const {
+    data: profile,
+    refetch,
+    isLoading,
+  } = useQuery({
+    queryKey: ["profile"],
+    queryFn: fetchProfile,
   });
 
-  /////// edit profile mutation
-  const editProfileMutation = useMutation({
-    mutationFn: (values) => axios["put"](`back/auth/profile`, values),
+  /* ================= UPDATE NAME & EMAIL ================= */
+  const updateProfile = useMutation({
+    mutationFn: (values: any) => {
+      const formData = new FormData();
+      formData.append("_method", "put");
+      formData.append("name", values.name);
+      formData.append("email", values.email);
+      return axios.post("back/auth/profile", formData);
+    },
     onSuccess: (res) => {
-      const { message } = res?.data;
-      // form.resetFields();
-
-      toast.success(message, {
-        position: "top-center",
-        duration: 3000,
-      });
+      toast.success(res.data.message);
       dispatch(logout());
     },
-    onError: (err) => {
-      const {
-        status,
-        data: { message },
-      } = (err as any).response;
-      console.log(err, err.message);
-
-      toast.error(err.message, {
-        position: "top-center",
-        duration: 3000,
-      });
+    onError: (err: any) => {
+      toast.error(err.response?.data?.message || "Error");
     },
   });
 
-  const editProfileFinish = (values: any) => {
-    editProfileMutation.mutate(values);
-  };
+  /* ================= CHANGE PASSWORD ================= */
+  const changePassword = useMutation({
+    mutationFn: (values: any) =>
+      axios.post("back/auth/change-password", values),
+    onSuccess: (res) => {
+      toast.success(res.data.message);
+      passwordForm.resetFields();
+    },
+    onError: (err: any) => {
+      toast.error(err.response?.data?.message || "Error");
+    },
+  });
+
+  /* ================= PROFILE IMAGE ================= */
+  const uploadImage = useMutation({
+    mutationFn: (file: File) => {
+      const formData = new FormData();
+      formData.append("profile_image", file);
+      return axios.post("back/auth/profile-image", formData);
+    },
+    onSuccess: (res) => {
+      toast.success(res.data.message);
+      refetch();
+    },
+  });
+
+  useEffect(() => {
+    if (profile?.lang) {
+      setLang(profile.lang);
+    }
+  }, [profile]);
+
+  /* ================= NOTIFICATION ================= */
+  const toggleNotification = useMutation({
+    mutationFn: (value: number) => {
+      const formData = new FormData();
+      formData.append("active_notification", String(value));
+      return axios.post("back/auth/active-notification", formData);
+    },
+    onSuccess: (res) => toast.success(res.data.message),
+  });
+
+  /* ================= LANGUAGE ================= */
+  const changeLang = useMutation({
+    mutationFn: (lang: string) => {
+      const formData = new FormData();
+      formData.append("lang", lang);
+      return axios.post("auth/lang", formData);
+    },
+    onSuccess: (res) => toast.success(res.data.message),
+  });
+
+  if (isLoading) return <RollerLoading />;
 
   return (
-    <div className="container mx-auto px-4 rounded-md">
-      {/* {profile.loading ? (
-        <RollerLoading />
-      ) : ( */}
-
-      <Form
-        layout="vertical"
-        onFinish={editProfileFinish}
-        form={form}
-        className="w-full py-10 px-2 sm:w-[50%] md:w-[40%]"
+    <div className="container mx-auto p-4 rounded-md">
+      <Tabs
+        defaultActiveKey="1"
+        activeKey={activeTab}
+        onChange={(key) => setActiveTab(key)}
       >
-        <Form.Item
-          label={<FormattedMessage id="name" />}
-          name="name"
-          rules={[{ required: true, message: <FormattedMessage id="name" /> }]}
+        {/* ================= BASIC INFO ================= */}
+        <Tabs.TabPane tab={intl.formatMessage({ id: "profileInfo" })} key="1">
+          {
+            <Form
+              form={profileForm}
+              layout="vertical"
+              onFinish={(values) => updateProfile.mutate(values)}
+              className="w-full py-3 px-2 sm:w-[50%] md:w-[40%]"
+            >
+              <Form.Item
+                name="name"
+                label={<FormattedMessage id="name" />}
+                rules={[
+                  {
+                    required: true,
+                    message: intl.formatMessage({ id: "nameReq" }),
+                  },
+                ]}
+              >
+                <Input
+                  name="name"
+                  size="large"
+                  placeholder={intl.formatMessage({ id: "name" })}
+                />
+              </Form.Item>
+
+              <Form.Item
+                name="email"
+                label={<FormattedMessage id="email" />}
+                rules={[
+                  {
+                    required: true,
+                    message: intl.formatMessage({ id: "emailReq" }),
+                  },
+                  {
+                    type: "email",
+                    message: <FormattedMessage id="invalid-email" />,
+                  },
+                ]}
+              >
+                <Input
+                  name="email"
+                  size="large"
+                  placeholder={intl.formatMessage({ id: "email" })}
+                />
+              </Form.Item>
+
+              <Button
+                loading={updateProfile.isPending}
+                size="large"
+                className="w-full text-white min-w-[60px] md:min-w-[80px] mt-4 bg-[#3bab7b] hover:bg-[#3bab7b] inline-block"
+                htmlType="submit"
+              >
+                <FormattedMessage id="edit-profile" />
+              </Button>
+            </Form>
+          }
+        </Tabs.TabPane>
+
+        {/* ================= PASSWORD ================= */}
+        <Tabs.TabPane
+          tab={intl.formatMessage({ id: "changePassword" })}
+          key="2"
         >
-          <Input name="name" size="large" />
-        </Form.Item>
+          <Form
+            form={passwordForm}
+            layout="vertical"
+            onFinish={(values) => changePassword.mutate(values)}
+            className="w-full py-3 px-2 sm:w-[50%] md:w-[40%]"
+          >
+            <Form.Item
+              name="current_password"
+              label={intl.formatMessage({ id: "currentPassword" })}
+              rules={[{ required: true }]}
+            >
+              <Input.Password
+                size="large"
+                placeholder={intl.formatMessage({ id: "currentPassword" })}
+              />
+            </Form.Item>
 
-        <Form.Item
-          label={<FormattedMessage id="email" />}
-          name="email"
-          rules={[
-            {
-              required: true,
-              message: <FormattedMessage id="email" />,
-            },
-            {
-              type: "email",
-              message: <FormattedMessage id="invalid-email" />,
-            },
-          ]}
+            <Form.Item
+              name="password"
+              label={intl.formatMessage({ id: "newPassword" })}
+              rules={[{ required: true }]}
+            >
+              <Input.Password
+                size="large"
+                placeholder={intl.formatMessage({ id: "newPassword" })}
+              />
+            </Form.Item>
+
+            <Form.Item
+              name="password_confirmation"
+              label={intl.formatMessage({ id: "confirmPassword" })}
+              dependencies={["password"]}
+              rules={[{ required: true }]}
+            >
+              <Input.Password
+                size="large"
+                placeholder={intl.formatMessage({ id: "confirmPassword" })}
+              />
+            </Form.Item>
+
+            <Button
+              htmlType="submit"
+              size="large"
+              loading={changePassword.isPending}
+              className="w-full text-white min-w-[60px] md:min-w-[80px] mt-4 bg-[#3bab7b] hover:bg-[#3bab7b] inline-block"
+            >
+              {intl.formatMessage({ id: "changePassword" })}
+            </Button>
+          </Form>
+        </Tabs.TabPane>
+
+        {/* ================= IMAGE ================= */}
+        <Tabs.TabPane
+          tab={intl.formatMessage({ id: "upload-image" })}
+          key="3"
+          className="flex flex-col gap-4"
         >
-          <Input name="email" size="large" />
-        </Form.Item>
+          <div className="w-[200px]">
+            {profile?.image && (
+              <Image
+                src={profile.image}
+                alt="profile"
+                style={{ width: 200, height: "auto", borderRadius: 8 }}
+                preview={{
+                  mask: (
+                    <p className="flex items-center gap-1 text-white text-sm">
+                      <AiOutlineEye className="text-lg" />
+                      <span className="text-sm">
+                        <FormattedMessage id="preview" />
+                      </span>
+                    </p>
+                  ),
+                }}
+              />
+            )}
+          </div>
 
-        <Form.Item
-          label={<FormattedMessage id="password" />}
-          name="password"
-          rules={[
-            {
-              required: true,
-              message: <FormattedMessage id="password-required" />,
-            },
-          ]}
-        >
-          <Input.Password name="password" size="large" />
-        </Form.Item>
+          <Upload
+            showUploadList={false}
+            beforeUpload={(file) => {
+              uploadImage.mutate(file);
+              return false;
+            }}
+          >
+            <Button
+              loading={uploadImage.isPending}
+              className="w-full text-[#2ab479] text-base !px-5 !py-4 flex items-center justify-center gap-2"
+            >
+              <IoCameraSharp className="text-2xl" />
+              {intl.formatMessage({ id: "upload-image" })}
+            </Button>
+          </Upload>
+        </Tabs.TabPane>
 
-        <Button
-          // type="primary"
+        {/* ================= SETTINGS ================= */}
+        <Tabs.TabPane tab={intl.formatMessage({ id: "settings" })} key="4">
+          <div className="flex gap-2 mb-4 sm:w-[50%] md:w-[40%] items-center">
+            <h3 className="text-[#3bab7b] text-lg mb-0 font-semibold">
+              {intl.formatMessage({ id: "notification" })}:
+            </h3>
+            <Switch
+              className="mt-0"
+              defaultChecked={profile?.active_notification}
+              onChange={(checked) => toggleNotification.mutate(checked ? 1 : 0)}
+              loading={toggleNotification.isPending}
+            />
+          </div>
 
-          size="large"
-          className="w-full text-white min-w-[60px] md:min-w-[80px] mt-10 bg-[#3bab7b] hover:bg-[#3bab7b] inline-block"
-          htmlType="submit"
-          loading={editProfileMutation.isPending}
-        >
-          <FormattedMessage id="edit-profile" />
-        </Button>
-      </Form>
-
-      {/* )} */}
+          <div className="flex gap-2 mt-2">
+            <h3 className="text-[#3bab7b] text-lg mb-0 font-semibold">
+              {intl.formatMessage({ id: "lang" })}:
+            </h3>
+            <div className="w-[150px]">
+              <Select
+                value={lang}
+                onChange={(value) => {
+                  setLang(value);
+                  changeLang.mutate(value);
+                }}
+                loading={changeLang.isPending}
+                className="w-full"
+              >
+                <Option value="ar">
+                  {intl.formatMessage({ id: "arabic" })}
+                </Option>
+                <Option value="en">
+                  {intl.formatMessage({ id: "english" })}
+                </Option>
+              </Select>
+            </div>
+          </div>
+        </Tabs.TabPane>
+      </Tabs>
     </div>
   );
 };

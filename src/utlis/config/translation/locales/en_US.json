@@ -1506,5 +1506,14 @@
   "contentArReq": "Please enter arabic content",
   "contentEnReq": "Please enter english content",
   "businessTypes": "Business Types",
-  "businessTypeId": "Business Type Id"
+  "businessTypeId": "Business Type Id",
+  "profileInfo": "Profile Info",
+  "nameReq": "Please enter name",
+  "emailReq": "Please enter email",
+  "changePassword": "Change Password",
+  "currentPassword": "Current Password",
+  "newPassword": "New Password",
+  "arabic": "Arabic",
+  "english": "English",
+  "lang": "Language"
 }
