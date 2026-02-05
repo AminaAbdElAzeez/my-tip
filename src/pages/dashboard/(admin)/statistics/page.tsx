@@ -1,16 +1,27 @@
-import { useState } from 'react';
-import { Card, Row, Col, Select, Spin, List, Tag, Table, Skeleton } from 'antd';
+import { useState } from "react";
+import { Card, Row, Col, Select, Spin, List, Tag, Table, Skeleton } from "antd";
 
-import { ResponsiveContainer, Tooltip, AreaChart, XAxis, YAxis, Area } from 'recharts';
-import { useQuery } from '@tanstack/react-query';
-import { FormattedMessage, useIntl } from 'react-intl';
-import axios from 'utlis/library/helpers/axios';
-import { motion } from 'framer-motion';
-import { useSelector } from 'react-redux';
-import { BiDollar } from 'react-icons/bi';
-import { FaUser, FaWallet } from 'react-icons/fa';
-import { FaArrowTrendDown, FaArrowTrendUp, FaTriangleExclamation } from 'react-icons/fa6';
-import RollerLoading from 'components/loading/roller';
+import {
+  ResponsiveContainer,
+  Tooltip,
+  AreaChart,
+  XAxis,
+  YAxis,
+  Area,
+} from "recharts";
+import { useQuery } from "@tanstack/react-query";
+import { FormattedMessage, useIntl } from "react-intl";
+import axios from "utlis/library/helpers/axios";
+import { motion } from "framer-motion";
+import { useSelector } from "react-redux";
+import { BiDollar } from "react-icons/bi";
+import { FaUser, FaWallet } from "react-icons/fa";
+import {
+  FaArrowTrendDown,
+  FaArrowTrendUp,
+  FaTriangleExclamation,
+} from "react-icons/fa6";
+import RollerLoading from "components/loading/roller";
 
 const { Option } = Select;
 
@@ -18,39 +29,43 @@ const { Option } = Select;
 
 const Statistics = () => {
   const intl = useIntl();
-  const [duration, setDuration] = useState('day');
+  const [duration, setDuration] = useState("day");
 
   const { locale } = useSelector(
-    ({ LanguageSwitcher }: { LanguageSwitcher: ILanguageSwitcher }) => LanguageSwitcher.language,
+    ({ LanguageSwitcher }: { LanguageSwitcher: ILanguageSwitcher }) =>
+      LanguageSwitcher.language,
   );
 
   // ================= API =================
 
   const fetchDashboard = async () => {
-    const res = await axios.get('/back/admin/dashboard', {
+    const res = await axios.get("/back/admin/dashboard", {
       headers: {
-        'Accept-Language': locale === 'en' ? 'en' : 'ar',
+        "Accept-Language": locale === "en" ? "en" : "ar",
       },
     });
     return res.data.data;
   };
 
   const fetchStatistics = async (duration: string) => {
-    const res = await axios.get(`/back/admin/dashboard/statistics?filter[duration]=${duration}`, {
-      headers: {
-        'Accept-Language': locale === 'en' ? 'en' : 'ar',
+    const res = await axios.get(
+      `/back/admin/dashboard/statistics?filter[duration]=${duration}`,
+      {
+        headers: {
+          "Accept-Language": locale === "en" ? "en" : "ar",
+        },
       },
-    });
+    );
     return res.data.data;
   };
 
   const { data: dashboardData, isLoading } = useQuery({
-    queryKey: ['dashboard', locale],
+    queryKey: ["dashboard", locale],
     queryFn: fetchDashboard,
   });
-  
+
   const { data: statisticsData, isLoading: chartLoading } = useQuery({
-    queryKey: ['statistics', duration, locale],
+    queryKey: ["statistics", duration, locale],
     queryFn: () => fetchStatistics(duration),
   });
 
@@ -58,7 +73,7 @@ const Statistics = () => {
     return <RollerLoading />;
   }
 
-  const stats = dashboardData.statistics;
+  const stats = dashboardData?.statistics;
 
   // ================= Pie Chart Data =================
   const chartData =
@@ -73,69 +88,69 @@ const Statistics = () => {
   // ================= Pending Tables Columns =================
   const employerColumns = [
     {
-      title: intl.formatMessage({ id: 'table.employerId' }),
-      dataIndex: 'id',
-      align: 'center' as const,
+      title: intl.formatMessage({ id: "table.employerId" }),
+      dataIndex: "id",
+      align: "center" as const,
     },
     {
-      title: intl.formatMessage({ id: 'table.owner' }),
-      dataIndex: 'owner_name',
-      align: 'center' as const,
+      title: intl.formatMessage({ id: "table.owner" }),
+      dataIndex: "owner_name",
+      align: "center" as const,
     },
     {
-      title: intl.formatMessage({ id: 'table.business' }),
-      dataIndex: 'business_name',
-      align: 'center' as const,
+      title: intl.formatMessage({ id: "table.business" }),
+      dataIndex: "business_name",
+      align: "center" as const,
     },
     {
-      title: intl.formatMessage({ id: 'table.cr' }),
-      dataIndex: 'commercial_register',
-      align: 'center' as const,
+      title: intl.formatMessage({ id: "table.cr" }),
+      dataIndex: "commercial_register",
+      align: "center" as const,
     },
     {
-      title: intl.formatMessage({ id: 'table.submittedDate' }),
-      dataIndex: 'submitted_date',
-      align: 'center' as const,
+      title: intl.formatMessage({ id: "table.submittedDate" }),
+      dataIndex: "submitted_date",
+      align: "center" as const,
     },
   ];
 
   const userColumns = [
     {
-      title: intl.formatMessage({ id: 'table.userId' }),
-      dataIndex: 'id',
-      align: 'center' as const,
+      title: intl.formatMessage({ id: "table.userId" }),
+      dataIndex: "id",
+      align: "center" as const,
     },
     {
-      title: intl.formatMessage({ id: 'table.name' }),
-      dataIndex: 'name',
-      align: 'center' as const,
+      title: intl.formatMessage({ id: "table.name" }),
+      dataIndex: "name",
+      align: "center" as const,
     },
     {
-      title: intl.formatMessage({ id: 'table.email' }),
-      dataIndex: 'email',
-      align: 'center' as const,
+      title: intl.formatMessage({ id: "table.email" }),
+      dataIndex: "email",
+      align: "center" as const,
     },
     {
-      title: intl.formatMessage({ id: 'table.phone' }),
-      dataIndex: 'phone',
-      align: 'center' as const,
+      title: intl.formatMessage({ id: "table.phone" }),
+      dataIndex: "phone",
+      align: "center" as const,
     },
     {
-      title: intl.formatMessage({ id: 'table.submittedDate' }),
-      dataIndex: 'submitted_date',
-      align: 'center' as const,
+      title: intl.formatMessage({ id: "table.submittedDate" }),
+      dataIndex: "submitted_date",
+      align: "center" as const,
     },
   ];
 
   // ================= STAT CARDS =================
   const statCards = [
     {
-      title: intl.formatMessage({ id: 'stats.totalTips' }),
-      value: stats.total_tips_today.value,
-      count: stats.total_tips_today.count,
-      currency: stats.total_tips_today.currency,
-      change: stats.total_tips_today.change_percentage,
-      trend: stats.total_tips_today.trend,
+      title: intl.formatMessage({ id: "stats.totalTips" }),
+      value: stats?.total_tips_today?.value ?? 0,
+      count: stats?.total_tips_today?.count ?? 0,
+      currency: stats?.total_tips_today?.currency ?? "",
+      change: stats?.total_tips_today?.change_percentage ?? 0,
+      trend: stats?.total_tips_today?.trend ?? "up",
       icon: (
         <div className="w-9 h-9 rounded-full bg-[#fff] flex justify-center items-center">
           <BiDollar className="text-xl text-[#3bab7b] " />
@@ -143,12 +158,12 @@ const Statistics = () => {
       ),
     },
     {
-      title: intl.formatMessage({ id: 'stats.activeUsers' }),
-      value: stats.active_users.value,
-      count: stats.active_users.count || 0,
-      currency: '',
-      change: stats.active_users.change_percentage,
-      trend: stats.active_users.trend,
+      title: intl.formatMessage({ id: "stats.activeUsers" }),
+      value: stats?.active_users?.value ?? 0,
+      count: 0,
+      currency: "",
+      change: stats?.active_users?.change_percentage ?? 0,
+      trend: stats?.active_users?.trend ?? "up",
       icon: (
         <div className="w-9 h-9 rounded-full bg-[#fff] flex justify-center items-center">
           <FaUser className="text-xl text-[#B172A7] " />
@@ -156,12 +171,12 @@ const Statistics = () => {
       ),
     },
     {
-      title: intl.formatMessage({ id: 'stats.platformRevenue' }),
-      value: stats.platform_revenue.value,
-      count: stats.platform_revenue.count || 0,
-      currency: stats.platform_revenue.currency,
-      change: stats.platform_revenue.change_percentage,
-      trend: stats.platform_revenue.trend,
+      title: intl.formatMessage({ id: "stats.platformRevenue" }),
+      value: stats?.platform_revenue?.value ?? 0,
+      count: 0,
+      currency: stats?.platform_revenue?.currency ?? "",
+      change: stats?.platform_revenue?.change_percentage ?? 0,
+      trend: stats?.platform_revenue?.trend ?? "up",
       icon: (
         <div className="w-9 h-9 rounded-full bg-[#fff] flex justify-center items-center">
           <FaWallet className="text-xl text-[#ecc351] " />
@@ -171,24 +186,28 @@ const Statistics = () => {
   ];
 
   // case statistics filter return one value
-  const formatPeriodLabel = (period: string, duration: string, locale: string) => {
-    if (duration === 'year') {
+  const formatPeriodLabel = (
+    period: string,
+    duration: string,
+    locale: string,
+  ) => {
+    if (duration === "year") {
       return period;
     }
 
-    if (duration === 'month') {
-      const [year, month] = period.split('-');
+    if (duration === "month") {
+      const [year, month] = period.split("-");
       return new Intl.DateTimeFormat(locale, {
-        year: 'numeric',
-        month: 'long',
+        year: "numeric",
+        month: "long",
       }).format(new Date(Number(year), Number(month) - 1));
     }
 
     // day
     return new Intl.DateTimeFormat(locale, {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric',
+      year: "numeric",
+      month: "short",
+      day: "numeric",
     }).format(new Date(period));
   };
 
@@ -208,7 +227,9 @@ const Statistics = () => {
 
     return (
       <div className="bg-white border border-gray-300 rounded p-2 shadow-md text-[#243636] min-w-[160px]">
-        <div className="mb-1 font-semibold">{formatPeriodLabel(label, duration, intl.locale)}</div>
+        <div className="mb-1 font-semibold">
+          {formatPeriodLabel(label, duration, intl.locale)}
+        </div>
 
         <div className="flex justify-between">
           <span>
@@ -238,16 +259,16 @@ const Statistics = () => {
       <div className="flex flex-col xl:flex-row justify-between gap-4">
         <Row gutter={[0, 16]} className="flex gap-4 flex-wrap w-full xl:w-2/3">
           {statCards.map((card, idx) => {
-            const colors = ['#3bab7b', '#B172A7', '#ecc351'];
+            const colors = ["#3bab7b", "#B172A7", "#ecc351"];
             const bgColor = colors[idx % colors.length];
 
             return (
               <div
                 key={idx}
                 style={{
-                  flex: '1 1 270px',
-                  maxWidth: '100%',
-                  display: 'flex',
+                  flex: "1 1 270px",
+                  maxWidth: "100%",
+                  display: "flex",
                 }}
               >
                 <motion.div
@@ -260,23 +281,29 @@ const Statistics = () => {
                     style={{ backgroundColor: bgColor }}
                   >
                     <div className="flex items-center justify-between mb-0.5">
-                      <span className="text-white text-base font-medium">{card.title}</span>
+                      <span className="text-white text-base font-medium">
+                        {card.title}
+                      </span>
                       {card.icon}
                     </div>
                     <h2 className="text-2xl font-semibold">
                       {card.value} {card.currency}
                     </h2>
                     <div className="flex items-center gap-2 mt-2">
-                      {card.trend === 'up' ? (
+                      {card.trend === "up" ? (
                         <FaArrowTrendUp className="text-[#fff] text-lg" />
                       ) : (
                         <FaArrowTrendDown className="text-red-600 text-lg" />
                       )}
-                      <span className={card.trend === 'up' ? 'text-[#fff]' : 'text-red-600'}>
+                      <span
+                        className={
+                          card.trend === "up" ? "text-[#fff]" : "text-red-600"
+                        }
+                      >
                         {card.change}%
                       </span>
                       <span className="text-white text-sm">
-                        ({card.count} {intl.formatMessage({ id: 'items' })})
+                        ({card.count} {intl.formatMessage({ id: "items" })})
                       </span>
                     </div>
                   </Card>
@@ -294,7 +321,7 @@ const Statistics = () => {
             <FormattedMessage id="adminProfits" />
           </h5>
           <h3 className="text-[#333333] text-[20px] flex items-center gap-1.5 mb-3">
-            {dashboardData.balance.admin_profits}{' '}
+            {dashboardData.balance?.admin_profits ?? 0}
             <img src="/black.svg" alt="Admin Profit" className="w-5 h-5" />
           </h3>
           <div
@@ -307,11 +334,19 @@ const Statistics = () => {
                   <FormattedMessage id="totalBalance" />
                 </h6>
                 <h3 className="text-[#F1F1F1] text-[20px] flex items-center gap-1.5 mb-2">
-                  {dashboardData.balance.total_balance}{' '}
-                  <img src="/white.svg" alt="Total Balance" className="w-5 h-5" />
+                  {dashboardData.balance?.total_balance ?? 0}
+                  <img
+                    src="/white.svg"
+                    alt="Total Balance"
+                    className="w-5 h-5"
+                  />
                 </h3>
               </div>
-              <img src="/mastercard.svg" alt="Matar Card" className="w-14 sm:w-[60px] h-auto" />
+              <img
+                src="/mastercard.svg"
+                alt="Matar Card"
+                className="w-14 sm:w-[60px] h-auto"
+              />
             </div>
           </div>
         </Card>
@@ -330,7 +365,7 @@ const Statistics = () => {
               <Select
                 value={duration}
                 onChange={setDuration}
-                className={`min-w-[170px] h-[35px] ${locale === 'ar' ? 'text-right' : 'text-left'}`}
+                className={`min-w-[170px] h-[35px] ${locale === "ar" ? "text-right" : "text-left"}`}
               >
                 <Option value="day">
                   <FormattedMessage id="filter.today" />
@@ -350,18 +385,41 @@ const Statistics = () => {
         >
           {chartLoading ? (
             <div className="flex justify-center items-center h-[350px]">
-              <Skeleton active paragraph={{ rows: 6 }} title={false} className="w-full" />
+              <Skeleton
+                active
+                paragraph={{ rows: 6 }}
+                title={false}
+                className="w-full"
+              />
             </div>
           ) : (
             <div className="flex-1 overflow-x-auto custom-scroll bg-[#f0fcf5] rounded-lg p-2  ">
               {chartData && chartData.length > 0 ? (
-                <div style={{ minWidth: Math.max(formattedChartData.length * 80, 400) }}>
+                <div
+                  style={{
+                    minWidth: Math.max(formattedChartData.length * 80, 400),
+                  }}
+                >
                   <ResponsiveContainer width="100%" height={300}>
                     <AreaChart data={formattedChartData}>
                       <defs>
-                        <linearGradient id="colorValue" x1="0" y1="0" x2="0" y2="1">
-                          <stop offset="5%" stopColor="#3bab7b" stopOpacity={0.4} />
-                          <stop offset="95%" stopColor="#3bab7b" stopOpacity={0.05} />
+                        <linearGradient
+                          id="colorValue"
+                          x1="0"
+                          y1="0"
+                          x2="0"
+                          y2="1"
+                        >
+                          <stop
+                            offset="5%"
+                            stopColor="#3bab7b"
+                            stopOpacity={0.4}
+                          />
+                          <stop
+                            offset="95%"
+                            stopColor="#3bab7b"
+                            stopOpacity={0.05}
+                          />
                         </linearGradient>
                       </defs>
 
@@ -369,12 +427,14 @@ const Statistics = () => {
                         dataKey="name"
                         tickMargin={10}
                         tick={{ fontSize: 12 }}
-                        reversed={locale === 'ar'}
-                        tickFormatter={(value) => formatPeriodLabel(value, duration, intl.locale)}
+                        reversed={locale === "ar"}
+                        tickFormatter={(value) =>
+                          formatPeriodLabel(value, duration, intl.locale)
+                        }
                       />
 
                       <YAxis
-                        tickMargin={locale === 'ar' ? 48 : 6}
+                        tickMargin={locale === "ar" ? 48 : 6}
                         tickFormatter={(v) => intl.formatNumber(v)}
                       />
 
@@ -419,7 +479,7 @@ const Statistics = () => {
         >
           <div className="max-h-[350px] overflow-y-auto custom-scroll">
             <List
-              dataSource={dashboardData.recent_activity}
+              dataSource={dashboardData.recent_activity ?? []}
               renderItem={(item: any) => (
                 <List.Item className="flex !items-start gap-3">
                   <img src="/avatar.svg" alt="Avatar" className="w-12 h-auto" />
@@ -462,7 +522,7 @@ const Statistics = () => {
         <Table
           size="small"
           rowKey="id"
-          dataSource={dashboardData.pending_employer_approvals}
+          dataSource={dashboardData.pending_employer_approvals ?? []}
           columns={employerColumns}
           pagination={false}
           scroll={{ x: 700 }}
@@ -481,7 +541,7 @@ const Statistics = () => {
         <Table
           size="small"
           rowKey="id"
-          dataSource={dashboardData.pending_user_approvals}
+          dataSource={dashboardData.pending_user_approvals ?? []}
           columns={userColumns}
           pagination={false}
           scroll={{ x: 700 }}
