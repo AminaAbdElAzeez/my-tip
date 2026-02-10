@@ -673,3 +673,9 @@ html[dir='rtl'] .leaflet-control-geosearch button.reset {
   -ms-border-radius: 0 0 10px 10px !important;
   -o-border-radius: 0 0 10px 10px !important;
 }
+
+/* payment method in send code btn */
+.ant-input-group .ant-input-group-addon {
+  padding: 0 !important;
+}
+/* payment method in send code btn */

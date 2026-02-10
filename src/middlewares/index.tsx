@@ -7,10 +7,9 @@ import { Navigate, useLocation, useNavigate, useParams } from 'react-router-dom'
 
 export function LoggedUserCanNotOpen(Comp: any, next: any) {
   return function ProtectedComponent(props: any) {
-    const { idToken } = useSelector((state: { Auth: IAuth }) => state.Auth);
-
+    const { idToken, type } = useSelector((state: { Auth: IAuth }) => state.Auth);
     if (idToken) {
-      return <Navigate to="/admin/statistics" replace />;
+      return <Navigate to={type === 1 ? '/admin/statistics' : '/employer/statistics'} replace />;
     }
 
     const Wrapped = next(Comp);

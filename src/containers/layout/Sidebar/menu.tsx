@@ -7,7 +7,8 @@ import { useSelector } from 'react-redux';
 const MyMenu = ({ collapsed }) => {
   const location = useLocation();
   const pathname = location.pathname.substring(1).split('/');
-  const selectedKey = location.pathname.replace('/admin/', '');
+  // const selectedKey = location.pathname.replace('/admin/', '');
+  const selectedKey = location.pathname;
 
   // const profile = useSelector((state:any) => state.profile?.data ?? null);
   // const userType = profile?.type;
@@ -18,7 +19,7 @@ const MyMenu = ({ collapsed }) => {
     items.map(({ key, to, label, icon, onClick, hidden, children, ...others }) => {
       if (hidden) return null;
       return {
-        key,
+        key: to || key,
         icon: (
           <div className="icon-wraper -ms-4 h-full px-2 leading-normal align-baseline inline-flex">
             {icon}
