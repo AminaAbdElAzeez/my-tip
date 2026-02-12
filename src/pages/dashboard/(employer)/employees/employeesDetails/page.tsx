@@ -1,26 +1,22 @@
 import { useEffect, useState } from "react";
 import axios from "utlis/library/helpers/axios";
+import { useNavigate, useParams } from "react-router-dom";
 import {
-  Table,
-  Button,
-  Modal,
-  Form,
   message,
+  Descriptions,
   Tooltip,
+  Form,
+  Modal,
   Input,
   Select,
-  Descriptions,
+  Button,
 } from "antd";
-import type { ColumnsType } from "antd/es/table";
-import { FaPlus } from "react-icons/fa6";
-import { FiEdit, FiTrash } from "react-icons/fi";
-import { AiOutlineEye } from "react-icons/ai";
 import { FormattedMessage, useIntl } from "react-intl";
 import RollerLoading from "components/loading/roller";
-import { Outlet, useNavigate, useLocation } from "react-router-dom";
+import { FiEdit, FiTrash } from "react-icons/fi";
+import { FaPlus } from "react-icons/fa";
 
-/* ================= Types ================= */
-interface Employee {
+interface EmployeeDetailsType {
   id: number;
   name: string;
   email: string;
@@ -42,36 +38,27 @@ interface Option {
   name: string;
 }
 
-/* ================= Component ================= */
-function Employees() {
-  const intl = useIntl();
-  const navigate = useNavigate();
-  const location = useLocation();
-  const [pagination, setPagination] = useState({
-    current: 1,
-    pageSize: 10,
-  });
+const SHIFT_MAP: Record<number, string> = {
+  1: "morning",
+  2: "evening",
+  3: "full",
+};
 
-  const [data, setData] = useState<Employee[]>([]);
-  const [positions, setPositions] = useState<Option[]>([]);
-  const [branches, setBranches] = useState<Option[]>([]);
-  const shiftTypes: Option[] = [
-    { value: 1, name: intl.formatMessage({ id: "morning" }) },
-    { value: 2, name: intl.formatMessage({ id: "evening" }) },
-    { value: 3, name: intl.formatMessage({ id: "full" }) },
-  ];
-
+function EmployeesDetails() {
+  const [employee, setEmployee] = useState<EmployeeDetailsType | null>(null);
   const [loading, setLoading] = useState(false);
+
+  const [editLoading, setEditLoading] = useState(false);
+  const [deleteLoading, setDeleteLoading] = useState(false);
 
   const [isAddOpen, setIsAddOpen] = useState(false);
   const [isEditOpen, setIsEditOpen] = useState(false);
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
 
-  const [selectedItem, setSelectedItem] = useState<Employee | null>(null);
-
   const [addLoading, setAddLoading] = useState(false);
-  const [editLoading, setEditLoading] = useState(false);
-  const [deleteLoading, setDeleteLoading] = useState(false);
+
+  const [positions, setPositions] = useState<any[]>([]);
+  const [branches, setBranches] = useState<any[]>([]);
 
   const [isInviteOpen, setIsInviteOpen] = useState(false);
   const [inviteData, setInviteData] = useState<any>(null);
@@ -80,16 +67,36 @@ function Employees() {
   const [addForm] = Form.useForm();
   const [editForm] = Form.useForm();
 
+  const intl = useIntl();
+  const { id } = useParams();
+  const navigate = useNavigate();
+
+  const shiftTypes: Option[] = [
+    { value: 1, name: intl.formatMessage({ id: "morning" }) },
+    { value: 2, name: intl.formatMessage({ id: "evening" }) },
+    { value: 3, name: intl.formatMessage({ id: "full" }) },
+  ];
+
+  /* ================= Helpers ================= */
+
+  const displayValue = (value: any) => {
+    if (!value) return <FormattedMessage id="noData" />;
+    return <span className="text-[#3bab7b]">{value}</span>;
+  };
+
   /* ================= Fetch ================= */
-  const fetchEmployees = async () => {
+
+  const fetchEmployee = async () => {
     try {
       setLoading(true);
+
       const lang = intl.locale.startsWith("ar") ? "ar" : "en";
 
-      const res = await axios.get("/back/employer/employees", {
+      const res = await axios.get(`/back/employer/employees/${id}`, {
         headers: { "Accept-Language": lang },
       });
-      setData(res.data?.data || []);
+
+      setEmployee(res.data?.data);
     } catch {
       message.error(intl.formatMessage({ id: "fetchFailedEmployees" }));
     } finally {
@@ -99,7 +106,6 @@ function Employees() {
 
   const fetchPositions = async () => {
     const lang = intl.locale.startsWith("ar") ? "ar" : "en";
-
     const res = await axios.get("/back/employer/positions", {
       headers: { "Accept-Language": lang },
     });
@@ -108,7 +114,6 @@ function Employees() {
 
   const fetchBranches = async () => {
     const lang = intl.locale.startsWith("ar") ? "ar" : "en";
-
     const res = await axios.get("/back/employer/branches", {
       headers: { "Accept-Language": lang },
     });
@@ -116,10 +121,31 @@ function Employees() {
   };
 
   useEffect(() => {
-    fetchEmployees();
+    fetchEmployee();
     fetchPositions();
     fetchBranches();
-  }, [intl.locale]);
+  }, [id, intl.locale]);
+
+  /* ================= Delete ================= */
+
+  const handleDelete = async () => {
+    try {
+      setDeleteLoading(true);
+
+      const lang = intl.locale.startsWith("ar") ? "ar" : "en";
+
+      const res = await axios.delete(`/back/employer/employees/${id}`, {
+        headers: { "Accept-Language": lang },
+      });
+
+      message.success(res.data?.message);
+      navigate("/employer/employees");
+    } catch (err: any) {
+      message.error(err.message);
+    } finally {
+      setDeleteLoading(false);
+    }
+  };
 
   const handleInvite = async (employeeId: number) => {
     try {
@@ -141,138 +167,42 @@ function Employees() {
     }
   };
 
-  /* ================= Client Pagination ================= */
-  const handleTableChange = (paginationData: any) => {
-    setPagination({
-      current: paginationData.current,
-      pageSize: paginationData.pageSize,
-    });
-  };
+  /* ================= Loading ================= */
 
-  /* ================= Client Pagination ================= */
+  if (loading) return <RollerLoading />;
 
-  const startIndex = (pagination.current - 1) * pagination.pageSize;
-  const endIndex = pagination.current * pagination.pageSize;
+  if (!employee)
+    return (
+      <div className="text-center mt-10">
+        <FormattedMessage id="noData" />
+      </div>
+    );
 
-  const paginatedData = data.slice(startIndex, endIndex);
+  /* ================= UI ================= */
 
-  /* ================= Columns ================= */
-  const columns: ColumnsType<Employee> = [
-    {
-      title: intl.formatMessage({ id: "employeeId" }),
-      dataIndex: "id",
-      key: "id",
-      width: "5%",
-      align: "center",
-      render: (text) => text || <FormattedMessage id="noData" />,
-    },
-    {
-      title: intl.formatMessage({ id: "name" }),
-      dataIndex: "name",
-      key: "name",
-      width: "9%",
-      align: "center",
-      render: (text) => text || <FormattedMessage id="noData" />,
-    },
-    {
-      title: intl.formatMessage({ id: "email" }),
-      dataIndex: "email",
-      key: "email",
-      width: "10%",
-      align: "center",
-      render: (text) => text || <FormattedMessage id="noData" />,
-    },
-    {
-      title: intl.formatMessage({ id: "phone" }),
-      dataIndex: "phone",
-      key: "phone",
-      width: "5%",
-      align: "center",
-      render: (text) => text || <FormattedMessage id="noData" />,
-    },
-    {
-      title: intl.formatMessage({ id: "branchId" }),
-      dataIndex: "branch_id",
-      key: "branch_id",
-      width: "5%",
-      align: "center",
-      render: (text) => text || <FormattedMessage id="noData" />,
-    },
-    {
-      title: intl.formatMessage({ id: "branch2" }),
-      dataIndex: "branch_name",
-      key: "branch_name",
-      width: "10%",
-      align: "center",
-      render: (text) => text || <FormattedMessage id="noData" />,
-    },
-    {
-      title: intl.formatMessage({ id: "positionId" }),
-      dataIndex: "position_id",
-      key: "position_id",
-      width: "5%",
-      align: "center",
-      render: (text) => text || <FormattedMessage id="noData" />,
-    },
-    {
-      title: intl.formatMessage({ id: "position2" }),
-      dataIndex: "position_name",
-      key: "position_name",
-      width: "7%",
-      align: "center",
-      render: (text) => text || <FormattedMessage id="noData" />,
-    },
-    {
-      title: intl.formatMessage({ id: "shiftType" }),
-      dataIndex: "shift_type",
-      key: "shift_type",
-      width: "5%",
-      align: "center",
-      render: (text) =>
-        text ? (
-          shiftTypes.find((s) => s.value === text)?.name
-        ) : (
-          <FormattedMessage id="noData" />
-        ),
-    },
-    {
-      title: intl.formatMessage({ id: "qrcode" }),
-      dataIndex: "qrcode",
-      key: "qrcode",
-      width: "7%",
-      align: "center",
-      render: (text) => text || <FormattedMessage id="noData" />,
-    },
-    {
-      title: intl.formatMessage({ id: "joinedAt" }),
-      dataIndex: "joined_at",
-      key: "joined_at",
-      width: "5%",
-      align: "center",
-      render: (text) => text || <FormattedMessage id="noData" />,
-    },
-    {
-      title: intl.formatMessage({ id: "createdAt" }),
-      dataIndex: "created_at",
-      key: "created_at",
-      width: "9%",
-      align: "center",
-      render: (text) => text || <FormattedMessage id="noData" />,
-    },
-    {
-      title: intl.formatMessage({ id: "updatedAt" }),
-      dataIndex: "updated_at",
-      key: "updated_at",
-      width: "9%",
-      align: "center",
-      render: (text) => text || <FormattedMessage id="noData" />,
-    },
-    {
-      title: intl.formatMessage({ id: "invite" }),
-      key: "invite",
-      align: "center",
-      width: "4%",
-      render: (_, record) => (
+  return (
+    <section>
+      {/* Actions */}
+      {/* <div className="flex justify-end gap-3 mb-3">
+        <Tooltip title={intl.formatMessage({ id: "editEmployee" })}>
+          <FiEdit
+            className="text-[#27aa71] text-2xl cursor-pointer"
+            onClick={() => {
+              editForm.setFieldsValue(employee);
+              setIsEditOpen(true);
+            }}
+          />
+        </Tooltip>
+
+        <Tooltip title={intl.formatMessage({ id: "deleteEmployee" })}>
+          <FiTrash
+            className="text-red-500 text-2xl cursor-pointer"
+            onClick={() => setIsDeleteOpen(true)}
+          />
+        </Tooltip>
+      </div> */}
+
+      <div className="flex justify-end items-center gap-3">
         <Tooltip
           title={intl.formatMessage({ id: "inviteEmployee" })}
           color="#3bab7b"
@@ -281,110 +211,113 @@ function Employees() {
             type="default"
             // size="small"
             className="px-4 py-1"
-            onClick={async () => handleInvite(record.id)}
+            onClick={async () => handleInvite(employee.id)}
           >
             <FormattedMessage id="invite" />
           </Button>
         </Tooltip>
-      ),
-    },
 
-    {
-      title: intl.formatMessage({ id: "actions" }),
-      key: "actions",
-      align: "center",
-      width: "5%",
-      fixed: "right",
-      render: (_, record) => (
-        <div className="flex justify-center gap-2">
-          <Tooltip
-            title={intl.formatMessage({ id: "viewEmployee" })}
-            color="#a86b9e"
-          >
-            <AiOutlineEye
-              className="text-[#a86b9e] text-2xl cursor-pointer"
-              onClick={() => navigate(`/employer/employees/${record.id}`)}
-            />
-          </Tooltip>
+        {/* Edit */}
+        <Tooltip
+          title={intl.formatMessage({ id: "editEmployee" })}
+          color="#27aa71"
+        >
+          <FiEdit
+            className="text-[#27aa71] text-2xl cursor-pointer"
+            onClick={() => {
+              editForm.setFieldsValue(employee);
+              setIsEditOpen(true);
+            }}
+          />
+        </Tooltip>
 
-          <Tooltip
-            title={intl.formatMessage({ id: "editEmployee" })}
-            color="#27aa71"
-          >
-            <FiEdit
-              className="text-[#27aa71] text-xl cursor-pointer"
-              onClick={() => {
-                setSelectedItem(record);
-                editForm.setFieldsValue(record);
-                setIsEditOpen(true);
-              }}
-            />
-          </Tooltip>
+        {/* Delete */}
+        <Tooltip
+          title={intl.formatMessage({ id: "deleteEmployee" })}
+          color="#d30606ff"
+        >
+          <FiTrash
+            className="text-[#d30606ff] text-2xl cursor-pointer"
+            onClick={() => {
+              setIsDeleteOpen(true);
+            }}
+          />
+        </Tooltip>
 
-          <Tooltip
-            title={intl.formatMessage({ id: "deleteEmployee" })}
-            color="#d30606"
-          >
-            <FiTrash
-              className="text-[#d30606] text-xl cursor-pointer"
-              onClick={() => {
-                setSelectedItem(record);
-                setIsDeleteOpen(true);
-              }}
-            />
-          </Tooltip>
-        </div>
-      ),
-    },
-  ];
+        <Tooltip
+          title={intl.formatMessage({ id: "addEmployee" })}
+          color="#27aa71"
+        >
+          <Button
+            type="primary"
+            shape="circle"
+            icon={<FaPlus />}
+            onClick={() => {
+              addForm.resetFields();
+              setIsAddOpen(true);
+            }}
+          />
+        </Tooltip>
+      </div>
 
-  /* ================= JSX ================= */
-  return (
-    <>
-      {location.pathname.endsWith("/employees") ? (
-        <div className=" pt-3">
-          {loading ? (
-            <RollerLoading />
+      {/* Details */}
+      <Descriptions bordered column={1} className="mt-4">
+        <Descriptions.Item label={intl.formatMessage({ id: "employeeId" })}>
+          {displayValue(employee.id)}
+        </Descriptions.Item>
+
+        <Descriptions.Item label={intl.formatMessage({ id: "name" })}>
+          {displayValue(employee.name)}
+        </Descriptions.Item>
+
+        <Descriptions.Item label={intl.formatMessage({ id: "email" })}>
+          {displayValue(employee.email)}
+        </Descriptions.Item>
+
+        <Descriptions.Item label={intl.formatMessage({ id: "phone" })}>
+          {displayValue(employee.phone)}
+        </Descriptions.Item>
+
+        <Descriptions.Item label={intl.formatMessage({ id: "branchId" })}>
+          {displayValue(employee.branch_id)}
+        </Descriptions.Item>
+
+        <Descriptions.Item label={intl.formatMessage({ id: "branch2" })}>
+          {displayValue(employee.branch_name)}
+        </Descriptions.Item>
+
+        <Descriptions.Item label={intl.formatMessage({ id: "positionId" })}>
+          {displayValue(employee.position_id)}
+        </Descriptions.Item>
+
+        <Descriptions.Item label={intl.formatMessage({ id: "position2" })}>
+          {displayValue(employee.position_name)}
+        </Descriptions.Item>
+
+        <Descriptions.Item label={intl.formatMessage({ id: "shiftType" })}>
+          {employee.shift_type ? (
+            <FormattedMessage id={SHIFT_MAP[employee.shift_type]} />
           ) : (
-            <Table
-              title={() => (
-                <Tooltip
-                  title={intl.formatMessage({ id: "addEmployee" })}
-                  color="#27aa71"
-                >
-                  <Button
-                    type="primary"
-                    shape="circle"
-                    icon={<FaPlus />}
-                    onClick={() => {
-                      addForm.resetFields();
-                      setIsAddOpen(true);
-                    }}
-                  />
-                </Tooltip>
-              )}
-              rowKey="id"
-              columns={columns}
-              dataSource={paginatedData}
-              scroll={{ x: 2700, y: 375 }}
-              loading={loading}
-              pagination={{
-                current: pagination.current,
-                pageSize: pagination.pageSize,
-                total: data.length,
-                showSizeChanger: true,
-                pageSizeOptions: ["10", "15", "20", "50", "100"],
-                onChange: (page, size) => {
-                  setPagination({ current: page, pageSize: size! });
-                },
-              }}
-              onChange={handleTableChange}
-            />
+            <FormattedMessage id="noData" />
           )}
-        </div>
-      ) : (
-        <Outlet />
-      )}
+        </Descriptions.Item>
+
+        <Descriptions.Item label={intl.formatMessage({ id: "qrcode" })}>
+          {displayValue(employee.qrcode)}
+        </Descriptions.Item>
+
+        <Descriptions.Item label={intl.formatMessage({ id: "joinedAt" })}>
+          {displayValue(employee.joined_at)}
+        </Descriptions.Item>
+
+        <Descriptions.Item label={intl.formatMessage({ id: "createdAt" })}>
+          {displayValue(employee.created_at)}
+        </Descriptions.Item>
+
+        <Descriptions.Item label={intl.formatMessage({ id: "updatedAt" })}>
+          {displayValue(employee.updated_at)}
+        </Descriptions.Item>
+      </Descriptions>
 
       {/* ================= Add Modal ================= */}
       <Modal
@@ -404,7 +337,8 @@ function Employees() {
             });
             message.success(res.data?.message);
             setIsAddOpen(false);
-            fetchEmployees();
+            navigate("/employer/employees");
+            fetchEmployee();
           } catch (err: any) {
             message.error(
               err.message || intl.formatMessage({ id: "addEmployeeFailed" }),
@@ -502,7 +436,7 @@ function Employees() {
             const lang = intl.locale.startsWith("ar") ? "ar" : "en";
 
             const res = await axios.put(
-              `/back/employer/employees/${selectedItem?.id}`,
+              `/back/employer/employees/${id}`,
               values,
               {
                 headers: { "Accept-Language": lang },
@@ -510,7 +444,7 @@ function Employees() {
             );
             message.success(res.data?.message);
             setIsEditOpen(false);
-            fetchEmployees();
+            fetchEmployee();
           } catch (err: any) {
             message.error(
               err.message || intl.formatMessage({ id: "editEmployeeFailed" }),
@@ -605,16 +539,14 @@ function Employees() {
           setDeleteLoading(true);
           const lang = intl.locale.startsWith("ar") ? "ar" : "en";
 
-          const res = await axios.delete(
-            `/back/employer/employees/${selectedItem?.id}`,
-            {
-              headers: { "Accept-Language": lang },
-            },
-          );
+          const res = await axios.delete(`/back/employer/employees/${id}`, {
+            headers: { "Accept-Language": lang },
+          });
           message.success(res.data?.message);
           setIsDeleteOpen(false);
-          fetchEmployees();
+          //   fetchEmployee();
           setDeleteLoading(false);
+          navigate("/employer/employees");
         }}
       >
         <h3 className="text-[#3bab7b] text-lg mb-2">
@@ -763,8 +695,8 @@ function Employees() {
           </p>
         )}
       </Modal>
-    </>
+    </section>
   );
 }
 
-export default Employees;
+export default EmployeesDetails;

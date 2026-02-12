@@ -328,7 +328,9 @@ function Positions() {
             setIsAddOpen(false);
             fetchPositions();
           } catch (err: any) {
-            message.error(err.message);
+            message.error(
+              err.message || intl.formatMessage({ id: "addPositionFailed" }),
+            );
           } finally {
             setAddLoading(false);
           }

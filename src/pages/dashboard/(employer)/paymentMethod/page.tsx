@@ -1,12 +1,22 @@
-import { useEffect, useState } from 'react';
-import axios from 'utlis/library/helpers/axios';
-import { Table, Button, Modal, Form, Input, message, Tooltip, Select, Radio } from 'antd';
-import type { ColumnsType } from 'antd/es/table';
-import { FaPlus } from 'react-icons/fa6';
-import { AiOutlineEye } from 'react-icons/ai';
-import { FormattedMessage, useIntl } from 'react-intl';
-import RollerLoading from 'components/loading/roller';
-import { FiTrash } from 'react-icons/fi';
+import { useEffect, useState } from "react";
+import axios from "utlis/library/helpers/axios";
+import {
+  Table,
+  Button,
+  Modal,
+  Form,
+  Input,
+  message,
+  Tooltip,
+  Select,
+  Radio,
+} from "antd";
+import type { ColumnsType } from "antd/es/table";
+import { FaPlus } from "react-icons/fa6";
+import { AiOutlineEye } from "react-icons/ai";
+import { FormattedMessage, useIntl } from "react-intl";
+import RollerLoading from "components/loading/roller";
+import { FiTrash } from "react-icons/fi";
 
 interface PaymentMethod {
   id: number;
@@ -59,18 +69,26 @@ function PaymentMethods() {
   const intl = useIntl();
   const [addForm] = Form.useForm();
 
+  const paymentBrandMap: Record<number, string> = {
+    1: intl.formatMessage({ id: "visa" }),
+    2: intl.formatMessage({ id: "mastercard" }),
+    3: intl.formatMessage({ id: "mada" }),
+    4: intl.formatMessage({ id: "applePay" }),
+    5: intl.formatMessage({ id: "stcPay" }),
+  };
+
   /* ================= Fetch Payment Methods ================= */
   const fetchPaymentMethods = async () => {
     try {
       setLoading(true);
-      const lang = intl.locale.startsWith('ar') ? 'ar' : 'en';
+      const lang = intl.locale.startsWith("ar") ? "ar" : "en";
 
-      const res = await axios.get('/payment-methods', {
-        headers: { 'Accept-Language': lang },
+      const res = await axios.get("/payment-methods", {
+        headers: { "Accept-Language": lang },
       });
       setData(res.data?.data || []);
     } catch {
-      message.error(intl.formatMessage({ id: 'failedToFetchPaymentMethods' }));
+      message.error(intl.formatMessage({ id: "failedToFetchPaymentMethods" }));
     } finally {
       setLoading(false);
     }
@@ -78,10 +96,10 @@ function PaymentMethods() {
 
   const fetchBanks = async () => {
     try {
-      const lang = intl.locale.startsWith('ar') ? 'ar' : 'en';
+      const lang = intl.locale.startsWith("ar") ? "ar" : "en";
 
-      const res = await axios.get('/payment-methods/banks', {
-        headers: { 'Accept-Language': lang },
+      const res = await axios.get("/payment-methods/banks", {
+        headers: { "Accept-Language": lang },
       });
       setBanks(res.data?.data || []);
     } catch {}
@@ -118,16 +136,18 @@ function PaymentMethods() {
     try {
       setDeleteLoading(true);
 
-      const lang = intl.locale.startsWith('ar') ? 'ar' : 'en';
+      const lang = intl.locale.startsWith("ar") ? "ar" : "en";
 
       const res = await axios.delete(`/payment-methods/${id}`, {
-        headers: { 'Accept-Language': lang },
+        headers: { "Accept-Language": lang },
       });
-      message.success(res.data?.message || intl.formatMessage({ id: 'delSuccess' }));
+      message.success(
+        res.data?.message || intl.formatMessage({ id: "delSuccess" }),
+      );
       fetchPaymentMethods();
       setDeleteModalOpen(false);
     } catch (err: any) {
-      message.error(err.message || intl.formatMessage({ id: 'delFailed' }));
+      message.error(err.message || intl.formatMessage({ id: "delFailed" }));
     } finally {
       setDeleteLoading(false);
     }
@@ -136,11 +156,11 @@ function PaymentMethods() {
   /* ================= Table Columns ================= */
   const columns: ColumnsType<PaymentMethod> = [
     {
-      title: intl.formatMessage({ id: 'paymentMethodId' }),
-      dataIndex: 'id',
-      key: 'id',
-      width: '6%',
-      align: 'center',
+      title: intl.formatMessage({ id: "paymentMethodId" }),
+      dataIndex: "id",
+      key: "id",
+      width: "6%",
+      align: "center",
       render: (val) =>
         val ?? (
           <p className="text-gray-300">
@@ -149,11 +169,37 @@ function PaymentMethods() {
         ),
     },
     {
-      title: intl.formatMessage({ id: 'paymentType' }),
-      dataIndex: 'payment_type',
-      key: 'payment_type',
-      align: 'center',
-      width: '5%',
+      title: intl.formatMessage({ id: "paymentType" }),
+      dataIndex: "type",
+      key: "type",
+      align: "center",
+      width: "5%",
+      render: (val) =>
+        val ?? (
+          <p className="text-gray-300">
+            <FormattedMessage id="noData" />
+          </p>
+        ),
+    },
+    // {
+    //   title: intl.formatMessage({ id: 'type' }),
+    //   dataIndex: 'type',
+    //   key: 'type',
+    //   width: '4%',
+    //   align: 'center',
+    //   render: (val) =>
+    //     val ?? (
+    //       <p className="text-gray-300">
+    //         <FormattedMessage id="noData" />
+    //       </p>
+    //     ),
+    // },
+    {
+      title: intl.formatMessage({ id: "label" }),
+      dataIndex: "label",
+      key: "label",
+      width: "5%",
+      align: "center",
       render: (val) =>
         val ?? (
           <p className="text-gray-300">
@@ -162,51 +208,27 @@ function PaymentMethods() {
         ),
     },
     {
-      title: intl.formatMessage({ id: 'type' }),
-      dataIndex: 'type',
-      key: 'type',
-      width: '4%',
-      align: 'center',
-      render: (val) =>
-        val ?? (
-          <p className="text-gray-300">
-            <FormattedMessage id="noData" />
-          </p>
-        ),
-    },
-    {
-      title: intl.formatMessage({ id: 'label' }),
-      dataIndex: 'label',
-      key: 'label',
-      width: '5%',
-      align: 'center',
-      render: (val) =>
-        val ?? (
-          <p className="text-gray-300">
-            <FormattedMessage id="noData" />
-          </p>
-        ),
-    },
-    {
-      title: intl.formatMessage({ id: 'paymentBrand' }),
-      dataIndex: 'payment_brand',
-      key: 'payment_brand',
-      align: 'center',
-      width: '7%',
+      title: intl.formatMessage({ id: "paymentBrand" }),
+      dataIndex: "payment_brand",
+      key: "payment_brand",
+      align: "center",
+      width: "7%",
 
       render: (val) =>
-        val ?? (
+        val ? (
+          paymentBrandMap[val] || val
+        ) : (
           <p className="text-gray-300">
             <FormattedMessage id="noData" />
           </p>
         ),
     },
     {
-      title: intl.formatMessage({ id: 'cardLastFour' }),
-      dataIndex: 'card_last_four',
-      key: 'card_last_four',
-      align: 'center',
-      width: '5%',
+      title: intl.formatMessage({ id: "cardLastFour" }),
+      dataIndex: "card_last_four",
+      key: "card_last_four",
+      align: "center",
+      width: "5%",
       render: (val) =>
         val ?? (
           <p className="text-gray-300">
@@ -215,11 +237,11 @@ function PaymentMethods() {
         ),
     },
     {
-      title: intl.formatMessage({ id: 'maskedCard' }),
-      dataIndex: 'masked_card',
-      key: 'masked_card',
-      align: 'center',
-      width: '6%',
+      title: intl.formatMessage({ id: "maskedCard" }),
+      dataIndex: "masked_card",
+      key: "masked_card",
+      align: "center",
+      width: "6%",
       render: (val) =>
         val ?? (
           <p className="text-gray-300">
@@ -228,12 +250,12 @@ function PaymentMethods() {
         ),
     },
     {
-      title: intl.formatMessage({ id: 'cardExp' }),
-      dataIndex: 'card_exp_month',
-      key: 'card_exp_month',
-      width: '7%',
+      title: intl.formatMessage({ id: "cardExp" }),
+      dataIndex: "card_exp_month",
+      key: "card_exp_month",
+      width: "7%",
 
-      align: 'center',
+      align: "center",
       render: (_, record) =>
         record.card_exp_month && record.card_exp_year ? (
           `${record.card_exp_month}/${record.card_exp_year}`
@@ -244,11 +266,11 @@ function PaymentMethods() {
         ),
     },
     {
-      title: intl.formatMessage({ id: 'cardHolderName' }),
-      dataIndex: 'card_holder_name',
-      key: 'card_holder_name',
-      align: 'center',
-      width: '6%',
+      title: intl.formatMessage({ id: "cardHolderName" }),
+      dataIndex: "card_holder_name",
+      key: "card_holder_name",
+      align: "center",
+      width: "6%",
 
       render: (val) =>
         val ?? (
@@ -258,11 +280,11 @@ function PaymentMethods() {
         ),
     },
     {
-      title: intl.formatMessage({ id: 'deviceName' }),
-      dataIndex: 'device_name',
-      key: 'device_name',
-      align: 'center',
-      width: '6%',
+      title: intl.formatMessage({ id: "deviceName" }),
+      dataIndex: "device_name",
+      key: "device_name",
+      align: "center",
+      width: "6%",
 
       render: (val) =>
         val ?? (
@@ -272,30 +294,36 @@ function PaymentMethods() {
         ),
     },
     {
-      title: intl.formatMessage({ id: 'isDefault' }),
-      dataIndex: 'is_default',
-      key: 'is_default',
-      align: 'center',
-      width: '4%',
+      title: intl.formatMessage({ id: "isDefault" }),
+      dataIndex: "is_default",
+      key: "is_default",
+      align: "center",
+      width: "4%",
 
-      render: (val) => (val ? intl.formatMessage({ id: 'yes' }) : intl.formatMessage({ id: 'no' })),
+      render: (val) =>
+        val
+          ? intl.formatMessage({ id: "yes" })
+          : intl.formatMessage({ id: "no" }),
     },
     {
-      title: intl.formatMessage({ id: 'isActive' }),
-      dataIndex: 'is_active',
-      key: 'is_active',
-      align: 'center',
-      width: '4%',
+      title: intl.formatMessage({ id: "isActive" }),
+      dataIndex: "is_active",
+      key: "is_active",
+      align: "center",
+      width: "4%",
 
-      render: (val) => (val ? intl.formatMessage({ id: 'yes' }) : intl.formatMessage({ id: 'no' })),
+      render: (val) =>
+        val
+          ? intl.formatMessage({ id: "yes" })
+          : intl.formatMessage({ id: "no" }),
     },
 
     {
-      title: intl.formatMessage({ id: 'walletPhone' }),
-      dataIndex: 'wallet_phone',
-      key: 'wallet_phone',
-      align: 'center',
-      width: '5%',
+      title: intl.formatMessage({ id: "walletPhone" }),
+      dataIndex: "wallet_phone",
+      key: "wallet_phone",
+      align: "center",
+      width: "5%",
 
       render: (val) =>
         val ?? (
@@ -305,11 +333,11 @@ function PaymentMethods() {
         ),
     },
     {
-      title: intl.formatMessage({ id: 'iban' }),
-      dataIndex: 'iban',
-      key: 'iban',
-      align: 'center',
-      width: '8%',
+      title: intl.formatMessage({ id: "iban" }),
+      dataIndex: "iban",
+      key: "iban",
+      align: "center",
+      width: "8%",
 
       render: (val) =>
         val ?? (
@@ -319,12 +347,12 @@ function PaymentMethods() {
         ),
     },
     {
-      title: intl.formatMessage({ id: 'bankName' }),
-      dataIndex: 'bank_name',
-      key: 'bank_name',
-      width: '7%',
+      title: intl.formatMessage({ id: "bankName" }),
+      dataIndex: "bank_name",
+      key: "bank_name",
+      width: "7%",
 
-      align: 'center',
+      align: "center",
       render: (val) =>
         val ?? (
           <p className="text-gray-300">
@@ -333,25 +361,11 @@ function PaymentMethods() {
         ),
     },
     {
-      title: intl.formatMessage({ id: 'holderName' }),
-      dataIndex: 'holder_name',
-      key: 'holder_name',
-      align: 'center',
-      width: '6%',
-
-      render: (val) =>
-        val ?? (
-          <p className="text-gray-300">
-            <FormattedMessage id="noData" />
-          </p>
-        ),
-    },
-    {
-      title: intl.formatMessage({ id: 'accountNumber' }),
-      dataIndex: 'account_number',
-      key: 'account_number',
-      align: 'center',
-      width: '6%',
+      title: intl.formatMessage({ id: "holderName" }),
+      dataIndex: "holder_name",
+      key: "holder_name",
+      align: "center",
+      width: "6%",
 
       render: (val) =>
         val ?? (
@@ -361,15 +375,32 @@ function PaymentMethods() {
         ),
     },
     {
-      title: intl.formatMessage({ id: 'actions' }),
-      key: 'actions',
-      align: 'center',
-      width: '3%',
-      fixed: 'right',
+      title: intl.formatMessage({ id: "accountNumber" }),
+      dataIndex: "account_number",
+      key: "account_number",
+      align: "center",
+      width: "6%",
+
+      render: (val) =>
+        val ?? (
+          <p className="text-gray-300">
+            <FormattedMessage id="noData" />
+          </p>
+        ),
+    },
+    {
+      title: intl.formatMessage({ id: "actions" }),
+      key: "actions",
+      align: "center",
+      width: "3%",
+      fixed: "right",
 
       render: (_, record) => (
         <div className="flex justify-center gap-2">
-          <Tooltip title={intl.formatMessage({ id: 'deletePayment' })} color="#d30606">
+          <Tooltip
+            title={intl.formatMessage({ id: "deletePayment" })}
+            color="#d30606"
+          >
             <FiTrash
               className="text-[#d30606ff] text-xl cursor-pointer"
               onClick={() => {
@@ -392,7 +423,10 @@ function PaymentMethods() {
         ) : (
           <Table
             title={() => (
-              <Tooltip title={intl.formatMessage({ id: 'addPaymentMethod' })} color="#3bab7b">
+              <Tooltip
+                title={intl.formatMessage({ id: "addPaymentMethod" })}
+                color="#3bab7b"
+              >
                 <Button
                   type="primary"
                   shape="circle"
@@ -413,7 +447,7 @@ function PaymentMethods() {
               pageSize: pagination.pageSize,
               total: data.length,
               showSizeChanger: true,
-              pageSizeOptions: ['10', '15', '20', '50', '100'],
+              pageSizeOptions: ["10", "15", "20", "50", "100"],
               onChange: (page, size) => {
                 setPagination({ current: page, pageSize: size! });
               },
@@ -451,26 +485,38 @@ function PaymentMethods() {
             setAddLoading(true);
             const values = await addForm.validateFields();
             const formData = new FormData();
-            formData.append('payment_type', values.payment_type);
-            formData.append('phone', values.wallet_phone);
-            formData.append('brand_type', values.brand_type);
-            formData.append('code', values.code);
-            formData.append('iban', values.iban);
-            formData.append('bank_id', values.bank_id);
-            formData.append('holder_name', values.holder_name);
-            formData.append('account_number', values.account_number);
+            formData.append("payment_type", values.payment_type);
+            formData.append("phone", values.wallet_phone);
+            // formData.append("brand_type", values.brand_type);
+            formData.append("code", values.code);
+            formData.append("iban", values.iban);
+            formData.append("bank_id", values.bank_id);
+            formData.append("holder_name", values.holder_name);
+            formData.append("account_number", values.account_number);
 
-            const lang = intl.locale.startsWith('ar') ? 'ar' : 'en';
+            // always 5
+            formData.append("brand_type", "5");
 
-            const res = await axios.post('/payment-methods/create-withdraw', formData, {
-              headers: { 'Accept-Language': lang },
-            });
-            message.success(res.data?.message || intl.formatMessage({ id: 'successMsg' }));
+            const lang = intl.locale.startsWith("ar") ? "ar" : "en";
+
+            const res = await axios.post(
+              "/payment-methods/create-withdraw",
+              formData,
+              {
+                headers: { "Accept-Language": lang },
+              },
+            );
+            message.success(
+              res.data?.message ||
+                intl.formatMessage({ id: "addPaymentFailed" }),
+            );
             fetchPaymentMethods();
             addForm.resetFields();
             setIsAddModalOpen(false);
           } catch (err: any) {
-            message.error(err.message || intl.formatMessage({ id: 'errorMsg' }));
+            message.error(
+              err.message || intl.formatMessage({ id: "errorMsg" }),
+            );
           } finally {
             setAddLoading(false);
           }
@@ -483,18 +529,23 @@ function PaymentMethods() {
           <Form.Item
             name="payment_type"
             label={<FormattedMessage id="paymentMehodType" />}
-            rules={[{ required: true, message: intl.formatMessage({ id: 'paymentTypeReq2' }) }]}
+            rules={[
+              {
+                required: true,
+                message: intl.formatMessage({ id: "paymentTypeReq2" }),
+              },
+            ]}
           >
             <Select
-              placeholder={intl.formatMessage({ id: 'selectPaymentType' })}
+              placeholder={intl.formatMessage({ id: "selectPaymentType" })}
               options={[
                 {
                   value: 2,
-                  label: intl.formatMessage({ id: 'mobilePay' }),
+                  label: intl.formatMessage({ id: "mobilePay" }),
                 },
                 {
                   value: 3,
-                  label: intl.formatMessage({ id: 'bankAccount' }),
+                  label: intl.formatMessage({ id: "bankAccount" }),
                 },
               ]}
             />
@@ -514,7 +565,10 @@ function PaymentMethods() {
             name="wallet_phone"
             label={<FormattedMessage id="walletPhone" />}
             rules={[
-              { required: true, message: intl.formatMessage({ id: 'walletPhoneReq' }) },
+              {
+                required: true,
+                message: intl.formatMessage({ id: "walletPhoneReq" }),
+              },
               {
                 validator: (_, value) => {
                   if (!value) return Promise.resolve();
@@ -523,35 +577,44 @@ function PaymentMethods() {
                   if (emailRegex.test(value) || saudiPhoneRegex.test(value)) {
                     return Promise.resolve();
                   }
-                  return Promise.reject(new Error(intl.formatMessage({ id: 'invalidPhone' })));
+                  return Promise.reject(
+                    new Error(intl.formatMessage({ id: "invalidPhone" })),
+                  );
                 },
               },
             ]}
           >
             <Input
-              placeholder={intl.formatMessage({ id: 'walletPhone' })}
+              placeholder={intl.formatMessage({ id: "walletPhone" })}
               addonAfter={
                 <Button
                   type="primary"
                   size="middle"
                   className="w-full"
                   onClick={async () => {
-                    const phone = addForm.getFieldValue('wallet_phone');
-                    if (!phone) return message.error(intl.formatMessage({ id: 'walletPhoneReq' }));
+                    const phone = addForm.getFieldValue("wallet_phone");
+                    if (!phone)
+                      return message.error(
+                        intl.formatMessage({ id: "walletPhoneReq" }),
+                      );
                     try {
-                      const lang = intl.locale.startsWith('ar') ? 'ar' : 'en';
+                      const lang = intl.locale.startsWith("ar") ? "ar" : "en";
                       const res = await axios.post(
-                        '/payment-methods/send-code',
+                        "/payment-methods/send-code",
                         { phone },
                         {
-                          headers: { 'Accept-Language': lang },
+                          headers: { "Accept-Language": lang },
                         },
                       );
                       message.success(
-                        res.data.message || intl.formatMessage({ id: 'codeSentSuccess' }),
+                        res.data.message ||
+                          intl.formatMessage({ id: "codeSentSuccess" }),
                       );
                     } catch (err: any) {
-                      message.error(err.message || intl.formatMessage({ id: 'codeSentFailed' }));
+                      message.error(
+                        err.message ||
+                          intl.formatMessage({ id: "codeSentFailed" }),
+                      );
                     }
                   }}
                 >
@@ -564,35 +627,55 @@ function PaymentMethods() {
           <Form.Item
             name="code"
             label={<FormattedMessage id="code" />}
-            rules={[{ required: true, message: intl.formatMessage({ id: 'codeReq' }) }]}
+            rules={[
+              {
+                required: true,
+                message: intl.formatMessage({ id: "codeReq" }),
+              },
+            ]}
           >
-            <Input placeholder={intl.formatMessage({ id: 'code' })} />
+            <Input placeholder={intl.formatMessage({ id: "code" })} />
           </Form.Item>
 
-          <Form.Item
+          {/* <Form.Item
             name="brand_type"
             label={<FormattedMessage id="brandType" />}
-            rules={[{ required: true, message: intl.formatMessage({ id: 'brandTypeReq' }) }]}
+            rules={[
+              {
+                required: true,
+                message: intl.formatMessage({ id: "brandTypeReq" }),
+              },
+            ]}
           >
-            <Input placeholder={intl.formatMessage({ id: 'brandType' })} />
-          </Form.Item>
+            <Input placeholder={intl.formatMessage({ id: "brandType" })} />
+          </Form.Item> */}
 
           {/* Bank Account */}
           <Form.Item
             name="iban"
             label={<FormattedMessage id="iban" />}
-            rules={[{ required: true, message: intl.formatMessage({ id: 'ibanReq' }) }]}
+            rules={[
+              {
+                required: true,
+                message: intl.formatMessage({ id: "ibanReq" }),
+              },
+            ]}
           >
-            <Input placeholder={intl.formatMessage({ id: 'iban' })} />
+            <Input placeholder={intl.formatMessage({ id: "iban" })} />
           </Form.Item>
 
           <Form.Item
             name="bank_id"
             label={<FormattedMessage id="bankName" />}
-            rules={[{ required: true, message: intl.formatMessage({ id: 'bankReq' }) }]}
+            rules={[
+              {
+                required: true,
+                message: intl.formatMessage({ id: "bankReq" }),
+              },
+            ]}
           >
             <Select
-              placeholder={intl.formatMessage({ id: 'bankName' })}
+              placeholder={intl.formatMessage({ id: "bankName" })}
               options={banks.map((b) => ({ value: b.id, label: b.name }))}
             />
           </Form.Item>
@@ -600,17 +683,27 @@ function PaymentMethods() {
           <Form.Item
             name="holder_name"
             label={<FormattedMessage id="holderName" />}
-            rules={[{ required: true, message: intl.formatMessage({ id: 'holderNameReq' }) }]}
+            rules={[
+              {
+                required: true,
+                message: intl.formatMessage({ id: "holderNameReq" }),
+              },
+            ]}
           >
-            <Input placeholder={intl.formatMessage({ id: 'holderName' })} />
+            <Input placeholder={intl.formatMessage({ id: "holderName" })} />
           </Form.Item>
 
           <Form.Item
             name="account_number"
             label={<FormattedMessage id="accountNumber" />}
-            rules={[{ required: true, message: intl.formatMessage({ id: 'accountNumberReq' }) }]}
+            rules={[
+              {
+                required: true,
+                message: intl.formatMessage({ id: "accountNumberReq" }),
+              },
+            ]}
           >
-            <Input placeholder={intl.formatMessage({ id: 'accountNumber' })} />
+            <Input placeholder={intl.formatMessage({ id: "accountNumber" })} />
           </Form.Item>
         </Form>
       </Modal>
