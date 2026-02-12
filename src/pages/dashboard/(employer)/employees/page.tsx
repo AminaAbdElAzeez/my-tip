@@ -1,22 +1,13 @@
-import { useEffect, useState } from "react";
-import axios from "utlis/library/helpers/axios";
-import {
-  Table,
-  Button,
-  Modal,
-  Form,
-  message,
-  Tooltip,
-  Input,
-  Select,
-} from "antd";
-import type { ColumnsType } from "antd/es/table";
-import { FaPlus } from "react-icons/fa6";
-import { FiEdit, FiTrash } from "react-icons/fi";
-import { AiOutlineEye } from "react-icons/ai";
-import { FormattedMessage, useIntl } from "react-intl";
-import RollerLoading from "components/loading/roller";
-import { Outlet, useNavigate, useLocation } from "react-router-dom";
+import { useEffect, useState } from 'react';
+import axios from 'utlis/library/helpers/axios';
+import { Table, Button, Modal, Form, message, Tooltip, Input, Select } from 'antd';
+import type { ColumnsType } from 'antd/es/table';
+import { FaPlus } from 'react-icons/fa6';
+import { FiEdit, FiTrash } from 'react-icons/fi';
+import { AiOutlineEye } from 'react-icons/ai';
+import { FormattedMessage, useIntl } from 'react-intl';
+import RollerLoading from 'components/loading/roller';
+import { Outlet, useNavigate, useLocation } from 'react-router-dom';
 
 /* ================= Types ================= */
 interface Employee {
@@ -55,9 +46,9 @@ function Employees() {
   const [positions, setPositions] = useState<Option[]>([]);
   const [branches, setBranches] = useState<Option[]>([]);
   const shiftTypes: Option[] = [
-    { value: 1, name: intl.formatMessage({ id: "morning" }) },
-    { value: 2, name: intl.formatMessage({ id: "evening" }) },
-    { value: 3, name: intl.formatMessage({ id: "full" }) },
+    { value: 1, name: intl.formatMessage({ id: 'morning' }) },
+    { value: 2, name: intl.formatMessage({ id: 'evening' }) },
+    { value: 3, name: intl.formatMessage({ id: 'full' }) },
   ];
 
   const [loading, setLoading] = useState(false);
@@ -79,33 +70,33 @@ function Employees() {
   const fetchEmployees = async () => {
     try {
       setLoading(true);
-      const lang = intl.locale.startsWith("ar") ? "ar" : "en";
+      const lang = intl.locale.startsWith('ar') ? 'ar' : 'en';
 
-      const res = await axios.get("/back/employer/employees", {
-        headers: { "Accept-Language": lang },
+      const res = await axios.get('/back/employer/employees', {
+        headers: { 'Accept-Language': lang },
       });
       setData(res.data?.data || []);
     } catch {
-      message.error(intl.formatMessage({ id: "fetchFailedEmployees" }));
+      message.error(intl.formatMessage({ id: 'fetchFailedEmployees' }));
     } finally {
       setLoading(false);
     }
   };
 
   const fetchPositions = async () => {
-    const lang = intl.locale.startsWith("ar") ? "ar" : "en";
+    const lang = intl.locale.startsWith('ar') ? 'ar' : 'en';
 
-    const res = await axios.get("/back/employer/positions", {
-      headers: { "Accept-Language": lang },
+    const res = await axios.get('/back/employer/positions', {
+      headers: { 'Accept-Language': lang },
     });
     setPositions(res.data?.data || []);
   };
 
   const fetchBranches = async () => {
-    const lang = intl.locale.startsWith("ar") ? "ar" : "en";
+    const lang = intl.locale.startsWith('ar') ? 'ar' : 'en';
 
-    const res = await axios.get("/back/employer/branches", {
-      headers: { "Accept-Language": lang },
+    const res = await axios.get('/back/employer/branches', {
+      headers: { 'Accept-Language': lang },
     });
     setBranches(res.data?.data || []);
   };
@@ -134,128 +125,118 @@ function Employees() {
   /* ================= Columns ================= */
   const columns: ColumnsType<Employee> = [
     {
-      title: intl.formatMessage({ id: "employeeId" }),
-      dataIndex: "id",
-      key: "id",
-      width: "6%",
-      align: "center",
+      title: intl.formatMessage({ id: 'employeeId' }),
+      dataIndex: 'id',
+      key: 'id',
+      width: '6%',
+      align: 'center',
       render: (text) => text || <FormattedMessage id="noData" />,
     },
     {
-      title: intl.formatMessage({ id: "name" }),
-      dataIndex: "name",
-      key: "name",
-      width: "10%",
-      align: "center",
+      title: intl.formatMessage({ id: 'name' }),
+      dataIndex: 'name',
+      key: 'name',
+      width: '10%',
+      align: 'center',
       render: (text) => text || <FormattedMessage id="noData" />,
     },
     {
-      title: intl.formatMessage({ id: "email" }),
-      dataIndex: "email",
-      key: "email",
-      width: "10%",
-      align: "center",
+      title: intl.formatMessage({ id: 'email' }),
+      dataIndex: 'email',
+      key: 'email',
+      width: '10%',
+      align: 'center',
       render: (text) => text || <FormattedMessage id="noData" />,
     },
     {
-      title: intl.formatMessage({ id: "phone" }),
-      dataIndex: "phone",
-      key: "phone",
-      width: "6%",
-      align: "center",
+      title: intl.formatMessage({ id: 'phone' }),
+      dataIndex: 'phone',
+      key: 'phone',
+      width: '6%',
+      align: 'center',
       render: (text) => text || <FormattedMessage id="noData" />,
     },
     {
-      title: intl.formatMessage({ id: "branchId" }),
-      dataIndex: "branch_id",
-      key: "branch_id",
-      width: "5%",
-      align: "center",
+      title: intl.formatMessage({ id: 'branchId' }),
+      dataIndex: 'branch_id',
+      key: 'branch_id',
+      width: '5%',
+      align: 'center',
       render: (text) => text || <FormattedMessage id="noData" />,
     },
     {
-      title: intl.formatMessage({ id: "branch" }),
-      dataIndex: "branch_name",
-      key: "branch_name",
-      width: "11%",
-      align: "center",
+      title: intl.formatMessage({ id: 'branch' }),
+      dataIndex: 'branch_name',
+      key: 'branch_name',
+      width: '11%',
+      align: 'center',
       render: (text) => text || <FormattedMessage id="noData" />,
     },
     {
-      title: intl.formatMessage({ id: "position" }),
-      dataIndex: "position_name",
-      key: "position_name",
-      width: "7%",
-      align: "center",
+      title: intl.formatMessage({ id: 'position' }),
+      dataIndex: 'position_name',
+      key: 'position_name',
+      width: '7%',
+      align: 'center',
       render: (text) => text || <FormattedMessage id="noData" />,
     },
     {
-      title: intl.formatMessage({ id: "shiftType" }),
-      dataIndex: "shift_type",
-      key: "shift_type",
-      width: "7%",
-      align: "center",
+      title: intl.formatMessage({ id: 'shiftType' }),
+      dataIndex: 'shift_type',
+      key: 'shift_type',
+      width: '7%',
+      align: 'center',
       render: (text) =>
-        text ? (
-          shiftTypes.find((s) => s.value === text)?.name
-        ) : (
-          <FormattedMessage id="noData" />
-        ),
+        text ? shiftTypes.find((s) => s.value === text)?.name : <FormattedMessage id="noData" />,
     },
     {
-      title: intl.formatMessage({ id: "qrcode" }),
-      dataIndex: "qrcode",
-      key: "qrcode",
-      width: "8%",
-      align: "center",
+      title: intl.formatMessage({ id: 'qrcode' }),
+      dataIndex: 'qrcode',
+      key: 'qrcode',
+      width: '8%',
+      align: 'center',
       render: (text) => text || <FormattedMessage id="noData" />,
     },
     {
-      title: intl.formatMessage({ id: "joinedAt" }),
-      dataIndex: "joined_at",
-      key: "joined_at",
-      width: "7%",
-      align: "center",
+      title: intl.formatMessage({ id: 'joinedAt' }),
+      dataIndex: 'joined_at',
+      key: 'joined_at',
+      width: '7%',
+      align: 'center',
       render: (text) => text || <FormattedMessage id="noData" />,
     },
     {
-      title: intl.formatMessage({ id: "createdAt" }),
-      dataIndex: "created_at",
-      key: "created_at",
-      width: "9%",
-      align: "center",
+      title: intl.formatMessage({ id: 'createdAt' }),
+      dataIndex: 'created_at',
+      key: 'created_at',
+      width: '9%',
+      align: 'center',
       render: (text) => text || <FormattedMessage id="noData" />,
     },
     {
-      title: intl.formatMessage({ id: "updatedAt" }),
-      dataIndex: "updated_at",
-      key: "updated_at",
-      width: "9%",
-      align: "center",
+      title: intl.formatMessage({ id: 'updatedAt' }),
+      dataIndex: 'updated_at',
+      key: 'updated_at',
+      width: '9%',
+      align: 'center',
       render: (text) => text || <FormattedMessage id="noData" />,
     },
     {
-      title: intl.formatMessage({ id: "actions" }),
-      key: "actions",
-      align: "center",
-      width: "5%",
-      fixed: "right",
+      title: intl.formatMessage({ id: 'actions' }),
+      key: 'actions',
+      align: 'center',
+      width: '5%',
+      fixed: 'right',
       render: (_, record) => (
         <div className="flex justify-center gap-2">
-          <Tooltip
-            title={intl.formatMessage({ id: "viewEmployee" })}
-            color="#a86b9e"
-          >
+          <Tooltip title={intl.formatMessage({ id: 'viewEmployee' })} color="#a86b9e">
             <AiOutlineEye
               className="text-[#a86b9e] text-2xl cursor-pointer"
               onClick={() => navigate(`/employer/employees/${record.id}`)}
             />
           </Tooltip>
 
-          <Tooltip
-            title={intl.formatMessage({ id: "editEmployee" })}
-            color="#27aa71"
-          >
+          <Tooltip title={intl.formatMessage({ id: 'editEmployee' })} color="#27aa71">
             <FiEdit
               className="text-[#27aa71] text-xl cursor-pointer"
               onClick={() => {
@@ -266,10 +247,7 @@ function Employees() {
             />
           </Tooltip>
 
-          <Tooltip
-            title={intl.formatMessage({ id: "deleteEmployee" })}
-            color="#d30606"
-          >
+          <Tooltip title={intl.formatMessage({ id: 'deleteEmployee' })} color="#d30606">
             <FiTrash
               className="text-[#d30606] text-xl cursor-pointer"
               onClick={() => {
@@ -286,14 +264,14 @@ function Employees() {
   /* ================= JSX ================= */
   return (
     <>
-      {location.pathname.endsWith("/employees") ? (
+      {location.pathname.endsWith('/employees') ? (
         <div className=" pt-3">
           {loading ? (
             <RollerLoading />
           ) : (
             <Table
               title={() => (
-                <Tooltip title={intl.formatMessage({ id: "addEmployee" })}>
+                <Tooltip title={intl.formatMessage({ id: 'addEmployee' })} color="#27aa71">
                   <Button
                     type="primary"
                     shape="circle"
@@ -315,7 +293,7 @@ function Employees() {
                 pageSize: pagination.pageSize,
                 total: data.length,
                 showSizeChanger: true,
-                pageSizeOptions: ["10", "15", "20", "50", "100"],
+                pageSizeOptions: ['10', '15', '20', '50', '100'],
                 onChange: (page, size) => {
                   setPagination({ current: page, pageSize: size! });
                 },
@@ -338,19 +316,17 @@ function Employees() {
             setAddLoading(true);
             const values = await addForm.validateFields();
             const formData = new FormData();
-            const lang = intl.locale.startsWith("ar") ? "ar" : "en";
+            const lang = intl.locale.startsWith('ar') ? 'ar' : 'en';
 
             Object.keys(values).forEach((k) => formData.append(k, values[k]));
-            const res = await axios.post("/back/employer/employees", formData, {
-              headers: { "Accept-Language": lang },
+            const res = await axios.post('/back/employer/employees', formData, {
+              headers: { 'Accept-Language': lang },
             });
             message.success(res.data?.message);
             setIsAddOpen(false);
             fetchEmployees();
           } catch (err: any) {
-            message.error(
-              err.message || intl.formatMessage({ id: "addEmployeeFailed" }),
-            );
+            message.error(err.message || intl.formatMessage({ id: 'addEmployeeFailed' }));
           } finally {
             setAddLoading(false);
           }
@@ -363,21 +339,21 @@ function Employees() {
         <Form layout="vertical" form={addForm}>
           <Form.Item
             name="name"
-            label={intl.formatMessage({ id: "name" })}
+            label={intl.formatMessage({ id: 'name' })}
             rules={[{ required: true }]}
           >
-            <Input placeholder={intl.formatMessage({ id: "name" })} />
+            <Input placeholder={intl.formatMessage({ id: 'name' })} />
           </Form.Item>
           <Form.Item
             name="email"
-            label={intl.formatMessage({ id: "email" })}
+            label={intl.formatMessage({ id: 'email' })}
             rules={[{ required: true }]}
           >
-            <Input placeholder={intl.formatMessage({ id: "email" })} />
+            <Input placeholder={intl.formatMessage({ id: 'email' })} />
           </Form.Item>
           <Form.Item
             name="phone"
-            label={intl.formatMessage({ id: "phone" })}
+            label={intl.formatMessage({ id: 'phone' })}
             rules={[
               { required: true },
               {
@@ -387,42 +363,40 @@ function Employees() {
                   if (saudiPhoneRegex.test(value)) {
                     return Promise.resolve();
                   }
-                  return Promise.reject(
-                    new Error(intl.formatMessage({ id: "invalidPhone" })),
-                  );
+                  return Promise.reject(new Error(intl.formatMessage({ id: 'invalidPhone' })));
                 },
               },
             ]}
           >
-            <Input placeholder={intl.formatMessage({ id: "phone" })} />
+            <Input placeholder={intl.formatMessage({ id: 'phone' })} />
           </Form.Item>
           <Form.Item
             name="branch_id"
-            label={intl.formatMessage({ id: "branch" })}
+            label={intl.formatMessage({ id: 'branch' })}
             rules={[{ required: true }]}
           >
             <Select
-              placeholder={intl.formatMessage({ id: "branch" })}
+              placeholder={intl.formatMessage({ id: 'branch' })}
               options={branches.map((b) => ({ value: b.id, label: b.name }))}
             />
           </Form.Item>
           <Form.Item
             name="position_id"
-            label={intl.formatMessage({ id: "position" })}
+            label={intl.formatMessage({ id: 'position' })}
             rules={[{ required: true }]}
           >
             <Select
-              placeholder={intl.formatMessage({ id: "position" })}
+              placeholder={intl.formatMessage({ id: 'position' })}
               options={positions.map((p) => ({ value: p.id, label: p.name }))}
             />
           </Form.Item>
           <Form.Item
             name="shift_type"
-            label={intl.formatMessage({ id: "shiftType" })}
+            label={intl.formatMessage({ id: 'shiftType' })}
             rules={[{ required: true }]}
           >
             <Select
-              placeholder={intl.formatMessage({ id: "shiftType" })}
+              placeholder={intl.formatMessage({ id: 'shiftType' })}
               options={shiftTypes.map((s) => ({
                 value: s.value!,
                 label: s.name,
@@ -441,22 +415,16 @@ function Employees() {
           try {
             setEditLoading(true);
             const values = await editForm.validateFields();
-            const lang = intl.locale.startsWith("ar") ? "ar" : "en";
+            const lang = intl.locale.startsWith('ar') ? 'ar' : 'en';
 
-            const res = await axios.put(
-              `/back/employer/employees/${selectedItem?.id}`,
-              values,
-              {
-                headers: { "Accept-Language": lang },
-              },
-            );
+            const res = await axios.put(`/back/employer/employees/${selectedItem?.id}`, values, {
+              headers: { 'Accept-Language': lang },
+            });
             message.success(res.data?.message);
             setIsEditOpen(false);
             fetchEmployees();
           } catch (err: any) {
-            message.error(
-              err.message || intl.formatMessage({ id: "editEmployeeFailed" }),
-            );
+            message.error(err.message || intl.formatMessage({ id: 'editEmployeeFailed' }));
           } finally {
             setEditLoading(false);
           }
@@ -469,21 +437,21 @@ function Employees() {
         <Form layout="vertical" form={editForm}>
           <Form.Item
             name="name"
-            label={intl.formatMessage({ id: "name" })}
+            label={intl.formatMessage({ id: 'name' })}
             rules={[{ required: true }]}
           >
-            <Input placeholder={intl.formatMessage({ id: "name" })} />
+            <Input placeholder={intl.formatMessage({ id: 'name' })} />
           </Form.Item>
           <Form.Item
             name="email"
-            label={intl.formatMessage({ id: "email" })}
+            label={intl.formatMessage({ id: 'email' })}
             rules={[{ required: true }]}
           >
-            <Input placeholder={intl.formatMessage({ id: "email" })} />
+            <Input placeholder={intl.formatMessage({ id: 'email' })} />
           </Form.Item>
           <Form.Item
             name="phone"
-            label={intl.formatMessage({ id: "phone" })}
+            label={intl.formatMessage({ id: 'phone' })}
             rules={[
               { required: true },
               {
@@ -493,42 +461,40 @@ function Employees() {
                   if (saudiPhoneRegex.test(value)) {
                     return Promise.resolve();
                   }
-                  return Promise.reject(
-                    new Error(intl.formatMessage({ id: "invalidPhone" })),
-                  );
+                  return Promise.reject(new Error(intl.formatMessage({ id: 'invalidPhone' })));
                 },
               },
             ]}
           >
-            <Input placeholder={intl.formatMessage({ id: "phone" })} />
+            <Input placeholder={intl.formatMessage({ id: 'phone' })} />
           </Form.Item>
           <Form.Item
             name="branch_id"
-            label={intl.formatMessage({ id: "branch" })}
+            label={intl.formatMessage({ id: 'branch' })}
             rules={[{ required: true }]}
           >
             <Select
-              placeholder={intl.formatMessage({ id: "branch" })}
+              placeholder={intl.formatMessage({ id: 'branch' })}
               options={branches.map((b) => ({ value: b.id, label: b.name }))}
             />
           </Form.Item>
           <Form.Item
             name="position_id"
-            label={intl.formatMessage({ id: "position" })}
+            label={intl.formatMessage({ id: 'position' })}
             rules={[{ required: true }]}
           >
             <Select
-              placeholder={intl.formatMessage({ id: "position" })}
+              placeholder={intl.formatMessage({ id: 'position' })}
               options={positions.map((p) => ({ value: p.id, label: p.name }))}
             />
           </Form.Item>
           <Form.Item
             name="shift_type"
-            label={intl.formatMessage({ id: "shiftType" })}
+            label={intl.formatMessage({ id: 'shiftType' })}
             rules={[{ required: true }]}
           >
             <Select
-              placeholder={intl.formatMessage({ id: "shiftType" })}
+              placeholder={intl.formatMessage({ id: 'shiftType' })}
               options={shiftTypes.map((s) => ({
                 value: s.value!,
                 label: s.name,
@@ -545,14 +511,11 @@ function Employees() {
         onCancel={() => setIsDeleteOpen(false)}
         onOk={async () => {
           setDeleteLoading(true);
-          const lang = intl.locale.startsWith("ar") ? "ar" : "en";
+          const lang = intl.locale.startsWith('ar') ? 'ar' : 'en';
 
-          const res = await axios.delete(
-            `/back/employer/employees/${selectedItem?.id}`,
-            {
-              headers: { "Accept-Language": lang },
-            },
-          );
+          const res = await axios.delete(`/back/employer/employees/${selectedItem?.id}`, {
+            headers: { 'Accept-Language': lang },
+          });
           message.success(res.data?.message);
           setIsDeleteOpen(false);
           fetchEmployees();

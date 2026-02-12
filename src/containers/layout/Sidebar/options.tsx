@@ -1,29 +1,24 @@
-import { FormattedMessage } from "react-intl";
+import { FormattedMessage } from 'react-intl';
 import {
   PiCity,
   PiHandWithdraw,
   PiUsersFourFill,
   PiUsersThreeFill,
   PiUserSwitch,
-} from "react-icons/pi";
-import { LuBuilding2, LuTableProperties } from "react-icons/lu";
-import { HiMiniWallet, HiOutlineBuildingOffice2 } from "react-icons/hi2";
+} from 'react-icons/pi';
+import { LuBuilding2, LuTableProperties } from 'react-icons/lu';
+import { HiMiniWallet, HiOutlineBuildingOffice2 } from 'react-icons/hi2';
 import {
   RiAwardFill,
   RiContactsBookFill,
   RiDashboardLine,
   RiFolderSettingsFill,
   RiSettings5Fill,
-} from "react-icons/ri";
-import { BiChalkboard, BiSolidOffer, BiSupport } from "react-icons/bi";
-import { LiaAmazonPay, LiaChalkboardSolid } from "react-icons/lia";
-import { CgCommunity } from "react-icons/cg";
-import {
-  FaBusinessTime,
-  FaFunnelDollar,
-  FaHandHoldingHeart,
-  FaUsers,
-} from "react-icons/fa";
+} from 'react-icons/ri';
+import { BiChalkboard, BiSolidOffer, BiSupport } from 'react-icons/bi';
+import { LiaAmazonPay, LiaChalkboardSolid } from 'react-icons/lia';
+import { CgCommunity } from 'react-icons/cg';
+import { FaBusinessTime, FaFunnelDollar, FaHandHoldingHeart, FaUsers, FaWallet } from 'react-icons/fa';
 import {
   FaChartColumn,
   FaSackDollar,
@@ -31,17 +26,16 @@ import {
   FaUsersLine,
   FaUsersRectangle,
   FaUsersViewfinder,
-} from "react-icons/fa6";
-import { LiaUsersSolid } from "react-icons/lia";
-import { FaRegChartBar } from "react-icons/fa";
-import { SlSocialDropbox } from "react-icons/sl";
-import {
-  MdAppShortcut,
-  MdOutlineContactMail,
-  MdSwitchAccount,
-} from "react-icons/md";
-import { IoMdNotifications } from "react-icons/io";
-import { AiOutlineDollarCircle } from "react-icons/ai";
+} from 'react-icons/fa6';
+import { LiaUsersSolid } from 'react-icons/lia';
+import { FaRegChartBar } from 'react-icons/fa';
+import { SlSocialDropbox } from 'react-icons/sl';
+import { MdAppShortcut, MdOutlineContactMail, MdSwitchAccount } from 'react-icons/md';
+import { IoMdNotifications } from 'react-icons/io';
+import { AiOutlineBranches, AiOutlineDollarCircle } from 'react-icons/ai';
+import { TbTransactionDollar } from "react-icons/tb";
+import { GrTransaction } from 'react-icons/gr';
+
 
 // Registrations
 
@@ -61,7 +55,7 @@ const EMPLOYER = 2;
 
 // const getMenuItems: (profile: any) => MenuItem[] = (profile) => {
 const getMenuItems = (type: number) => {
-  const basePath = type === ADMIN ? "/admin" : "/employer";
+  const basePath = type === ADMIN ? '/admin' : '/employer';
 
   //console.log("profileData",profile?.roles[0])
   //const role = profile?.roles[0].roleName;
@@ -76,7 +70,7 @@ const getMenuItems = (type: number) => {
       allowRoles: [ADMIN, EMPLOYER],
     },
     {
-      key: "employers",
+      key: 'employers',
       // to: 'users',
       label: <FormattedMessage id="employers" />,
       icon: <FaUsersViewfinder className="!text-xl" />,
@@ -97,7 +91,7 @@ const getMenuItems = (type: number) => {
       ],
     },
     {
-      key: "users",
+      key: 'users',
       // to: 'users',
       label: <FormattedMessage id="users" />,
       icon: <FaUsersRectangle className="!text-xl" />,
@@ -118,7 +112,7 @@ const getMenuItems = (type: number) => {
       ],
     },
     {
-      key: "setting managment",
+      key: 'setting managment',
       // to: 'users',
       label: <FormattedMessage id="settingManagment" />,
       icon: <RiFolderSettingsFill className="!text-xl" />,
@@ -226,6 +220,34 @@ const getMenuItems = (type: number) => {
       label: <FormattedMessage id="employees" />,
       icon: <FaUsersViewfinder className="!text-xl" />,
       allowRoles: [EMPLOYER],
+    },
+    {
+      key: `${basePath}/branches`,
+      to: `${basePath}/branches`,
+      label: <FormattedMessage id="branches" />,
+      icon: <AiOutlineBranches className="!text-xl" />,
+      allowRoles: [EMPLOYER],
+    },
+    {
+      key: 'transactions',
+      // to: 'users',
+      label: <FormattedMessage id="transactionsWallet" />,
+      icon: <TbTransactionDollar className="!text-xl" />,
+      allowRoles: [EMPLOYER],
+      children: [
+        {
+          key: `${basePath}/transactions`,
+          to: `${basePath}/transactions`,
+          label: <FormattedMessage id="transactions" />,
+          icon: <GrTransaction className="!text-xl" />,
+        },
+        {
+          key: `${basePath}/wallet`,
+          to: `${basePath}/wallet`,
+          label: <FormattedMessage id="wallet" />,
+          icon: <FaWallet className="!text-xl" />,
+        },
+      ],
     },
   ].filter((item) => !item.allowRoles || item.allowRoles.includes(type));
 };
