@@ -36,6 +36,7 @@ const EMPLOYER_STATUS_MAP: Record<number, { key: string; color: string }> = {
   1: { key: 'employer.status.pending', color: 'orange' },
   2: { key: 'employer.status.active', color: 'green' },
   3: { key: 'employer.status.inactive', color: 'red' },
+  6: { key: 'employer.status.reject', color: 'red' },   
 };
 
 function Employers() {

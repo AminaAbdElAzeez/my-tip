@@ -44,7 +44,7 @@ import {
 import { IoMdNotifications } from "react-icons/io";
 import { AiOutlineBranches, AiOutlineDollarCircle } from "react-icons/ai";
 import { TbTransactionDollar } from "react-icons/tb";
-import { GrTransaction } from "react-icons/gr";
+import { GrCubes, GrTransaction } from "react-icons/gr";
 
 // Registrations
 
@@ -145,11 +145,12 @@ const getMenuItems = (type: number) => {
           label: <FormattedMessage id="contactTypes" />,
           icon: <MdOutlineContactMail className="!text-xl" />,
         },
-        // {
-        //   key: 'suggestionTypes',
-        //   to: 'suggestionTypes',
-        //   label: <FormattedMessage id="suggestionTypes" />,
-        // },
+        {
+          key: `${basePath}/suggestionTypes`,
+          to: `${basePath}/suggestionTypes`,
+          label: <FormattedMessage id="suggestionTypes" />,
+          icon: <GrCubes  className="!text-xl" />,
+        },
         {
           key: `${basePath}/settings`,
           to: `${basePath}/settings`,

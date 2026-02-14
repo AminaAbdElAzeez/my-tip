@@ -8,7 +8,7 @@ import { AiOutlineEye } from 'react-icons/ai';
 import { FormattedMessage, useIntl } from 'react-intl';
 import RollerLoading from 'components/loading/roller';
 import { UploadOutlined } from '@ant-design/icons';
-import { Outlet } from 'react-router-dom';
+import { Outlet, useNavigate } from 'react-router-dom';
 import { PlusOutlined } from '@ant-design/icons';
 
 /* ================= Types ================= */
@@ -44,6 +44,7 @@ function BusinessTypes() {
 
   const [addForm] = Form.useForm();
   const [editForm] = Form.useForm();
+  const navigate = useNavigate();
 
   const [pagination, setPagination] = useState({
     current: 1,
@@ -114,6 +115,8 @@ function BusinessTypes() {
         headers: { 'Accept-Language': lang },
       });
       message.success(res.data?.message || intl.formatMessage({ id: 'delSuccess' }));
+      setDeleteModalOpen(false);
+
       fetchBusinessTypes();
     } catch (err: any) {
       message.error(err?.response?.data?.message || intl.formatMessage({ id: 'delFailed' }));
@@ -244,6 +247,12 @@ function BusinessTypes() {
       align: 'center',
       render: (_, record) => (
         <div className="flex justify-center gap-2">
+          <Tooltip title={intl.formatMessage({ id: 'viewBusinessType' })} color="#a86b9e">
+            <AiOutlineEye
+              className="text-[#a86b9e] text-2xl cursor-pointer"
+              onClick={() => navigate(`/admin/businessTypes/${record.id}`)}
+            />
+          </Tooltip>
           <Tooltip title={intl.formatMessage({ id: 'editBusinessType' })} color="#3bab7b">
             <FiEdit
               className="text-[#3bab7b] text-xl cursor-pointer"
@@ -370,8 +379,8 @@ function BusinessTypes() {
             okText={intl.formatMessage({ id: 'add' })}
           >
             <h3 className="text-[#3bab7b] text-xl mb-3 font-semibold">
-          <FormattedMessage id="addBusinessType" />
-        </h3>
+              <FormattedMessage id="addBusinessType" />
+            </h3>
 
             <Form layout="vertical" form={addForm}>
               <Form.Item
@@ -419,8 +428,8 @@ function BusinessTypes() {
             okText={intl.formatMessage({ id: 'edit' })}
           >
             <h3 className="text-[#3bab7b] text-xl mb-3 font-semibold">
-          <FormattedMessage id="editBusinessType" />
-        </h3>
+              <FormattedMessage id="editBusinessType" />
+            </h3>
 
             <Form layout="vertical" form={editForm}>
               <Form.Item
@@ -470,33 +479,33 @@ function BusinessTypes() {
             <h3 className="text-[#3bab7b] text-lg mb-2">
               {intl.formatMessage({ id: 'deleteBusinessType' })}
             </h3>
-                    <FormattedMessage id="deleteConfirmBusinessType" />
+            <FormattedMessage id="deleteConfirmBusinessType" />
+          </Modal>
 
+          {/* preview image */}
+          <Modal
+            open={previewOpen}
+            footer={null}
+            onCancel={() => setPreviewOpen(false)}
+            closable={false}
+            centered
+            className="!w-auto !max-w-[90vw]"
+            bodyStyle={{
+              padding: 0,
+            }}
+          >
+            <div className="flex items-center justify-center max-h-[80vh]">
+              <img
+                alt="preview"
+                src={previewImage}
+                className="max-w-full max-h-[80vh] !min-w-[250px] w-full  object-contain rounded"
+              />
+            </div>
           </Modal>
         </div>
       ) : (
         <Outlet />
       )}
-      {/* preview image */}
-      <Modal
-        open={previewOpen}
-        footer={null}
-        onCancel={() => setPreviewOpen(false)}
-        closable={false}
-        centered
-        className="!w-auto !max-w-[90vw]"
-        bodyStyle={{
-          padding: 0,
-        }}
-      >
-        <div className="flex items-center justify-center max-h-[80vh]">
-          <img
-            alt="preview"
-            src={previewImage}
-            className="max-w-full max-h-[80vh] !min-w-[250px] w-full  object-contain rounded"
-          />
-        </div>
-      </Modal>
     </>
   );
 }

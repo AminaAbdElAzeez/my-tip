@@ -1,20 +1,11 @@
-import { useEffect, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
-import axios from "utlis/library/helpers/axios";
-import {
-  Button,
-  Descriptions,
-  Form,
-  Input,
-  message,
-  Modal,
-  Tag,
-  Tooltip,
-} from "antd";
-import { FormattedMessage, useIntl } from "react-intl";
-import RollerLoading from "components/loading/roller";
-import { FaPlus } from "react-icons/fa";
-import { FiEdit, FiTrash } from "react-icons/fi";
+import { useEffect, useState } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
+import axios from 'utlis/library/helpers/axios';
+import { Button, Descriptions, Form, Input, message, Modal, Tag, Tooltip } from 'antd';
+import { FormattedMessage, useIntl } from 'react-intl';
+import RollerLoading from 'components/loading/roller';
+import { FaPlus } from 'react-icons/fa';
+import { FiEdit, FiTrash } from 'react-icons/fi';
 
 interface Position {
   id: number;
@@ -62,15 +53,15 @@ function PositionDetails() {
   const fetchPosition = async () => {
     try {
       setLoading(true);
-      const lang = intl.locale.startsWith("ar") ? "ar" : "en";
+      const lang = intl.locale.startsWith('ar') ? 'ar' : 'en';
 
       const res = await axios.get(`/back/employer/positions/${id}`, {
-        headers: { "Accept-Language": lang },
+        headers: { 'Accept-Language': lang },
       });
 
       setPosition(res.data?.data);
     } catch {
-      message.error(intl.formatMessage({ id: "fetchFailedPosition" }));
+      message.error(intl.formatMessage({ id: 'fetchFailedPosition' }));
     } finally {
       setLoading(false);
     }
@@ -92,10 +83,7 @@ function PositionDetails() {
     <section>
       {/* Actions */}
       <div className="flex justify-end items-center gap-3">
-        <Tooltip
-          title={intl.formatMessage({ id: "editPosition" })}
-          color="#27aa71"
-        >
+        <Tooltip title={intl.formatMessage({ id: 'editPosition' })} color="#27aa71">
           <FiEdit
             className="text-[#27aa71] text-2xl cursor-pointer"
             onClick={() => {
@@ -112,10 +100,7 @@ function PositionDetails() {
           />
         </Tooltip>
 
-        <Tooltip
-          title={intl.formatMessage({ id: "deletePosition" })}
-          color="#d30606"
-        >
+        <Tooltip title={intl.formatMessage({ id: 'deletePosition' })} color="#d30606">
           <FiTrash
             className="text-[#d30606] text-2xl cursor-pointer"
             onClick={() => {
@@ -125,10 +110,7 @@ function PositionDetails() {
           />
         </Tooltip>
 
-        <Tooltip
-          title={intl.formatMessage({ id: "addPosition" })}
-          color="#2ab479"
-        >
+        <Tooltip title={intl.formatMessage({ id: 'addPosition' })} color="#2ab479">
           <Button
             type="primary"
             shape="circle"
@@ -141,35 +123,51 @@ function PositionDetails() {
         </Tooltip>
       </div>
       <Descriptions bordered column={1} className="mt-4">
-        <Descriptions.Item label={intl.formatMessage({ id: "positionId" })}>
+        <Descriptions.Item
+          label={<b className="text-[#3bab7b]">{intl.formatMessage({ id: 'positionId' })}</b>}
+        >
           {displayValue(position.id)}
         </Descriptions.Item>
 
-        <Descriptions.Item label={intl.formatMessage({ id: "name" })}>
+        <Descriptions.Item
+          label={<b className="text-[#3bab7b]">{intl.formatMessage({ id: 'name' })}</b>}
+        >
           {displayValue(position.name)}
         </Descriptions.Item>
 
-        <Descriptions.Item label={intl.formatMessage({ id: "description" })}>
+        <Descriptions.Item
+          label={<b className="text-[#3bab7b]">{intl.formatMessage({ id: 'description' })}</b>}
+        >
           {displayValue(position.description)}
         </Descriptions.Item>
 
-        <Descriptions.Item label={intl.formatMessage({ id: "positionNameEn" })}>
+        <Descriptions.Item
+          label={<b className="text-[#3bab7b]">{intl.formatMessage({ id: 'positionNameEn' })}</b>}
+        >
           {displayValue(position.name_en)}
         </Descriptions.Item>
 
-        <Descriptions.Item label={intl.formatMessage({ id: "positionNameAr" })}>
+        <Descriptions.Item
+          label={<b className="text-[#3bab7b]">{intl.formatMessage({ id: 'positionNameAr' })}</b>}
+        >
           {displayValue(position.name_ar)}
         </Descriptions.Item>
 
-        <Descriptions.Item label={intl.formatMessage({ id: "positionDescEn" })}>
+        <Descriptions.Item
+          label={<b className="text-[#3bab7b]">{intl.formatMessage({ id: 'positionDescEn' })}</b>}
+        >
           {displayValue(position.description_en)}
         </Descriptions.Item>
 
-        <Descriptions.Item label={intl.formatMessage({ id: "positionDescAr" })}>
+        <Descriptions.Item
+          label={<b className="text-[#3bab7b]">{intl.formatMessage({ id: 'positionDescAr' })}</b>}
+        >
           {displayValue(position.description_ar)}
         </Descriptions.Item>
 
-        <Descriptions.Item label={intl.formatMessage({ id: "tipPercentage" })}>
+        <Descriptions.Item
+          label={<b className="text-[#3bab7b]">{intl.formatMessage({ id: 'tipPercentage' })}</b>}
+        >
           {position.tip_percentage ? (
             <Tag color="green" className="px-2 py-1">
               {position.tip_percentage}%
@@ -179,11 +177,15 @@ function PositionDetails() {
           )}
         </Descriptions.Item>
 
-        <Descriptions.Item label={intl.formatMessage({ id: "createdAt" })}>
+        <Descriptions.Item
+          label={<b className="text-[#3bab7b]">{intl.formatMessage({ id: 'createdAt' })}</b>}
+        >
           {displayValue(position.created_at)}
         </Descriptions.Item>
 
-        <Descriptions.Item label={intl.formatMessage({ id: "updatedAt" })}>
+        <Descriptions.Item
+          label={<b className="text-[#3bab7b]">{intl.formatMessage({ id: 'updatedAt' })}</b>}
+        >
           {displayValue(position.updated_at)}
         </Descriptions.Item>
       </Descriptions>
@@ -199,15 +201,13 @@ function PositionDetails() {
             const values = await addForm.validateFields();
 
             const formData = new FormData();
-            Object.keys(values).forEach((key) =>
-              formData.append(key, values[key]),
-            );
+            Object.keys(values).forEach((key) => formData.append(key, values[key]));
 
-            const res = await axios.post("/back/employer/positions", formData);
+            const res = await axios.post('/back/employer/positions', formData);
 
             message.success(res.data?.message);
             setIsAddOpen(false);
-            navigate("/employer/positions");
+            navigate('/employer/positions');
             // fetchPosition();
           } catch (err: any) {
             message.error(err.message);
@@ -223,46 +223,38 @@ function PositionDetails() {
         <Form layout="vertical" form={addForm}>
           <Form.Item
             name="name_en"
-            label={intl.formatMessage({ id: "positionNameEn" })}
+            label={intl.formatMessage({ id: 'positionNameEn' })}
             rules={[{ required: true }]}
           >
-            <Input placeholder={intl.formatMessage({ id: "positionNameEn" })} />
+            <Input placeholder={intl.formatMessage({ id: 'positionNameEn' })} />
           </Form.Item>
           <Form.Item
             name="name_ar"
-            label={intl.formatMessage({ id: "positionNameAr" })}
+            label={intl.formatMessage({ id: 'positionNameAr' })}
             rules={[{ required: true }]}
           >
-            <Input placeholder={intl.formatMessage({ id: "positionNameAr" })} />
+            <Input placeholder={intl.formatMessage({ id: 'positionNameAr' })} />
           </Form.Item>
           <Form.Item
             name="description_en"
-            label={intl.formatMessage({ id: "positionDescEn" })}
+            label={intl.formatMessage({ id: 'positionDescEn' })}
             rules={[{ required: true }]}
           >
-            <Input.TextArea
-              placeholder={intl.formatMessage({ id: "positionDescEn" })}
-            />
+            <Input.TextArea placeholder={intl.formatMessage({ id: 'positionDescEn' })} />
           </Form.Item>
           <Form.Item
             name="description_ar"
-            label={intl.formatMessage({ id: "positionDescAr" })}
+            label={intl.formatMessage({ id: 'positionDescAr' })}
             rules={[{ required: true }]}
           >
-            <Input.TextArea
-              placeholder={intl.formatMessage({ id: "positionDescAr" })}
-            />
+            <Input.TextArea placeholder={intl.formatMessage({ id: 'positionDescAr' })} />
           </Form.Item>
           <Form.Item
             name="tip_percentage"
-            label={intl.formatMessage({ id: "tipPercentage" })}
+            label={intl.formatMessage({ id: 'tipPercentage' })}
             rules={[{ required: true }]}
           >
-            <Input
-              min={0}
-              max={100}
-              placeholder={intl.formatMessage({ id: "tipPercentage" })}
-            />
+            <Input min={0} max={100} placeholder={intl.formatMessage({ id: 'tipPercentage' })} />
           </Form.Item>
         </Form>
       </Modal>
@@ -278,15 +270,10 @@ function PositionDetails() {
             const values = await editForm.validateFields();
 
             const formData = new FormData();
-            formData.append("_method", "put");
-            Object.keys(values).forEach((key) =>
-              formData.append(key, values[key]),
-            );
+            formData.append('_method', 'put');
+            Object.keys(values).forEach((key) => formData.append(key, values[key]));
 
-            const res = await axios.post(
-              `/back/employer/positions/${selectedItem?.id}`,
-              formData,
-            );
+            const res = await axios.post(`/back/employer/positions/${selectedItem?.id}`, formData);
 
             message.success(res.data?.message);
             setIsEditOpen(false);
@@ -305,38 +292,38 @@ function PositionDetails() {
         <Form layout="vertical" form={editForm}>
           <Form.Item
             name="name_en"
-            label={intl.formatMessage({ id: "positionNameEn" })}
+            label={intl.formatMessage({ id: 'positionNameEn' })}
             rules={[{ required: true }]}
           >
-            <Input placeholder={intl.formatMessage({ id: "positionNameEn" })} />
+            <Input placeholder={intl.formatMessage({ id: 'positionNameEn' })} />
           </Form.Item>
           <Form.Item
             name="name_ar"
-            label={intl.formatMessage({ id: "positionNameAr" })}
+            label={intl.formatMessage({ id: 'positionNameAr' })}
             rules={[{ required: true }]}
           >
-            <Input placeholder={intl.formatMessage({ id: "positionNameAr" })} />
+            <Input placeholder={intl.formatMessage({ id: 'positionNameAr' })} />
           </Form.Item>
           <Form.Item
             name="description_en"
-            label={intl.formatMessage({ id: "positionDescEn" })}
+            label={intl.formatMessage({ id: 'positionDescEn' })}
             rules={[{ required: true }]}
           >
-            <Input placeholder={intl.formatMessage({ id: "positionDescEn" })} />
+            <Input placeholder={intl.formatMessage({ id: 'positionDescEn' })} />
           </Form.Item>
           <Form.Item
             name="description_ar"
-            label={intl.formatMessage({ id: "positionDescAr" })}
+            label={intl.formatMessage({ id: 'positionDescAr' })}
             rules={[{ required: true }]}
           >
-            <Input placeholder={intl.formatMessage({ id: "positionDescAr" })} />
+            <Input placeholder={intl.formatMessage({ id: 'positionDescAr' })} />
           </Form.Item>
           <Form.Item
             name="tip_percentage"
-            label={intl.formatMessage({ id: "tipPercentage" })}
+            label={intl.formatMessage({ id: 'tipPercentage' })}
             rules={[{ required: true }]}
           >
-            <Input placeholder={intl.formatMessage({ id: "tipPercentage" })} />
+            <Input placeholder={intl.formatMessage({ id: 'tipPercentage' })} />
           </Form.Item>
         </Form>
       </Modal>
@@ -349,12 +336,10 @@ function PositionDetails() {
         onOk={async () => {
           try {
             setDeleteLoading(true);
-            const res = await axios.delete(
-              `/back/employer/positions/${selectedItem?.id}`,
-            );
+            const res = await axios.delete(`/back/employer/positions/${selectedItem?.id}`);
             message.success(res.data?.message);
             setIsDeleteOpen(false);
-            navigate("/employer/positions");
+            navigate('/employer/positions');
 
             // fetchPosition();
           } catch (err: any) {
@@ -367,7 +352,7 @@ function PositionDetails() {
         <h3 className="text-[#3bab7b] text-xl mb-2">
           <FormattedMessage id="deletePosition" />
         </h3>
-        <FormattedMessage id="deleteConfirmPosition" />{" "}
+        <FormattedMessage id="deleteConfirmPosition" />{' '}
       </Modal>
     </section>
   );

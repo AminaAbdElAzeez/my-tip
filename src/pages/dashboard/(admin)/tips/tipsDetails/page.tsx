@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import axios from 'utlis/library/helpers/axios';
 import { useParams } from 'react-router-dom';
-import { message, Descriptions, Tag, Divider, Table } from 'antd';
+import { message, Descriptions, Tag, Table } from 'antd';
 import { FormattedMessage, useIntl } from 'react-intl';
 import RollerLoading from 'components/loading/roller';
 import type { ColumnsType } from 'antd/es/table';
@@ -45,7 +45,6 @@ interface Transaction {
   user_name: string;
   user_type: number;
   amount: number;
-  type: number;
 }
 
 interface TipDetails {
@@ -122,7 +121,6 @@ function TipsDetails() {
     fetchTipDetails();
   }, [id]);
 
-  /* ================= Fetch Once / On Locale or Pagination ================= */
   useEffect(() => {
     fetchTipDetails();
   }, [intl.locale, id]);
@@ -153,17 +151,17 @@ function TipsDetails() {
 
   const transactionColumns: ColumnsType<Transaction> = [
     {
-      title: intl.formatMessage({ id: 'userName' }),
+      title: <b className="text-[#3bab7b]">{intl.formatMessage({ id: 'userName' })}</b>,
       dataIndex: 'user_name',
       align: 'center',
     },
     {
-      title: intl.formatMessage({ id: 'userType' }),
+      title: <b className="text-[#3bab7b]">{intl.formatMessage({ id: 'userType' })}</b>,
       align: 'center',
       render: (_, r) => userTypeMap[r.user_type] || '-',
     },
     {
-      title: intl.formatMessage({ id: 'amount' }),
+      title: <b className="text-[#3bab7b]">{intl.formatMessage({ id: 'amount' })}</b>,
       align: 'center',
       render: (_, r) => `${r.amount} ${data?.currency || ''}`,
     },
@@ -194,23 +192,53 @@ function TipsDetails() {
           </h3>
         }
       >
-        <Descriptions.Item label={<FormattedMessage id="tipsId" />}>
+        <Descriptions.Item
+          label={
+            <b className="text-[#3bab7b]">
+              <FormattedMessage id="tipsId" />
+            </b>
+          }
+        >
           {displayValue(data.id)}
         </Descriptions.Item>
 
-        <Descriptions.Item label={<FormattedMessage id="reference" />}>
+        <Descriptions.Item
+          label={
+            <b className="text-[#3bab7b]">
+              <FormattedMessage id="reference" />
+            </b>
+          }
+        >
           {displayValue(data.reference)}
         </Descriptions.Item>
 
-        <Descriptions.Item label={<FormattedMessage id="amount" />}>
+        <Descriptions.Item
+          label={
+            <b className="text-[#3bab7b]">
+              <FormattedMessage id="amount" />
+            </b>
+          }
+        >
           {displayValue(`${data.amount} ${data.currency}`)}
         </Descriptions.Item>
 
-        <Descriptions.Item label={<FormattedMessage id="statusTips" />}>
+        <Descriptions.Item
+          label={
+            <b className="text-[#3bab7b]">
+              <FormattedMessage id="statusTips" />
+            </b>
+          }
+        >
           <Tag color="green">{data.status_label}</Tag>
         </Descriptions.Item>
 
-        <Descriptions.Item label={<FormattedMessage id="anonymous" />}>
+        <Descriptions.Item
+          label={
+            <b className="text-[#3bab7b]">
+              <FormattedMessage id="anonymous" />
+            </b>
+          }
+        >
           {data.is_anonymous ? (
             <Tag color="blue">
               <FormattedMessage id="yes" />
@@ -222,24 +250,47 @@ function TipsDetails() {
           )}
         </Descriptions.Item>
 
-        <Descriptions.Item label={<FormattedMessage id="recipientType" />}>
+        <Descriptions.Item
+          label={
+            <b className="text-[#3bab7b]">
+              <FormattedMessage id="recipientType" />
+            </b>
+          }
+        >
           <FormattedMessage id={recipientTypeMap[data.recipient_type]} />
         </Descriptions.Item>
 
-        <Descriptions.Item label={<FormattedMessage id="message" />} span={2}>
+        <Descriptions.Item
+          label={
+            <b className="text-[#3bab7b]">
+              <FormattedMessage id="message" />
+            </b>
+          }
+          span={2}
+        >
           {displayValue(data.message)}
         </Descriptions.Item>
 
-        <Descriptions.Item label={<FormattedMessage id="createdAt" />}>
+        <Descriptions.Item
+          label={
+            <b className="text-[#3bab7b]">
+              <FormattedMessage id="createdAt" />
+            </b>
+          }
+        >
           {displayValue(data.created_at)}
         </Descriptions.Item>
 
-        <Descriptions.Item label={<FormattedMessage id="createdAtHuman" />}>
+        <Descriptions.Item
+          label={
+            <b className="text-[#3bab7b]">
+              <FormattedMessage id="createdAtHuman" />
+            </b>
+          }
+        >
           {displayValue(data.created_at_human)}
         </Descriptions.Item>
       </Descriptions>
-
-      {/* <Divider /> */}
 
       {/* ================= Donor ================= */}
 
@@ -253,24 +304,46 @@ function TipsDetails() {
           </h3>
         }
       >
-        <Descriptions.Item label={<FormattedMessage id="donorName" />}>
+        <Descriptions.Item
+          label={
+            <b className="text-[#3bab7b]">
+              <FormattedMessage id="donorName" />
+            </b>
+          }
+        >
           {displayValue(data.donor?.name)}
         </Descriptions.Item>
 
-        <Descriptions.Item label={<FormattedMessage id="donorType" />}>
+        <Descriptions.Item
+          label={
+            <b className="text-[#3bab7b]">
+              <FormattedMessage id="donorType" />
+            </b>
+          }
+        >
           <FormattedMessage id={userTypeMap[data.donor?.type]} />
         </Descriptions.Item>
 
-        <Descriptions.Item label={<FormattedMessage id="donorEmail" />}>
+        <Descriptions.Item
+          label={
+            <b className="text-[#3bab7b]">
+              <FormattedMessage id="donorEmail" />
+            </b>
+          }
+        >
           {displayValue(data.donor?.email)}
         </Descriptions.Item>
 
-        <Descriptions.Item label={<FormattedMessage id="donorPhone" />}>
+        <Descriptions.Item
+          label={
+            <b className="text-[#3bab7b]">
+              <FormattedMessage id="donorPhone" />
+            </b>
+          }
+        >
           {displayValue(data.donor?.phone)}
         </Descriptions.Item>
       </Descriptions>
-
-      {/* <Divider /> */}
 
       {/* ================= Recipient ================= */}
 
@@ -284,24 +357,46 @@ function TipsDetails() {
           </h3>
         }
       >
-        <Descriptions.Item label={<FormattedMessage id="recipientName" />}>
+        <Descriptions.Item
+          label={
+            <b className="text-[#3bab7b]">
+              <FormattedMessage id="recipientName" />
+            </b>
+          }
+        >
           {displayValue(data.recipient?.name)}
         </Descriptions.Item>
 
-        <Descriptions.Item label={<FormattedMessage id="recipientType" />}>
+        <Descriptions.Item
+          label={
+            <b className="text-[#3bab7b]">
+              <FormattedMessage id="recipientType" />
+            </b>
+          }
+        >
           {data.recipient ? <FormattedMessage id={userTypeMap[data.recipient.type]} /> : '-'}
         </Descriptions.Item>
 
-        <Descriptions.Item label={<FormattedMessage id="recipientEmail" />}>
+        <Descriptions.Item
+          label={
+            <b className="text-[#3bab7b]">
+              <FormattedMessage id="recipientEmail" />
+            </b>
+          }
+        >
           {displayValue(data.recipient?.email)}
         </Descriptions.Item>
 
-        <Descriptions.Item label={<FormattedMessage id="recipientPhone" />}>
+        <Descriptions.Item
+          label={
+            <b className="text-[#3bab7b]">
+              <FormattedMessage id="recipientPhone" />
+            </b>
+          }
+        >
           {displayValue(data.recipient?.phone)}
         </Descriptions.Item>
       </Descriptions>
-
-      {/* <Divider /> */}
 
       {/* ================= Payment ================= */}
 
@@ -315,24 +410,46 @@ function TipsDetails() {
           </h3>
         }
       >
-        <Descriptions.Item label={<FormattedMessage id="paymentId" />}>
+        <Descriptions.Item
+          label={
+            <b className="text-[#3bab7b]">
+              <FormattedMessage id="paymentId" />
+            </b>
+          }
+        >
           {displayValue(data.payment?.id)}
         </Descriptions.Item>
 
-        <Descriptions.Item label={<FormattedMessage id="transactionId" />}>
+        <Descriptions.Item
+          label={
+            <b className="text-[#3bab7b]">
+              <FormattedMessage id="transactionId" />
+            </b>
+          }
+        >
           {displayValue(data.payment?.transaction_id)}
         </Descriptions.Item>
 
-        <Descriptions.Item label={<FormattedMessage id="paymentMethod" />}>
+        <Descriptions.Item
+          label={
+            <b className="text-[#3bab7b]">
+              <FormattedMessage id="paymentMethod" />
+            </b>
+          }
+        >
           {displayValue(data.payment?.payment_method)}
         </Descriptions.Item>
 
-        <Descriptions.Item label={<FormattedMessage id="paymentStatus" />}>
+        <Descriptions.Item
+          label={
+            <b className="text-[#3bab7b]">
+              <FormattedMessage id="paymentStatus" />
+            </b>
+          }
+        >
           {renderPaymentStatus(data.payment?.status)}
         </Descriptions.Item>
       </Descriptions>
-
-      {/* <Divider /> */}
 
       {/* ================= Breakdown ================= */}
 
@@ -349,14 +466,16 @@ function TipsDetails() {
         {data.breakdown?.details?.map((item, index) => (
           <Descriptions.Item
             key={index}
-            label={intl.locale.startsWith('ar') ? item.label_ar : item.label}
+            label={
+              <b className="text-[#3bab7b]">
+                {intl.locale.startsWith('ar') ? item.label_ar : item.label}
+              </b>
+            }
           >
             {item.amount} {data.currency}
           </Descriptions.Item>
         ))}
       </Descriptions>
-
-      {/* <Divider /> */}
 
       {/* ================= Transactions ================= */}
 

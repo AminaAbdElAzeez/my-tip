@@ -1,10 +1,9 @@
-import { useEffect, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
-import axios from "utlis/library/helpers/axios";
-import { Descriptions, message, Tag, Tooltip } from "antd";
-import { FormattedMessage, useIntl } from "react-intl";
-import RollerLoading from "components/loading/roller";
-import { FiArrowLeft } from "react-icons/fi";
+import { useEffect, useState } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
+import axios from 'utlis/library/helpers/axios';
+import { Descriptions, message, Tag } from 'antd';
+import { FormattedMessage, useIntl } from 'react-intl';
+import RollerLoading from 'components/loading/roller';
 
 /* ================= Types ================= */
 interface TransactionDetailsType {
@@ -27,6 +26,17 @@ function TransactionDetails() {
   const [data, setData] = useState<TransactionDetailsType | null>(null);
   const [loading, setLoading] = useState(false);
 
+  /* ================= Transaction Map ================= */
+  const TRANSACTION_TYPE_MAP: Record<number, { key: string; color: string }> = {
+    1: { key: 'transaction.type.deposit', color: 'green' },
+    2: { key: 'transaction.type.tipReceived', color: 'blue' },
+    3: { key: 'transaction.type.tipSent', color: 'purple' },
+    4: { key: 'transaction.type.adminFee', color: 'orange' },
+    5: { key: 'transaction.type.employerFee', color: 'gold' },
+    6: { key: 'transaction.type.withdrawal', color: 'red' },
+    7: { key: 'transaction.type.withdrawalBack', color: 'cyan' },
+  };
+
   /* ================= Helpers ================= */
   const displayValue = (value: any) =>
     value ? (
@@ -37,21 +47,27 @@ function TransactionDetails() {
       </span>
     );
 
+  const label = (id: string) => (
+    <b className="text-[#3bab7b] font-semibold">
+      {intl.formatMessage({ id })}
+    </b>
+  );
+
   /* ================= Fetch ================= */
   const fetchDetails = async () => {
     try {
       setLoading(true);
 
-      const lang = intl.locale.startsWith("ar") ? "ar" : "en";
+      const lang = intl.locale.startsWith('ar') ? 'ar' : 'en';
 
       const res = await axios.get(`/back/employer/transactions/${id}`, {
-        headers: { "Accept-Language": lang },
+        headers: { 'Accept-Language': lang },
       });
 
       setData(res.data?.data);
     } catch {
       message.error(
-        intl.formatMessage({ id: "fetchTransactionDetailsFailed" }),
+        intl.formatMessage({ id: 'fetchTransactionDetailsFailed' })
       );
     } finally {
       setLoading(false);
@@ -75,43 +91,55 @@ function TransactionDetails() {
   /* ================= JSX ================= */
   return (
     <section>
-      {/* Details Table */}
       <Descriptions bordered column={1} className="mt-4">
-        <Descriptions.Item label={intl.formatMessage({ id: "transactionId" })}>
+        <Descriptions.Item label={label('transactionId')}>
           {displayValue(data.id)}
         </Descriptions.Item>
 
-        <Descriptions.Item
-          label={intl.formatMessage({ id: "transactionType" })}
-        >
-          {displayValue(data.transaction_type)}
-        </Descriptions.Item>
-
-        <Descriptions.Item label={intl.formatMessage({ id: "amount" })}>
-          {displayValue(data.amount)}
-        </Descriptions.Item>
-
-        <Descriptions.Item label={intl.formatMessage({ id: "createdAt" })}>
-          {displayValue(data.created_at)}
-        </Descriptions.Item>
-
-        <Descriptions.Item label={intl.formatMessage({ id: "isAnonymous" })}>
-          <Tag color={data.is_anonymous ? "red" : "green"}>
-            {data.is_anonymous
-              ? intl.formatMessage({ id: "yes" })
-              : intl.formatMessage({ id: "no" })}
+        <Descriptions.Item label={label('transactionType')}>
+          <Tag
+            className="px-2 py-1"
+            color={
+              TRANSACTION_TYPE_MAP[data.transaction_type]?.color || 'default'
+            }
+          >
+            <FormattedMessage
+              id={
+                TRANSACTION_TYPE_MAP[data.transaction_type]?.key ||
+                'transaction.type.unknown'
+              }
+            />
           </Tag>
         </Descriptions.Item>
 
-        <Descriptions.Item label={intl.formatMessage({ id: "message" })}>
+        <Descriptions.Item label={label('amount')}>
+          {displayValue(data.amount)}
+        </Descriptions.Item>
+
+        <Descriptions.Item label={label('createdAt')}>
+          {displayValue(data.created_at)}
+        </Descriptions.Item>
+
+        <Descriptions.Item label={label('isAnonymous')}>
+          <Tag
+            className="px-2 py-1"
+            color={data.is_anonymous ? 'red' : 'green'}
+          >
+            {data.is_anonymous
+              ? intl.formatMessage({ id: 'yes' })
+              : intl.formatMessage({ id: 'no' })}
+          </Tag>
+        </Descriptions.Item>
+
+        <Descriptions.Item label={label('message')}>
           {displayValue(data.message)}
         </Descriptions.Item>
 
-        <Descriptions.Item label="Donor">
+        <Descriptions.Item label={label('donor')}>
           {displayValue(data.donor)}
         </Descriptions.Item>
 
-        <Descriptions.Item label="Recipient">
+        <Descriptions.Item label={label('recipient')}>
           {displayValue(data.recipient)}
         </Descriptions.Item>
       </Descriptions>

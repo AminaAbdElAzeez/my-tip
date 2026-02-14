@@ -53,6 +53,8 @@ import Transactions from "./pages/dashboard/(employer)/transactions/page";
 import TransactionsDetails from "./pages/dashboard/(employer)/transactions/transactionsDetails/page";
 import Wallet from "./pages/dashboard/(employer)/wallet/page";
 import EmployeesDetails from "./pages/dashboard/(employer)/employees/employeesDetails/page";
+import BusinessTypeDetails from "./pages/dashboard/(admin)/businessTypes/businessTypeDetails/page";
+import SuggestionTypes from "./pages/dashboard/(admin)/suggestionTypes/page";
 
 const router = createBrowserRouter([
   {
@@ -128,6 +130,10 @@ const router = createBrowserRouter([
             element: <AppVersion />,
           },
           {
+            path: "suggestionTypes",
+            element: <SuggestionTypes />,
+          },
+          {
             path: "contactTypes",
             element: <ContactTypes />,
           },
@@ -146,7 +152,7 @@ const router = createBrowserRouter([
           {
             path: "businessTypes",
             element: <BusinessTypes />,
-            children: [{ path: ":id", element: <TipsDetails /> }],
+            children: [{ path: ":id", element: <BusinessTypeDetails /> }],
           },
         ],
       },

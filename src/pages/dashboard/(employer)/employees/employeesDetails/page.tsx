@@ -1,20 +1,11 @@
-import { useEffect, useState } from "react";
-import axios from "utlis/library/helpers/axios";
-import { useNavigate, useParams } from "react-router-dom";
-import {
-  message,
-  Descriptions,
-  Tooltip,
-  Form,
-  Modal,
-  Input,
-  Select,
-  Button,
-} from "antd";
-import { FormattedMessage, useIntl } from "react-intl";
-import RollerLoading from "components/loading/roller";
-import { FiEdit, FiTrash } from "react-icons/fi";
-import { FaPlus } from "react-icons/fa";
+import { useEffect, useState } from 'react';
+import axios from 'utlis/library/helpers/axios';
+import { useNavigate, useParams } from 'react-router-dom';
+import { message, Descriptions, Tooltip, Form, Modal, Input, Select, Button } from 'antd';
+import { FormattedMessage, useIntl } from 'react-intl';
+import RollerLoading from 'components/loading/roller';
+import { FiEdit, FiTrash } from 'react-icons/fi';
+import { FaPlus } from 'react-icons/fa';
 
 interface EmployeeDetailsType {
   id: number;
@@ -39,9 +30,9 @@ interface Option {
 }
 
 const SHIFT_MAP: Record<number, string> = {
-  1: "morning",
-  2: "evening",
-  3: "full",
+  1: 'morning',
+  2: 'evening',
+  3: 'full',
 };
 
 function EmployeesDetails() {
@@ -72,9 +63,9 @@ function EmployeesDetails() {
   const navigate = useNavigate();
 
   const shiftTypes: Option[] = [
-    { value: 1, name: intl.formatMessage({ id: "morning" }) },
-    { value: 2, name: intl.formatMessage({ id: "evening" }) },
-    { value: 3, name: intl.formatMessage({ id: "full" }) },
+    { value: 1, name: intl.formatMessage({ id: 'morning' }) },
+    { value: 2, name: intl.formatMessage({ id: 'evening' }) },
+    { value: 3, name: intl.formatMessage({ id: 'full' }) },
   ];
 
   /* ================= Helpers ================= */
@@ -90,32 +81,32 @@ function EmployeesDetails() {
     try {
       setLoading(true);
 
-      const lang = intl.locale.startsWith("ar") ? "ar" : "en";
+      const lang = intl.locale.startsWith('ar') ? 'ar' : 'en';
 
       const res = await axios.get(`/back/employer/employees/${id}`, {
-        headers: { "Accept-Language": lang },
+        headers: { 'Accept-Language': lang },
       });
 
       setEmployee(res.data?.data);
     } catch {
-      message.error(intl.formatMessage({ id: "fetchFailedEmployees" }));
+      message.error(intl.formatMessage({ id: 'fetchFailedEmployees' }));
     } finally {
       setLoading(false);
     }
   };
 
   const fetchPositions = async () => {
-    const lang = intl.locale.startsWith("ar") ? "ar" : "en";
-    const res = await axios.get("/back/employer/positions", {
-      headers: { "Accept-Language": lang },
+    const lang = intl.locale.startsWith('ar') ? 'ar' : 'en';
+    const res = await axios.get('/back/employer/positions', {
+      headers: { 'Accept-Language': lang },
     });
     setPositions(res.data?.data || []);
   };
 
   const fetchBranches = async () => {
-    const lang = intl.locale.startsWith("ar") ? "ar" : "en";
-    const res = await axios.get("/back/employer/branches", {
-      headers: { "Accept-Language": lang },
+    const lang = intl.locale.startsWith('ar') ? 'ar' : 'en';
+    const res = await axios.get('/back/employer/branches', {
+      headers: { 'Accept-Language': lang },
     });
     setBranches(res.data?.data || []);
   };
@@ -132,14 +123,14 @@ function EmployeesDetails() {
     try {
       setDeleteLoading(true);
 
-      const lang = intl.locale.startsWith("ar") ? "ar" : "en";
+      const lang = intl.locale.startsWith('ar') ? 'ar' : 'en';
 
       const res = await axios.delete(`/back/employer/employees/${id}`, {
-        headers: { "Accept-Language": lang },
+        headers: { 'Accept-Language': lang },
       });
 
       message.success(res.data?.message);
-      navigate("/employer/employees");
+      navigate('/employer/employees');
     } catch (err: any) {
       message.error(err.message);
     } finally {
@@ -150,18 +141,18 @@ function EmployeesDetails() {
   const handleInvite = async (employeeId: number) => {
     try {
       setInviteLoading(true);
-      const lang = intl.locale.startsWith("ar") ? "ar" : "en";
+      const lang = intl.locale.startsWith('ar') ? 'ar' : 'en';
 
       const res = await axios.post(
         `/back/employer/employees/${employeeId}/invite`,
         {},
-        { headers: { "Accept-Language": lang } },
+        { headers: { 'Accept-Language': lang } },
       );
 
       setInviteData(res.data.data);
       setIsInviteOpen(true);
     } catch (err: any) {
-      message.error(err.message || "Failed to create invite");
+      message.error(err.message || 'Failed to create invite');
     } finally {
       setInviteLoading(false);
     }
@@ -203,10 +194,7 @@ function EmployeesDetails() {
       </div> */}
 
       <div className="flex justify-end items-center gap-3">
-        <Tooltip
-          title={intl.formatMessage({ id: "inviteEmployee" })}
-          color="#3bab7b"
-        >
+        <Tooltip title={intl.formatMessage({ id: 'inviteEmployee' })} color="#3bab7b">
           <Button
             type="default"
             // size="small"
@@ -218,10 +206,7 @@ function EmployeesDetails() {
         </Tooltip>
 
         {/* Edit */}
-        <Tooltip
-          title={intl.formatMessage({ id: "editEmployee" })}
-          color="#27aa71"
-        >
+        <Tooltip title={intl.formatMessage({ id: 'editEmployee' })} color="#27aa71">
           <FiEdit
             className="text-[#27aa71] text-2xl cursor-pointer"
             onClick={() => {
@@ -232,10 +217,7 @@ function EmployeesDetails() {
         </Tooltip>
 
         {/* Delete */}
-        <Tooltip
-          title={intl.formatMessage({ id: "deleteEmployee" })}
-          color="#d30606ff"
-        >
+        <Tooltip title={intl.formatMessage({ id: 'deleteEmployee' })} color="#d30606ff">
           <FiTrash
             className="text-[#d30606ff] text-2xl cursor-pointer"
             onClick={() => {
@@ -244,10 +226,7 @@ function EmployeesDetails() {
           />
         </Tooltip>
 
-        <Tooltip
-          title={intl.formatMessage({ id: "addEmployee" })}
-          color="#27aa71"
-        >
+        <Tooltip title={intl.formatMessage({ id: 'addEmployee' })} color="#27aa71">
           <Button
             type="primary"
             shape="circle"
@@ -262,39 +241,57 @@ function EmployeesDetails() {
 
       {/* Details */}
       <Descriptions bordered column={1} className="mt-4">
-        <Descriptions.Item label={intl.formatMessage({ id: "employeeId" })}>
+        <Descriptions.Item
+          label={<b className="text-[#3bab7b]">{intl.formatMessage({ id: 'employeeId' })}</b>}
+        >
           {displayValue(employee.id)}
         </Descriptions.Item>
 
-        <Descriptions.Item label={intl.formatMessage({ id: "name" })}>
+        <Descriptions.Item
+          label={<b className="text-[#3bab7b]">{intl.formatMessage({ id: 'name' })}</b>}
+        >
           {displayValue(employee.name)}
         </Descriptions.Item>
 
-        <Descriptions.Item label={intl.formatMessage({ id: "email" })}>
+        <Descriptions.Item
+          label={<b className="text-[#3bab7b]">{intl.formatMessage({ id: 'email' })}</b>}
+        >
           {displayValue(employee.email)}
         </Descriptions.Item>
 
-        <Descriptions.Item label={intl.formatMessage({ id: "phone" })}>
+        <Descriptions.Item
+          label={<b className="text-[#3bab7b]">{intl.formatMessage({ id: 'phone' })}</b>}
+        >
           {displayValue(employee.phone)}
         </Descriptions.Item>
 
-        <Descriptions.Item label={intl.formatMessage({ id: "branchId" })}>
+        <Descriptions.Item
+          label={<b className="text-[#3bab7b]">{intl.formatMessage({ id: 'branchId' })}</b>}
+        >
           {displayValue(employee.branch_id)}
         </Descriptions.Item>
 
-        <Descriptions.Item label={intl.formatMessage({ id: "branch2" })}>
+        <Descriptions.Item
+          label={<b className="text-[#3bab7b]">{intl.formatMessage({ id: 'branch2' })}</b>}
+        >
           {displayValue(employee.branch_name)}
         </Descriptions.Item>
 
-        <Descriptions.Item label={intl.formatMessage({ id: "positionId" })}>
+        <Descriptions.Item
+          label={<b className="text-[#3bab7b]">{intl.formatMessage({ id: 'positionId' })}</b>}
+        >
           {displayValue(employee.position_id)}
         </Descriptions.Item>
 
-        <Descriptions.Item label={intl.formatMessage({ id: "position2" })}>
+        <Descriptions.Item
+          label={<b className="text-[#3bab7b]">{intl.formatMessage({ id: 'position2' })}</b>}
+        >
           {displayValue(employee.position_name)}
         </Descriptions.Item>
 
-        <Descriptions.Item label={intl.formatMessage({ id: "shiftType" })}>
+        <Descriptions.Item
+          label={<b className="text-[#3bab7b]">{intl.formatMessage({ id: 'shiftType' })}</b>}
+        >
           {employee.shift_type ? (
             <FormattedMessage id={SHIFT_MAP[employee.shift_type]} />
           ) : (
@@ -302,19 +299,27 @@ function EmployeesDetails() {
           )}
         </Descriptions.Item>
 
-        <Descriptions.Item label={intl.formatMessage({ id: "qrcode" })}>
+        <Descriptions.Item
+          label={<b className="text-[#3bab7b]">{intl.formatMessage({ id: 'qrcode' })}</b>}
+        >
           {displayValue(employee.qrcode)}
         </Descriptions.Item>
 
-        <Descriptions.Item label={intl.formatMessage({ id: "joinedAt" })}>
+        <Descriptions.Item
+          label={<b className="text-[#3bab7b]">{intl.formatMessage({ id: 'joinedAt' })}</b>}
+        >
           {displayValue(employee.joined_at)}
         </Descriptions.Item>
 
-        <Descriptions.Item label={intl.formatMessage({ id: "createdAt" })}>
+        <Descriptions.Item
+          label={<b className="text-[#3bab7b]">{intl.formatMessage({ id: 'createdAt' })}</b>}
+        >
           {displayValue(employee.created_at)}
         </Descriptions.Item>
 
-        <Descriptions.Item label={intl.formatMessage({ id: "updatedAt" })}>
+        <Descriptions.Item
+          label={<b className="text-[#3bab7b]">{intl.formatMessage({ id: 'updatedAt' })}</b>}
+        >
           {displayValue(employee.updated_at)}
         </Descriptions.Item>
       </Descriptions>
@@ -329,20 +334,18 @@ function EmployeesDetails() {
             setAddLoading(true);
             const values = await addForm.validateFields();
             const formData = new FormData();
-            const lang = intl.locale.startsWith("ar") ? "ar" : "en";
+            const lang = intl.locale.startsWith('ar') ? 'ar' : 'en';
 
             Object.keys(values).forEach((k) => formData.append(k, values[k]));
-            const res = await axios.post("/back/employer/employees", formData, {
-              headers: { "Accept-Language": lang },
+            const res = await axios.post('/back/employer/employees', formData, {
+              headers: { 'Accept-Language': lang },
             });
             message.success(res.data?.message);
             setIsAddOpen(false);
-            navigate("/employer/employees");
+            navigate('/employer/employees');
             fetchEmployee();
           } catch (err: any) {
-            message.error(
-              err.message || intl.formatMessage({ id: "addEmployeeFailed" }),
-            );
+            message.error(err.message || intl.formatMessage({ id: 'addEmployeeFailed' }));
           } finally {
             setAddLoading(false);
           }
@@ -355,21 +358,21 @@ function EmployeesDetails() {
         <Form layout="vertical" form={addForm}>
           <Form.Item
             name="name"
-            label={intl.formatMessage({ id: "name" })}
+            label={intl.formatMessage({ id: 'name' })}
             rules={[{ required: true }]}
           >
-            <Input placeholder={intl.formatMessage({ id: "name" })} />
+            <Input placeholder={intl.formatMessage({ id: 'name' })} />
           </Form.Item>
           <Form.Item
             name="email"
-            label={intl.formatMessage({ id: "email" })}
+            label={intl.formatMessage({ id: 'email' })}
             rules={[{ required: true }]}
           >
-            <Input placeholder={intl.formatMessage({ id: "email" })} />
+            <Input placeholder={intl.formatMessage({ id: 'email' })} />
           </Form.Item>
           <Form.Item
             name="phone"
-            label={intl.formatMessage({ id: "phone" })}
+            label={intl.formatMessage({ id: 'phone' })}
             rules={[
               { required: true },
               {
@@ -379,42 +382,40 @@ function EmployeesDetails() {
                   if (saudiPhoneRegex.test(value)) {
                     return Promise.resolve();
                   }
-                  return Promise.reject(
-                    new Error(intl.formatMessage({ id: "invalidPhone" })),
-                  );
+                  return Promise.reject(new Error(intl.formatMessage({ id: 'invalidPhone' })));
                 },
               },
             ]}
           >
-            <Input placeholder={intl.formatMessage({ id: "phone" })} />
+            <Input placeholder={intl.formatMessage({ id: 'phone' })} />
           </Form.Item>
           <Form.Item
             name="branch_id"
-            label={intl.formatMessage({ id: "branch" })}
+            label={intl.formatMessage({ id: 'branch' })}
             rules={[{ required: true }]}
           >
             <Select
-              placeholder={intl.formatMessage({ id: "branch" })}
+              placeholder={intl.formatMessage({ id: 'branch' })}
               options={branches.map((b) => ({ value: b.id, label: b.name }))}
             />
           </Form.Item>
           <Form.Item
             name="position_id"
-            label={intl.formatMessage({ id: "position" })}
+            label={intl.formatMessage({ id: 'position' })}
             rules={[{ required: true }]}
           >
             <Select
-              placeholder={intl.formatMessage({ id: "position" })}
+              placeholder={intl.formatMessage({ id: 'position' })}
               options={positions.map((p) => ({ value: p.id, label: p.name }))}
             />
           </Form.Item>
           <Form.Item
             name="shift_type"
-            label={intl.formatMessage({ id: "shiftType" })}
+            label={intl.formatMessage({ id: 'shiftType' })}
             rules={[{ required: true }]}
           >
             <Select
-              placeholder={intl.formatMessage({ id: "shiftType" })}
+              placeholder={intl.formatMessage({ id: 'shiftType' })}
               options={shiftTypes.map((s) => ({
                 value: s.value!,
                 label: s.name,
@@ -433,22 +434,16 @@ function EmployeesDetails() {
           try {
             setEditLoading(true);
             const values = await editForm.validateFields();
-            const lang = intl.locale.startsWith("ar") ? "ar" : "en";
+            const lang = intl.locale.startsWith('ar') ? 'ar' : 'en';
 
-            const res = await axios.put(
-              `/back/employer/employees/${id}`,
-              values,
-              {
-                headers: { "Accept-Language": lang },
-              },
-            );
+            const res = await axios.put(`/back/employer/employees/${id}`, values, {
+              headers: { 'Accept-Language': lang },
+            });
             message.success(res.data?.message);
             setIsEditOpen(false);
             fetchEmployee();
           } catch (err: any) {
-            message.error(
-              err.message || intl.formatMessage({ id: "editEmployeeFailed" }),
-            );
+            message.error(err.message || intl.formatMessage({ id: 'editEmployeeFailed' }));
           } finally {
             setEditLoading(false);
           }
@@ -461,21 +456,21 @@ function EmployeesDetails() {
         <Form layout="vertical" form={editForm}>
           <Form.Item
             name="name"
-            label={intl.formatMessage({ id: "name" })}
+            label={intl.formatMessage({ id: 'name' })}
             rules={[{ required: true }]}
           >
-            <Input placeholder={intl.formatMessage({ id: "name" })} />
+            <Input placeholder={intl.formatMessage({ id: 'name' })} />
           </Form.Item>
           <Form.Item
             name="email"
-            label={intl.formatMessage({ id: "email" })}
+            label={intl.formatMessage({ id: 'email' })}
             rules={[{ required: true }]}
           >
-            <Input placeholder={intl.formatMessage({ id: "email" })} />
+            <Input placeholder={intl.formatMessage({ id: 'email' })} />
           </Form.Item>
           <Form.Item
             name="phone"
-            label={intl.formatMessage({ id: "phone" })}
+            label={intl.formatMessage({ id: 'phone' })}
             rules={[
               { required: true },
               {
@@ -485,42 +480,40 @@ function EmployeesDetails() {
                   if (saudiPhoneRegex.test(value)) {
                     return Promise.resolve();
                   }
-                  return Promise.reject(
-                    new Error(intl.formatMessage({ id: "invalidPhone" })),
-                  );
+                  return Promise.reject(new Error(intl.formatMessage({ id: 'invalidPhone' })));
                 },
               },
             ]}
           >
-            <Input placeholder={intl.formatMessage({ id: "phone" })} />
+            <Input placeholder={intl.formatMessage({ id: 'phone' })} />
           </Form.Item>
           <Form.Item
             name="branch_id"
-            label={intl.formatMessage({ id: "branch" })}
+            label={intl.formatMessage({ id: 'branch' })}
             rules={[{ required: true }]}
           >
             <Select
-              placeholder={intl.formatMessage({ id: "branch" })}
+              placeholder={intl.formatMessage({ id: 'branch' })}
               options={branches.map((b) => ({ value: b.id, label: b.name }))}
             />
           </Form.Item>
           <Form.Item
             name="position_id"
-            label={intl.formatMessage({ id: "position" })}
+            label={intl.formatMessage({ id: 'position' })}
             rules={[{ required: true }]}
           >
             <Select
-              placeholder={intl.formatMessage({ id: "position" })}
+              placeholder={intl.formatMessage({ id: 'position' })}
               options={positions.map((p) => ({ value: p.id, label: p.name }))}
             />
           </Form.Item>
           <Form.Item
             name="shift_type"
-            label={intl.formatMessage({ id: "shiftType" })}
+            label={intl.formatMessage({ id: 'shiftType' })}
             rules={[{ required: true }]}
           >
             <Select
-              placeholder={intl.formatMessage({ id: "shiftType" })}
+              placeholder={intl.formatMessage({ id: 'shiftType' })}
               options={shiftTypes.map((s) => ({
                 value: s.value!,
                 label: s.name,
@@ -537,16 +530,16 @@ function EmployeesDetails() {
         onCancel={() => setIsDeleteOpen(false)}
         onOk={async () => {
           setDeleteLoading(true);
-          const lang = intl.locale.startsWith("ar") ? "ar" : "en";
+          const lang = intl.locale.startsWith('ar') ? 'ar' : 'en';
 
           const res = await axios.delete(`/back/employer/employees/${id}`, {
-            headers: { "Accept-Language": lang },
+            headers: { 'Accept-Language': lang },
           });
           message.success(res.data?.message);
           setIsDeleteOpen(false);
           //   fetchEmployee();
           setDeleteLoading(false);
-          navigate("/employer/employees");
+          navigate('/employer/employees');
         }}
       >
         <h3 className="text-[#3bab7b] text-lg mb-2">
@@ -571,119 +564,113 @@ function EmployeesDetails() {
                 navigator.clipboard.writeText(inviteData.invite_code);
                 message.success(
                   intl.formatMessage({
-                    id: "inviteCodeCopied",
-                    defaultMessage: "Invite code copied!",
+                    id: 'inviteCodeCopied',
+                    defaultMessage: 'Invite code copied!',
                   }),
                 );
               }
             }}
           >
-            <FormattedMessage
-              id="copyInviteCode"
-              defaultMessage="Copy Invite Code"
-            />
+            <FormattedMessage id="copyInviteCode" defaultMessage="Copy Invite Code" />
           </Button>,
         ]}
       >
         <h3 className="text-[#3bab7b] text-xl mb-4">
-          <FormattedMessage
-            id="inviteEmployee"
-            defaultMessage="Invite Employee"
-          />
+          <FormattedMessage id="inviteEmployee" defaultMessage="Invite Employee" />
         </h3>
 
         {inviteData ? (
           <Descriptions bordered column={1} size="small">
             <Descriptions.Item
               label={intl.formatMessage({
-                id: "employeeId",
-                defaultMessage: "employeeId",
+                id: 'employeeId',
+                defaultMessage: 'employeeId',
               })}
             >
               {inviteData.id}
             </Descriptions.Item>
             <Descriptions.Item
               label={intl.formatMessage({
-                id: "employeeName",
-                defaultMessage: "Employee Name",
+                id: 'employeeName',
+                defaultMessage: 'Employee Name',
               })}
             >
               {inviteData.employee?.name}
             </Descriptions.Item>
             <Descriptions.Item
               label={intl.formatMessage({
-                id: "qrCode",
-                defaultMessage: "QR Code",
+                id: 'qrCode',
+                defaultMessage: 'QR Code',
               })}
             >
               {inviteData.employee?.qr_code}
             </Descriptions.Item>
             <Descriptions.Item
               label={intl.formatMessage({
-                id: "inviteCode",
-                defaultMessage: "Invite Code",
+                id: 'inviteCode',
+                defaultMessage: 'Invite Code',
               })}
             >
               {inviteData.invite_code}
             </Descriptions.Item>
             <Descriptions.Item
               label={intl.formatMessage({
-                id: "expiresAt",
-                defaultMessage: "Expires At",
+                id: 'expiresAt',
+                defaultMessage: 'Expires At',
               })}
             >
               {inviteData.expires_at}
             </Descriptions.Item>
             <Descriptions.Item
               label={intl.formatMessage({
-                id: "isUsed",
-                defaultMessage: "Is Used",
+                id: 'isUsed',
+                defaultMessage: 'Is Used',
               })}
             >
               <FormattedMessage
-                id={inviteData.is_used ? "yes" : "no"}
-                defaultMessage={inviteData.is_used ? "Yes" : "No"}
+                id={inviteData.is_used ? 'yes' : 'no'}
+                defaultMessage={inviteData.is_used ? 'Yes' : 'No'}
               />
             </Descriptions.Item>
             <Descriptions.Item
               label={intl.formatMessage({
-                id: "isExpired",
-                defaultMessage: "Is Expired",
+                id: 'isExpired',
+                defaultMessage: 'Is Expired',
               })}
             >
               <FormattedMessage
-                id={inviteData.is_expired ? "yes" : "no"}
-                defaultMessage={inviteData.is_expired ? "Yes" : "No"}
+                id={inviteData.is_expired ? 'yes' : 'no'}
+                defaultMessage={inviteData.is_expired ? 'Yes' : 'No'}
               />
             </Descriptions.Item>
             <Descriptions.Item
               label={intl.formatMessage({
-                id: "isActive",
-                defaultMessage: "Is Active",
+                id: 'isActive',
+                defaultMessage: 'Is Active',
               })}
             >
               <FormattedMessage
-                id={inviteData.is_active ? "yes" : "no"}
-                defaultMessage={inviteData.is_active ? "Yes" : "No"}
-              />
-            </Descriptions.Item>
-
-            <Descriptions.Item
-              label={intl.formatMessage({
-                id: "isValid",
-                defaultMessage: "is_valid",
-              })}
-            >
-              <FormattedMessage
-                id={inviteData.is_valid ? "yes" : "no"}
-                defaultMessage={inviteData.is_valid ? "Yes" : "No"}
+                id={inviteData.is_active ? 'yes' : 'no'}
+                defaultMessage={inviteData.is_active ? 'Yes' : 'No'}
               />
             </Descriptions.Item>
 
             <Descriptions.Item
               label={intl.formatMessage({
-                id: "createdAt",
-                defaultMessage: "created_at",
+                id: 'isValid',
+                defaultMessage: 'is_valid',
+              })}
+            >
+              <FormattedMessage
+                id={inviteData.is_valid ? 'yes' : 'no'}
+                defaultMessage={inviteData.is_valid ? 'Yes' : 'No'}
+              />
+            </Descriptions.Item>
+
+            <Descriptions.Item
+              label={intl.formatMessage({
+                id: 'createdAt',
+                defaultMessage: 'created_at',
               })}
             >
               {inviteData.created_at}

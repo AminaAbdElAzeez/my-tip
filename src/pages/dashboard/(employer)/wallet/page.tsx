@@ -205,7 +205,7 @@ function Wallet() {
       <div className="flex justify-end mb-4">
         <Button
           type="primary"
-          className="w-36 h-10  text-lg flex justify-center items-center gap-2"
+          className="w-36 h-10  text-base flex justify-center items-center gap-2"
           onClick={() => setWithdrawOpen(true)}
         >
           <FaPlus className="text-base" />
@@ -231,7 +231,7 @@ function Wallet() {
             label={intl.formatMessage({ id: "withdrawAmount" })}
             rules={[{ required: true }]}
           >
-            <Input type="number" />
+            <Input type="number" placeholder={intl.formatMessage({ id: "withdrawAmount" })} />
           </Form.Item>
 
           <Form.Item
